@@ -16,9 +16,9 @@ E2E 테스트 하네스(AX 탐색)는 `.accessibilityIdentifier()` 문자열로 
     # 특정 파일 검사
     python3 scripts/check_accessibility_identifiers.py <file1> [file2] ...
 
-    # 전체 iOS View 계층 검사
+    # 전체 iOS View 계층 검사 (프로젝트별 실제 경로로 교체)
     python3 scripts/check_accessibility_identifiers.py --recursive \
-        sunnyway/apps/student_app_ios/SunnyWay
+        apps/ios/
 
     # 조용히 (CI/hook 용)
     python3 scripts/check_accessibility_identifiers.py --quiet <files>

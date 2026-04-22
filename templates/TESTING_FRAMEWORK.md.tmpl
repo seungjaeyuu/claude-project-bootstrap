@@ -2,7 +2,7 @@
 
 > E2E 테스트 하네스 프레임워크 + 베이스라인 규약.
 > **본 템플릿은 §20 베이스라인 규약** 을 중심으로 최소한만 담는다.
-> 멀티 에이전트 테스트(Codex 4-Lane, Orchestrator 등) 상세 사례는 **SunnyWay 프로젝트의 TESTING_FRAMEWORK.md §1~§19** 를 참고해 프로젝트에 맞게 확장.
+> 멀티 에이전트 테스트(Codex 4-Lane, Orchestrator 등) 상세 사례는 프로젝트 고유 맥락에 맞게 확장하세요. 본 템플릿은 **공통 규약만** 담습니다.
 
 ---
 
@@ -46,7 +46,7 @@
 - `pgrep -f <charter 경로>` 로 중복 프로세스 pre-check
 - Terminal cleanup trap (EXIT INT TERM)
 
-상세 사례: SunnyWay TESTING_FRAMEWORK.md §6.10.1 (2026-04-14 Lane B 사고).
+상세 사례는 프로젝트 TESTING_FRAMEWORK.md 의 사고 이력 섹션 참조.
 
 ---
 
@@ -163,7 +163,4 @@ python3 scripts/baseline_update_suggest.py --app <name> --since 14days
 
 ## 추가 참조
 
-SunnyWay 프로젝트의 실전 사례가 필요하면:
-- `TESTING_FRAMEWORK.md` §1~§19 (테스트 분류, 시드 무결성, BLOCKED 패턴 라이브러리, Tier 2 AI-Native 자동화 등)
-- `docs/superpowers/specs/` (설계 문서)
-- `docs/_archive/` (사고 리포트, 과거 세션 기록)
+실전 사례가 필요하면 각 프로젝트의 `TESTING_FRAMEWORK.md` 에 **프로젝트 고유 사고 이력** 섹션을 추가해 문서화하세요. 공개 플러그인 수준에서는 공통 규약만 유지합니다.
