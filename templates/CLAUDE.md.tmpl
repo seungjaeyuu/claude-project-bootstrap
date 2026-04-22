@@ -1,0 +1,291 @@
+# CLAUDE.md 기준 템플릿
+
+> 새 프로젝트의 `CLAUDE.md` 작성 시 이 파일을 참조.
+> 위치: `/Users/yuseungjae/Documents/GitHub/CLAUDE_TEMPLATE.md`
+> 적용: `~/.claude/CLAUDE.md` 에 사용자 공통 섹션을 복사하여 모든 프로젝트에 기본 적용.
+>
+> **설계 원칙 (2026-04-21 개정)**: **네거티브 우선**. 고성능 LLM(Opus 4.7+) 이 자력으로 도달 가능한 일반 모범 사례는 템플릿에서 제외. 프로젝트에 **특별히 해당되는 것**만 명시. 금지·스키마·참조·권장을 이모지로 층위 표시.
+
+---
+
+## 규칙 층위 범례
+
+| 이모지 | 층위 | 의미 |
+|---|---|---|
+| 🚫 | **Guardrail** | 절대 금지. 롤백 불가한 피해 또는 재발된 P0 사고 근거. |
+| 📐 | **Schema / 계약** | 스키마·용어·명명 규격. 일관성 확보. |
+| 📎 | **참조 / 정보** | 경로·환경·도구 메타. 지침 아님. |
+| 💡 | **권장** | 모범 사례. 맥락상 override 가능. 근거 제시 필요. |
+
+**기본 방침**: Guardrail + Schema 위주. 권장(💡) 은 최소화. 일반 베스트 프랙티스는 모델의 자력 판단에 맡긴다.
+
+---
+
+## 사용 방법
+
+1. 새 프로젝트 시작 시 해당 섹션을 복사해 프로젝트 루트 `CLAUDE.md` 생성
+2. `[프로젝트명]`, `[프레임워크]` 등 플레이스홀더 교체
+3. **프로젝트에 해당하지 않는 섹션은 삭제** — 불필요한 규칙은 남기지 말 것
+4. 모노레포: 앱별 규칙은 하위 디렉토리 `CLAUDE.md` 에 분리
+
+### 초기 설정 체크리스트 (CLAUDE.md 생성 시 동시 수행)
+
+문서 규칙은 잊혀지기 쉬움 → **hook + 스크립트로 자동 강제**되는 계층을 초기에 구축.
+
+- [ ] `scripts/` 디렉토리 + 검증 스크립트
+  - [ ] `scripts/check_dict_duplicates.py` (§2)
+  - [ ] `scripts/check_accessibility_identifiers.py` (UI 앱 한정, §2)
+  - [ ] `scripts/pre-commit-dict-check.sh` 통합 hook
+- [ ] `/ACCESSIBILITY_IDENTIFIERS.md` 루트 배치 (UI 앱 한정) — SunnyWay 의 동명 파일 참조
+- [ ] Git pre-commit hook: `ln -sf ../../scripts/pre-commit-dict-check.sh .git/hooks/pre-commit`
+- [ ] Claude Code PostToolUse hook (`.claude/settings.json`) — UI 파일 Edit/Write 시 검증 실행
+- [ ] `.gitignore` 에 `.claude/*` + `!.claude/settings.json` 예외 추가
+- [ ] CI 에 검증 스텝 추가 (hook 미설치 환경 대비 이중 방어)
+
+---
+
+## 1. 프로젝트 개요
+
+```
+[프로젝트명] — [한 줄 설명]
+
+[디렉토리 트리]
+```
+
+---
+
+## 2. 공통 규칙
+
+### 🚫 Git 안전
+- **절대 금지**: `git reset --hard`, `git reset origin/main`, `git checkout -- .` (전체), `git clean -fd`
+- 브랜치 동기화는 `git pull --rebase` (reset 금지)
+- 메인 반영 여부는 **반드시 사용자 질의 후** 처리, 반영 시 원격 push 필수
+- 작업 범위 외 파일 변경 금지
+- 한 커밋에 하나의 목적에 해당하는 파일만
+
+### 📐 사용자 의견 피드백 의무 (LLM 기본 성향 반대 유도)
+- **단순 동의 금지.** 동의 전 기존 설계·코드·데이터 흐름부터 확인.
+- 사용자 판단이 기능 누락·역할 분리 오류·데이터 정합성 문제를 유발할 조짐이면 **즉시 근거와 함께 경고**.
+- 분석 기반 반대 의견은 의무이지 월권이 아님.
+
+### 📐 개발 완료 보고
+- ✅ 완료 / ⏳ 미구현 / 📋 추가 필요 3상태 구분. 미완성을 완성으로 포장 금지.
+
+### 🚫 파일 대폭 수정 시 grep 기반 검증
+- 핵심 키워드 등장 횟수 수정 전 기록 → 수정 후 재확인 → 라인 수 비교
+- **파일 동일성 판단 시 `diff` 의 `<`/`>` 방향만 보지 말고 `grep -c <기능_키워드>` 또는 `shasum` 으로 교차 검증**
+
+### 🚫 대규모 리팩토링 시 필드/기능 누락 금지
+state 변수·폼 필드·API 호출·업로드 목록 추출 → 인터페이스 대조 → 리팩토링 후 grep 재확인 → 결과 명시. 앱 간 공유 필드 특히 주의.
+
+### 🚫 Dictionary literal 중복 키 (Swift/Kotlin/TypeScript)
+
+컴파일러가 잡지 못하는 **런타임 fatal error**. 매핑·번역·설정 딕셔너리에서 반복 발생.
+
+- Swift: `Swift/Dictionary.swift:840: Fatal error: Dictionary literal contains duplicate keys`
+- 수정 후: `python3 scripts/check_dict_duplicates.py <파일>` 필수
+- pre-commit hook + CI 에서 강제
+
+### 📐 Accessibility Identifier (UI 앱 한정)
+
+엄격 스키마: `{feature}_{screen_context}_{element_role}_{type}` (snake_case + ASCII).
+
+| 플랫폼 | 메커니즘 |
+|---|---|
+| iOS SwiftUI | `.accessibilityIdentifier("...")` |
+| Android Compose | `Modifier.testTag("...")` |
+| Web (Next.js 등) | `data-testid="..."` |
+| Flutter | `key: ValueKey('...')` |
+
+**적용 대상**: 모든 인터랙티브 요소 + 검증 대상 Text/Image (에러·배지·카운트·상태·타이틀·메시지).
+
+**자동 강제 3중**: Claude Code PostToolUse hook / Git pre-commit / 수동 전체 스캔.
+
+**상세**: 프로젝트 루트 `/ACCESSIBILITY_IDENTIFIERS.md` (플랫폼별 §13~§15 포함) — SunnyWay 원본 참조.
+
+### 🚫 NavigationLink 내부 Button AX 병합 (iOS SwiftUI)
+`NavigationLink { label: { ... Button ... } }` 구조에서 내부 Button 의 identifier 가 AX 트리에서 소실되는 버그 존재. `.accessibilityElement(children: .ignore)` 단독은 **부족** ("자식 무시" 지 "부모 탈출" 이 아님).
+
+**해결 패턴 (둘 중 하나)**:
+1. ZStack 분리 패턴 — `NavigationLink { EmptyView() }.opacity(0)` + RowContent sibling layer
+2. `.highPriorityGesture(TapGesture().onEnded { ... })` — NavigationLink tap 우선순위 역전
+
+---
+
+## 3. 빌드
+
+```bash
+# Next.js
+npm run build
+
+# Flutter (빌드 번호 자동 증가 필수 프로젝트)
+./scripts/increment_build_number.sh && flutter build
+
+# SwiftUI
+./scripts/increment_build_number.sh && xcodebuild -scheme [스킴명] build
+
+# Kotlin + Compose
+./gradlew assembleDebug
+```
+
+---
+
+## 4. 용어 규칙
+
+### 📐 스키마명 병기
+스키마명(컬렉션/컬럼) 단독 설명 금지 — 일반 표현 병기.
+- ❌ `studentSchedule 이 courseEnrollment.id 와 매칭 안 됨`
+- ✅ `학생 시간표(studentSchedule)의 수강등록 ID 가 수강등록(courseEnrollment) 문서 ID 와 매칭 안 됨`
+
+### 📐 프로젝트 특화 용어
+예: `"보호자"` 사용, `"가족"/"학부모"` 금지 (SunnyWay 사례). 프로젝트별 정의.
+
+---
+
+## 5. 문서 규칙
+
+### 📐 MD 파일 명명
+- 경로: `docs/`
+- 파일명: **`YYYYMMDD_` 접두어**
+
+### 📐 개발예정사항 (선택)
+- 인덱스: `/개발예정사항.md` (항목당 1줄)
+- 상세: `/개발예정사항_상세/DEV-XXX.md`
+- 상태 변경 시 **인덱스·상세 양쪽 동시 업데이트**
+
+### 📎 개발계획 기록
+- Notion 또는 내부 위키 (CLAUDE.md 에는 기록 안 함)
+
+---
+
+## 6. 데이터 정합성 (백엔드 연동 앱 한정)
+
+### 📐 자동 생성/등록 기능
+- 중복 검증 필수
+- 기본값의 부작용 분석
+- 관련 엔티티 상태 검증
+- 모호한 필드 설계 금지 (기본값·충돌 처리 명확화)
+
+### 🚫 Firestore catch 블록 silent fail (iOS 기반 Firebase 앱 한정)
+- `try await` catch 에 `print(...)` 금지. **`Logger.error(subsystem/category)`** 필수
+- `whereField + order + limit` → composite index 선언 필수
+- "빈 결과" vs "쿼리 실패" 로그 구분
+- offline queue 주의: `updateData/setData/delete` 는 offline 시 throw 안 함 → optimistic UI 시 `NetworkMonitor` 사전 가드 필수
+
+### 🚫 시드 무결성 (E2E 테스트 한정)
+시드는 **앱 UI 흐름이 실제로 만들 수 있는 상태만** 생성. 참조 ID 는 부모 문서와 함께 생성. 네임스페이스 혼용 금지.
+
+---
+
+## 7. CLAUDE.md 분산 구조 (모노레포 전용)
+
+| 위치 | 내용 |
+|---|---|
+| 루트 | 공통 규칙 |
+| 앱 디렉토리 | 프레임워크별·고유 규칙 |
+| `.claude/rules/*.md` | 공유 규칙 (예: iOS+Android 공통) |
+| `TESTING_FRAMEWORK.md` | E2E 하네스 프레임워크 |
+| `~/.claude/CLAUDE.md` | 사용자 공통 규칙 (자동 적용) |
+
+Claude Code 는 하위 `CLAUDE.md` 를 on-demand 로드.
+
+---
+
+## 8. E2E 테스트 요약 (대규모 앱 한정)
+
+> **상세 프레임워크 구현체**: SunnyWay `TESTING_FRAMEWORK.md` 원본 참조. 본 템플릿은 **핵심 규칙만** 나열.
+
+### 8.1 핵심 원칙
+
+| 원칙 | 층위 |
+|---|---|
+| **코드 수정은 Claude 만** — Codex 는 테스트 실행·판정·리포트만 | 🚫 |
+| **시뮬레이터 격리** — 각 Lane 은 자기 UDID 만. `booted`/`all` 금지 | 🚫 |
+| **Cross-lane destructive op 절대 금지** (§8.2 P0) | 🚫 |
+| 누락 방지 — `validate_suite_coverage.py` 차집합 = 0 | 📐 |
+| 시드 UI 흐름 무결성 | 📐 |
+| BLOCKED 패턴 라이브러리 축적 | 📐 |
+
+### 8.2 🚫 Cross-Lane Destructive Op (P0 — 2026-04-14 Lane B 사고)
+
+각 Lane Codex 는 **자기 UDID/프로세스 트리 바깥 어떤 리소스도 파괴적 조작 금지**. charter 명시 여부 무관하게 적용.
+
+**절대 금지**:
+1. `pkill -f` cross-lane, `killall codex/Simulator`, 다른 워커 MCP child kill
+2. cross-UDID `xcrun simctl shutdown/erase/boot/install/launch/terminate`
+3. 자기 BLOCKED 리포트 "운영 권고" 자율 집행
+4. Ambiguous cleanup 시 BLOCKED + abort (정리 금지)
+
+**사용자 지시 해석**:
+- "정리하라" → "정리가 필요하다고 **보고**하라"
+- "Lane X 재개" → "자기 Lane 만 재개"
+- **"다른 테스트에 영향 없이"** → 어떤 `pkill`/`shutdown` 도 금지
+
+**사고 배경**: 2026-04-14 Lane B Codex 가 자기 "운영 권고" 를 자율 집행하여 Lane A/C/D 시뮬 + 워커 외부 살해, 303건 중 262건 손실.
+
+### 8.3 🚫 Orchestrator 설계 필수 (재발 방지)
+
+- **charter 는 argv 가 아닌 파일 경로 전달**. `codex "$(cat charter.md)"` 금지 — `ps aux` 노출 → `pkill -f '문구'` 취약
+- wrapper + preflight 이중으로 중복 process guard (`pgrep -f "$CHARTER_PATH"`)
+- Terminal cleanup trap (EXIT INT TERM) — Codex TUI 비정상 종료 시 escape sequence 잔존 차단
+- 현실적 timeout: 4-Lane E2E 완주 6~12시간, 1시간은 의미 없음
+- MCP 자식 프로세스 leak 정기 감지 (`npm exec firebase-tools mcp`, `@playwright/mcp` orphan)
+
+### 8.4 📐 테스트 계정 / 시뮬 격리
+
+- 계정 명명: `{lane}_{role}_{seq}_{YYYYMMDD}@test.com`
+- Lane 간 계정 공유 금지, 탈퇴 테스트용 전용 계정
+- charter 에 격리 블록 inline:
+  ```
+  ⚠️ 시뮬레이터 격리: 이 Lane UDID = {UDID}
+  모든 xcrun simctl 에 반드시 UDID 명시. booted/all 금지.
+  다른 UDID 제어 시 Lane 간 간섭 사고 발생.
+  ```
+
+### 8.5 📐 AX 드라이버 UDID 격리 (macOS Simulator)
+
+병렬 Lane 환경에서 필수 패턴:
+- UDID → Simulator window lookup (`simulatorWindowForUDID`)
+- 상대좌표 → 절대좌표 호출 시점 재계산 (`click-in-window <UDID> <rx> <ry>`)
+- 🚫 전역 AX 탐색 금지 (`search-app` → `search-window <UDID>`)
+- `type-text` 는 포커스 의존 → 가능하면 `set-value-direct` (AX attribute set)
+
+### 8.6 💡 Codex Orchestration 패턴 (실기기·수동 테스트)
+
+자동화 불가 테스트는 Codex 를 **실행 주체가 아닌 orchestrator** 로 사용:
+```
+[Codex 선언] → [사용자 수동 실행] → [사용자 피드백] → [Codex 기록] → [다음 항목]
+```
+Codex 는 직접 개입 금지, 코드 수정 금지, 사용자 피드백 없이 PASS/FAIL 임의 결정 금지.
+
+### 8.7 📎 BLOCKED 패턴 축적
+
+BLOCKED 원인과 해결법을 프레임워크 라이브러리에 누적. 상세: SunnyWay `TESTING_FRAMEWORK.md §13`.
+
+### 8.8 🚫 Bash 스크립트 pipefail + pgrep 주의
+`set -eo pipefail` 환경에서 `$(pgrep -f "..." | wc -l)` 는 no-match 시 조용히 스크립트 종료. 해결:
+```bash
+OTHERS=$( (pgrep -f "..." || true) | wc -l | tr -d ' ')
+```
+
+---
+
+## 9. 외부 API 키 (로컬 전용)
+
+### 🚫 API 키 평문 CLAUDE.md 노출 금지
+모든 개인 API 키는 `.claude/secrets/<서비스>.md` 아래 관리. `.gitignore` 규칙(`.claude/*`) 으로 자동 보호.
+
+CLAUDE.md 에는 **경로만** 참조:
+```markdown
+| 서비스 | 경로 |
+|---|---|
+| Notion API | [.claude/secrets/notion.md](.claude/secrets/notion.md) |
+```
+
+---
+
+## 변경 이력
+
+| 날짜 | 변경 |
+|---|---|
+| 2026-04-21 | **네거티브 우선** 설계로 개편 — 4층 범례 (🚫/📐/📎/💡) 도입, E2E 섹션을 SunnyWay TESTING_FRAMEWORK.md 참조로 축약, API 키는 `.claude/secrets/` 로 분리. 642줄 → ~260줄. |

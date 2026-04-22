@@ -1,0 +1,73 @@
+# <PROJECT_NAME> INDEX
+
+> **용도**: 프로젝트 전체 구조 지도. 신규 세션·협업자가 이 파일 한 개만 읽어도 어디에 무엇이 있는지 파악 가능.
+> **규칙 파일은 CLAUDE.md**, **지도는 이 INDEX.md** — 역할 분리.
+
+---
+
+## 여기부터 읽어라
+
+| 순서 | 파일 | 목적 |
+|---|---|---|
+| 1 | [CLAUDE.md](CLAUDE.md) | 프로젝트 공통 규칙 |
+| 2 | 본 INDEX.md | 전체 지도 |
+| 3 | [개발예정사항.md](개발예정사항.md) | 개발 백로그 인덱스 (선택) |
+
+---
+
+## 핵심 운영 문서 (루트)
+
+| 문서 | 한 줄 설명 |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | 프로젝트 규칙 (모든 세션 자동 로드) |
+| [TESTING_FRAMEWORK.md](TESTING_FRAMEWORK.md) | E2E 테스트 하네스 프레임워크 (§20 베이스라인 규약 포함) |
+| [<APP>_MASTER_TEST_BASELINE.md](<APP>_MASTER_TEST_BASELINE.md) | 각 앱 베이스라인 |
+| [개발예정사항.md](개발예정사항.md) | 개발 백로그 인덱스 (선택) |
+
+---
+
+## 앱·패키지 구조
+
+```
+apps/
+├── <app1>/          # 설명
+├── <app2>/          # 설명
+packages/
+└── <shared>/        # 공유 패키지 (있는 경우)
+infra/               # 백엔드 인프라 (있는 경우)
+```
+
+| 앱 | 스택 | 대상 | CLAUDE.md |
+|---|---|---|---|
+| <app1> | Next.js / SwiftUI / Kotlin Compose / Flutter / ... | ... | [있음](apps/<app1>/CLAUDE.md) |
+
+---
+
+## 스크립트 · 자동화
+
+| 경로 | 용도 |
+|---|---|
+| `scripts/baseline.yml` | 멀티플랫폼 베이스라인 설정 ([§20.1](TESTING_FRAMEWORK.md)) |
+| `scripts/baseline_status.py` | 상태 조회 ([§20.8](TESTING_FRAMEWORK.md)) |
+| `scripts/baseline_update_suggest.py` | Git diff 기반 갱신 제안 ([§20.7](TESTING_FRAMEWORK.md)) |
+| `scripts/pre-commit-framework.sh` | Git pre-commit hook |
+| `.claude/settings.json` | Claude Code hook + permission |
+| `.claude/commands/` | Slash command (`/baseline-review` 등) |
+| `.secret/` | API 키·비밀 (gitignore) |
+
+---
+
+## 외부 기록
+
+| 시스템 | 용도 |
+|---|---|
+| Notion / 내부 위키 | 개발계획 기록 |
+| GitHub Issues / PR | 이슈 추적, 코드 리뷰 |
+
+---
+
+## 변경 이력
+
+| 날짜 | 내용 |
+|---|---|
+| YYYY-MM-DD | 초판 — PROJECT_FRAMEWORK 기반 초기화 |

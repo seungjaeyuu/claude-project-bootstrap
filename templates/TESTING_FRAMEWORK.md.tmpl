@@ -1,0 +1,169 @@
+# TESTING_FRAMEWORK — <PROJECT_NAME>
+
+> E2E 테스트 하네스 프레임워크 + 베이스라인 규약.
+> **본 템플릿은 §20 베이스라인 규약** 을 중심으로 최소한만 담는다.
+> 멀티 에이전트 테스트(Codex 4-Lane, Orchestrator 등) 상세 사례는 **SunnyWay 프로젝트의 TESTING_FRAMEWORK.md §1~§19** 를 참고해 프로젝트에 맞게 확장.
+
+---
+
+## 개요
+
+| 용어 | 의미 |
+|---|---|
+| **베이스라인** | 모든 테스트 ID 와 기준 항목의 단일 기준 문서 (`{APP}_MASTER_TEST_BASELINE.md`) |
+| **status.json** | Codex·테스터가 기록하는 실제 판정 결과 (canonical) |
+| **suite** | 베이스라인의 부분집합 (Lane 배분용) |
+| **charter** | Codex 워커에게 전달되는 지시서 |
+
+---
+
+## 1. 역할 분리 (필수 원칙)
+
+| 역할 | 허용 | 금지 |
+|---|---|---|
+| **Claude (메인)** | 코드 수정, 빌드, 커밋, 지휘 | — |
+| **Codex / 자동화 워커** | 테스트 실행, 판정, 리포트 | 코드 수정·편집·커밋 절대 금지 |
+
+---
+
+## 2. 🚫 Cross-Lane Destructive Op (P0)
+
+병렬 테스트 환경에서 각 워커는 **자기 UDID/프로세스 트리 바깥 어떤 리소스도 파괴적 조작 금지**.
+
+절대 금지:
+- `pkill -f` cross-lane, `killall <worker>`, 다른 워커 MCP child kill
+- cross-UDID `xcrun simctl shutdown/erase/boot/install/launch/terminate`
+- 자기 BLOCKED 리포트의 "운영 권고" 자율 집행
+- Ambiguous cleanup 시 BLOCKED + abort (정리 금지)
+
+**사용자 지시 해석 규칙**:
+- "정리하라" → "정리가 필요하다고 **보고**하라"
+- "Lane X 재개" → "자기 Lane 만 재개"
+- "다른 테스트에 영향 없이" → 어떤 `pkill`/`shutdown` 도 금지
+
+**Orchestrator 설계 필수**:
+- charter 는 argv 가 아닌 파일 경로로 전달 (`ps aux` 노출 → `pkill -f '문구'` 취약성 차단)
+- `pgrep -f <charter 경로>` 로 중복 프로세스 pre-check
+- Terminal cleanup trap (EXIT INT TERM)
+
+상세 사례: SunnyWay TESTING_FRAMEWORK.md §6.10.1 (2026-04-14 Lane B 사고).
+
+---
+
+## 20. 테스트 베이스라인 규약 (PROJECT_FRAMEWORK 핵심)
+
+### 20.1 파일 배치·명명
+
+| 규약 | 값 |
+|---|---|
+| 위치 | 저장소 루트 |
+| 파일명 | `{APP}_MASTER_TEST_BASELINE.md` |
+| 하네스 활성 선언 | `scripts/baseline.yml` 의 `apps.<name>` entry 활성화 |
+
+### 20.2 필수 메타 헤더
+
+파일 최상단에 HTML 주석으로 삽입 (렌더링 시 안 보임, Read 시에만 등장).
+예시: [BASELINE_TEMPLATE.md](BASELINE_TEMPLATE.md) 참조.
+
+### 20.4 테이블 스키마 — 3 Template
+
+**공통 첫 3 컬럼**:
+```
+| 기준 ID | 소속 | 환경 | ... |
+```
+
+| Template | 용도 | 나머지 컬럼 |
+|---|---|---|
+| **A** | 이미 실행된 ID | `기준 항목 \| 이전 프롬프트 매핑 \| 최신 요약` |
+| **B** | 미실행·소스 보강 ID | `기준 항목 \| 예상 결과 \| 소스 기준` |
+| **C** | 버그 추적용 | `이슈 \| 해결 상태 \| 근거` |
+
+### 20.5 판정 소스 규약
+
+> **Canonical 최신 판정은 `status.json`** 의 `results.<ID>.status`.
+> baseline markdown 의 텍스트 컬럼은 historical narrative 용.
+
+| 요소 | 저장 위치 |
+|---|---|
+| 판정 (PASS/FAIL/BLOCKED/SKIP) | `status.json` |
+| 요약 한 줄 | baseline "최신 요약" 컬럼 (판정 미포함) |
+| 후속 과제 | `/개발예정사항.md` 링크 |
+| 참조 plan · 커밋 | "이전 프롬프트 매핑" 컬럼 |
+
+### 20.6 ID 명명 규약
+
+```regex
+^[A-Z]{2,5}-([SMN]?\d+)(-R\d+)?$
+```
+
+3 패턴 허용:
+- `{PREFIX}-{NUM}` — 초기 (`AUTH-01`)
+- `{PREFIX}-{TYPE}{NUM}` — 타입화 (`AUTH-S03`, `S=positive`, `M=multi`, `N=negative`)
+- `{PREFIX}-{NUM}-R{REV}` — 재검증 (`AUTH-01-R02`)
+
+**신규 ID 권장**: `{PREFIX}-{TYPE}{NUM}`.
+
+### 20.7 베이스라인 동기화
+
+> **원칙**: "매 기능 수정마다 갱신" 아님. **트리거 시점 일괄 검토**.
+
+#### 트리거
+
+1. E2E 테스트 세션 시작
+2. 릴리스·베타 준비
+3. 정기 (주 1회 권장)
+
+#### 실행
+
+```bash
+python3 scripts/baseline_update_suggest.py --app <name> --since 14days
+# 또는
+/baseline-review --app <name>
+```
+
+#### 업데이트 유형
+
+| 유형 | 조치 |
+|---|---|
+| 신규 기능 | Template A 또는 B 에 행 추가 |
+| 기존 수정 | `재검증 필요` 표기 |
+| 삭제·폐기 | `deprecated` 표기 (행 삭제 금지) |
+
+#### 강제 메커니즘 (3층)
+
+| 층 | 메커니즘 | 강제력 |
+|---|---|---|
+| L1 감지 | Git pre-commit hook — UI 파일 변경 시 baseline 미갱신 경고 | 🟢 자동 |
+| L3 명시 호출 | `/baseline-review` slash command | 🟡 사용자 판단 |
+| L4 문서 규약 | 본 §20.7 | 🔴 Claude Read 시 |
+
+### 20.8 `baseline_status.py` 사용 규약
+
+| 상황 | 명령 |
+|---|---|
+| FAIL 분석 · ID 이력 | `--id <ID>` |
+| Charter 작성 · 기대 동작 주입 | `--expected <ID>` |
+| Run 준비 · 남은 scope | `--by-prefix` + `--failed` + `--blocked` |
+| Run 직후 해당 Run 결과 | `--run <tag>` |
+| 출시 coverage | `--all-apps --summary` |
+
+**💡 권고**: Claude/Codex 가 `{APP}_MASTER_TEST_BASELINE.md` 를 상태 집계 목적으로 직접 Read 하기보다 스크립트 사용 권장.
+
+### 20.9 새 플랫폼 추가 체크리스트
+
+- [ ] `{APP}_MASTER_TEST_BASELINE.md` 루트에 생성
+- [ ] 파일 최상단 §20.2 메타 헤더
+- [ ] 3 Template 중 적절한 것으로 초기 표 작성
+- [ ] `scripts/baseline.yml` entry 활성화
+- [ ] `docs/<app>/testing_harness/run/` 디렉토리 생성
+- [ ] status.json 스키마 (`results.<ID>.{status, evidence, note}`) 준수
+- [ ] `baseline_status.py --app <name> --summary` 스모크 테스트
+
+---
+
+## 추가 참조
+
+SunnyWay 프로젝트의 실전 사례가 필요하면:
+- `TESTING_FRAMEWORK.md` §1~§19 (테스트 분류, 시드 무결성, BLOCKED 패턴 라이브러리, Tier 2 AI-Native 자동화 등)
+- `docs/superpowers/specs/` (설계 문서)
+- `docs/_archive/` (사고 리포트, 과거 세션 기록)

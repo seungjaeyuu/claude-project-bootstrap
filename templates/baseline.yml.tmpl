@@ -1,0 +1,39 @@
+# 프로젝트 베이스라인 설정 (TESTING_FRAMEWORK §20.1)
+#
+# 이 파일이 존재하는 앱만 하네스 활성 상태로 간주된다.
+# apps.<name> entry 추가·활성화가 "하네스 공식 도입 시점" 선언이다.
+#
+# ⚠️ 생성 주체
+# ─────────────────────────────────────────────────────────────
+# 이 파일은 사용자가 수동 작성하지 않는다.
+# `/init-project` slash command 가 **프로젝트 유형 질의 후** 맞춤으로
+# 동적 생성한다 (TESTING_FRAMEWORK §20.9 E 원칙).
+#
+# 예시 타입별 생성 결과:
+#   iOS 단일       → apps.ios 만 활성
+#   Android 단일   → apps.android 만 활성
+#   Web 단일       → apps.web 만 활성
+#   iOS+Android 모노레포 → apps.ios + apps.android 활성
+#
+# 본 파일은 **참조용 최소 예시**만 포함. 실제 프로젝트 베이스라인은
+# /init-project 실행 결과물을 참고할 것.
+#
+# 사용 주체 (생성 후):
+#   - scripts/baseline_status.py        (ID 조회·집계)
+#   - scripts/baseline_update_suggest.py (Git diff 기반 제안)
+#   - scripts/check_baseline_sync.py    (pre-commit hook 보조)
+#   - .claude/commands/baseline-review.md (slash command)
+#
+# 상세 규약: TESTING_FRAMEWORK.md §20
+
+default_app: <APP_NAME>
+
+apps:
+  <APP_NAME>:
+    baseline: <APP_NAME_UPPER>_MASTER_TEST_BASELINE.md
+    status_dir: docs/<APP_NAME>/testing_harness/run
+    ui_file_patterns:
+      - '<ui_regex>'              # 예: 'apps/ios/.*\.swift$'
+    exclude_prefixes: [BUG]
+    runner_field: <runner_field>   # 예: udid / device_id / browser
+    platform: <platform>           # 예: ios_simulator / android_emulator / web

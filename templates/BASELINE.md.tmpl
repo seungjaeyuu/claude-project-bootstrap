@@ -1,0 +1,83 @@
+<!--
+📋 Claude Code · Codex 메타 (TESTING_FRAMEWORK.md §20.2 규약)
+  app: <APP_NAME>
+  canonical_status_source: docs/<APP_NAME>/testing_harness/run/*.json
+  chunk_read_size: 250 (offset 기반 Read 권장)
+
+  💡 raw Read 대신 스크립트 사용 권장 (Guardrail 아닌 권고):
+     python3 scripts/baseline_status.py --app <APP_NAME> --summary
+     python3 scripts/baseline_status.py --app <APP_NAME> --by-prefix
+     python3 scripts/baseline_status.py --app <APP_NAME> --id <ID>
+     python3 scripts/baseline_status.py --app <APP_NAME> --expected <ID>
+     (--expected 가 부족한 맥락이 필요할 때만 chunk Read 로 보완)
+
+  📎 섹션 목차는 markdown grep 으로 조회:
+     grep -n "^## \|^### " <APP_NAME>_MASTER_TEST_BASELINE.md
+-->
+
+# <APP_NAME> 마스터 테스트 베이스라인
+
+> 프로젝트명: **<PROJECT_NAME>**
+> 생성일: **YYYY-MM-DD**
+> 관리 규약: [TESTING_FRAMEWORK.md §20](TESTING_FRAMEWORK.md)
+
+## 목적
+
+- 이 앱의 모든 테스트 항목을 **단일 기준선** 으로 관리.
+- ID 체계: `{PREFIX}-{TYPE}{NUM}[-R{REV}]` (예: `AUTH-S01`, `NOTIFY-M02-R03`)
+- 판정(PASS/FAIL/BLOCKED)의 canonical 출처는 `status.json`. 본 문서는 "무엇을 검증할지" 의 정의.
+
+## 상태 범례
+
+| 표기 | 의미 |
+|---|---|
+| 대화 실행 | 현재 세션에서 수행 |
+| 시뮬 PASS | 시뮬레이터에서 통과 |
+| 실기기 PASS | 실기기에서 통과 |
+| 재검증 필요 | 코드 수정 후 재확인 필요 |
+| deprecated | 폐기 (이력 보존, 행 삭제 금지) |
+
+---
+
+## 1. 이미 실행된 기준 항목 (Template A)
+
+> 한 번 이상 테스트가 수행된 ID. 신규 추가 시 **Template A** 준수.
+
+| 기준 ID | 소속 | 환경 | 기준 항목 | 이전 프롬프트 매핑 | 최신 요약 |
+|---|---|---|---|---|---|
+| EXAMPLE-S01 | SA | 시뮬 | (기대 동작 한 문장) | `2026-04-10 session` | 2026-04-12 실행 완료 |
+
+---
+
+## 2. 오픈 이슈 (Template C)
+
+> 버그 추적용. `BUG-*` prefix → `baseline.yml` 의 `exclude_prefixes` 로 집계 제외.
+
+| 기준 ID | 소속 | 환경 | 이슈 | 해결 상태 | 근거 |
+|---|---|---|---|---|---|
+| BUG-01 | SA | 시뮬 | (이슈 한 문장) | 진행중 | PR #XX |
+
+---
+
+## 3. 소스 보강으로 추가된 미실행 필수 항목 (Template B)
+
+> 코드 분석으로 도출됐으나 아직 미실행인 ID. 신규 추가 시 **Template B** 준수.
+
+### 3.1 <도메인 이름>
+
+| 기준 ID | 소속 | 환경 | 기준 항목 | 예상 결과 | 소스 기준 |
+|---|---|---|---|---|---|
+| EXAMPLE-M01 | SA | 시뮬 | (검증 대상 동작) | (기대 결과) | `src/...` |
+
+---
+
+## 규약
+
+- 신규 ID 추가 시 위 3 Template 중 하나 준수 ([§20.4](TESTING_FRAMEWORK.md))
+- 판정 결과는 `status.json` 에 기록, 본 문서에 복사 금지 ([§20.5](TESTING_FRAMEWORK.md))
+- 업데이트 시점 · 방식은 [§20.7](TESTING_FRAMEWORK.md) — 트리거 기반 일괄 검토
+- 조회 명령:
+  ```bash
+  python3 scripts/baseline_status.py --app <APP_NAME> --summary
+  python3 scripts/baseline_status.py --app <APP_NAME> --id <ID>
+  ```

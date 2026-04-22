@@ -1,0 +1,83 @@
+# PROJECT_FRAMEWORK 기본 .gitignore 템플릿
+# 프로젝트별 언어·툴 패턴은 추가로 덧붙여 사용.
+
+# ─────────────────────────────────────────────────────────────
+# Secrets (절대 커밋 금지) — TESTING_FRAMEWORK §20 / CLAUDE.md 보안 섹션
+# ─────────────────────────────────────────────────────────────
+.secret/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+credentials.json
+**/keys/
+
+# ─────────────────────────────────────────────────────────────
+# Claude Code (팀 공유: settings.json + commands/, 개인: 그 외)
+# ─────────────────────────────────────────────────────────────
+.claude/*
+!.claude/settings.json
+!.claude/commands/
+
+# ─────────────────────────────────────────────────────────────
+# OS / IDE
+# ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─────────────────────────────────────────────────────────────
+# 언어별 (필요한 것만 주석 해제)
+# ─────────────────────────────────────────────────────────────
+
+# Node.js
+# node_modules/
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# .pnp/
+# .pnp.js
+
+# Python
+# __pycache__/
+# *.py[cod]
+# *$py.class
+# .venv/
+# venv/
+
+# Swift / Xcode
+# .build/
+# DerivedData/
+# xcuserdata/
+# *.xcuserstate
+# buildServer.json
+# .bsp/
+# .swift-module-cache/
+
+# Kotlin / Android
+# .gradle/
+# build/
+# local.properties
+# *.iml
+
+# Flutter / Dart
+# .dart_tool/
+# .flutter-plugins
+# .flutter-plugins-dependencies
+# .packages
+# build/
+
+# Next.js
+# .next/
+# out/
+
+# ─────────────────────────────────────────────────────────────
+# Firebase
+# ─────────────────────────────────────────────────────────────
+# .firebase/
+# firebase-debug.log*
