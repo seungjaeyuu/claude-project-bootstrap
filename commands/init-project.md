@@ -1,16 +1,17 @@
 ---
-description: 새 프로젝트 초기화 — PROJECT_FRAMEWORK 기반 최소 파일 생성
+description: 새 프로젝트 초기화 — 네거티브 우선 원칙 + 베이스라인 하네스 스캐폴드
 argument-hint: (선택 없음 — 대화형 질의)
+allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash(cat:*), Bash(chmod:*), Bash(ln:*), Bash(git:*), Bash(bash:*), Bash(test:*), Bash(ls:*), Bash(rm:*)
 ---
 
 # /init-project — 새 프로젝트 초기화
 
-PROJECT_FRAMEWORK (`/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/`) 를 사용해 현재 작업 디렉토리를 프로젝트로 초기화.
+`claude-project-bootstrap` 플러그인을 사용해 현재 작업 디렉토리를 프로젝트로 초기화.
 
 ## 전제 조건 확인
 
 1. 현재 디렉토리에 `CLAUDE.md` 가 **이미 있으면 중단** 하고 사용자에게 알림.
-2. `PROJECT_FRAMEWORK/README.md` 를 먼저 Read — 구조와 원칙 확인.
+2. `${CLAUDE_PLUGIN_ROOT}/docs/design-principles.md` 를 먼저 Read — 설계 원칙 확인.
 
 ## 대화형 질의 (최소 필수 → 선택 순서)
 
@@ -41,16 +42,16 @@ PROJECT_FRAMEWORK (`/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/`) 를
 답변을 받은 후:
 
 1. **CLAUDE.md 복사·치환**
-   - `cp $PROJECT_FRAMEWORK/CLAUDE_TEMPLATE.md ./CLAUDE.md`
+   - `cp ${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.tmpl ./CLAUDE.md`
    - `[프로젝트명]`, `[프레임워크]` 플레이스홀더 실제 값으로 치환
    - 해당하지 않는 섹션 삭제 (예: 모바일 없으면 모바일 규칙 제거)
 
 2. **INDEX.md 생성**
-   - `cp $PROJECT_FRAMEWORK/INDEX_TEMPLATE.md ./INDEX.md`
+   - `cp ${CLAUDE_PLUGIN_ROOT}/templates/INDEX.md.tmpl ./INDEX.md`
    - 프로젝트 이름·구조 반영
 
 3. **.gitignore 초기화**
-   - `cp $PROJECT_FRAMEWORK/.gitignore.template ./.gitignore`
+   - `cp ${CLAUDE_PLUGIN_ROOT}/templates/gitignore.tmpl ./.gitignore`
    - 언어별 섹션 중 해당되는 것만 주석 해제
 
 4. **Q1 Yes 면** (E2E 테스트 프레임워크):
@@ -67,14 +68,14 @@ PROJECT_FRAMEWORK (`/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/`) 를
    ```
 
    **4-2. TESTING_FRAMEWORK · BASELINE 복사**
-   - `cp $PROJECT_FRAMEWORK/TESTING_FRAMEWORK_TEMPLATE.md ./TESTING_FRAMEWORK.md`
+   - `cp ${CLAUDE_PLUGIN_ROOT}/templates/TESTING_FRAMEWORK.md.tmpl ./TESTING_FRAMEWORK.md`
    - 선택한 각 타입마다:
-     - `cp $PROJECT_FRAMEWORK/BASELINE_TEMPLATE.md ./<TYPE_UPPER>_MASTER_TEST_BASELINE.md`
+     - `cp ${CLAUDE_PLUGIN_ROOT}/templates/BASELINE.md.tmpl ./<TYPE_UPPER>_MASTER_TEST_BASELINE.md`
      - `<APP_NAME>` 플레이스홀더를 타입 이름으로 치환
 
    **4-3. `scripts/baseline.yml` 동적 생성 (heredoc)**
 
-   `cp` 대신 선택한 타입에 맞는 entry 를 **heredoc 으로 직접 기록**. 불필요한 예시는 **포함하지 않음** (TESTING_FRAMEWORK §20.9 E 원칙 — 자동 맞춤).
+   `cp` 대신 선택한 타입에 맞는 entry 를 **heredoc 으로 직접 기록**. 불필요한 예시는 **포함하지 않음** (자동 맞춤).
 
    각 타입별 사전 정의 필드:
 
@@ -91,8 +92,8 @@ PROJECT_FRAMEWORK (`/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/`) 를
    ```bash
    mkdir -p scripts
    cat > scripts/baseline.yml <<'EOF'
-   # 프로젝트 베이스라인 설정 (TESTING_FRAMEWORK §20.1)
-   # /init-project 가 자동 생성 — 수동 편집 시 규약 준수 (§20)
+   # 프로젝트 베이스라인 설정
+   # /init-project 가 자동 생성 — 수동 편집 시 규약 준수
 
    default_app: ios
 
@@ -114,26 +115,26 @@ PROJECT_FRAMEWORK (`/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/`) 를
    - 선택한 각 타입마다 `mkdir -p docs/<app>/testing_harness/run && touch docs/<app>/testing_harness/run/.gitkeep`
 
    **4-5. 스크립트 복사** — `install-hooks.sh` 가 처리하므로 Q3 Yes 면 자동 (아니면 수동):
-   - `cp $PROJECT_FRAMEWORK/scripts/baseline_status.py ./scripts/`
-   - `cp $PROJECT_FRAMEWORK/scripts/baseline_update_suggest.py ./scripts/`
-   - `cp $PROJECT_FRAMEWORK/scripts/check_baseline_sync.py ./scripts/`
+   - `cp ${CLAUDE_PLUGIN_ROOT}/scripts/baseline_status.py ./scripts/`
+   - `cp ${CLAUDE_PLUGIN_ROOT}/scripts/baseline_update_suggest.py ./scripts/`
+   - `cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_baseline_sync.py ./scripts/`
 
    **4-6. `ui_file_patterns` 검증**
    - 스모크 테스트: `python3 scripts/baseline_status.py --summary` 가 에러 없이 실행되는지
    - 사용자에게 "실제 UI 파일 경로가 `ui_file_patterns` regex 와 맞는지 확인하세요" 안내
 
 5. **Q3 Yes 면**:
-   - `bash $PROJECT_FRAMEWORK/hooks/install-hooks.sh` 실행
+   - `bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-hooks.sh` 실행
 
 6. **Q4 Yes 면**:
-   - `cp $PROJECT_FRAMEWORK/scripts/check_accessibility_identifiers.py ./scripts/` (install-hooks.sh 가 이미 복사했으면 skip)
-   - `ACCESSIBILITY_IDENTIFIERS.md` 는 SunnyWay 원본 참조 권고 (복사 아님, 프로젝트별 카탈로그는 수동 정의)
+   - `cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_accessibility_identifiers.py ./scripts/` (install-hooks.sh 가 이미 복사했으면 skip)
+   - `ACCESSIBILITY_IDENTIFIERS.md` 는 프로젝트별 카탈로그로 수동 정의 (UI 컴포넌트 구조에 따라 다름)
 
 7. **.secret/ 폴더 초기화**
    - `mkdir -p .secret && touch .secret/.gitkeep`
 
 8. **Git 초기화** (원격 URL 제공 시):
-   - `git init && git add . && git commit -m "framework: initialize from PROJECT_FRAMEWORK"`
+   - `git init && git add . && git commit -m "chore: initialize from claude-project-bootstrap"`
    - `git remote add origin <URL>`
    - push 여부는 사용자 판단에 맡김
 
@@ -152,5 +153,5 @@ PROJECT_FRAMEWORK (`/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/`) 를
 
 ## 참조
 
-- PROJECT_FRAMEWORK README: `/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/README.md`
-- DESIGN_DECISIONS: `/Users/yuseungjae/Documents/GitHub/_PROJECT_FRAMEWORK/docs/DESIGN_DECISIONS.md`
+- 플러그인 설계 원칙: `${CLAUDE_PLUGIN_ROOT}/docs/design-principles.md`
+- 마이그레이션 가이드: `${CLAUDE_PLUGIN_ROOT}/docs/migration-guide.md`

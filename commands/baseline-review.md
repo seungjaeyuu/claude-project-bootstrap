@@ -1,6 +1,7 @@
 ---
 description: 베이스라인 갱신 제안 조회 (Git diff 기반, TESTING_FRAMEWORK.md §20.7)
 argument-hint: [--app ios|android|...] [--since 14days]
+allowed-tools: Read, Edit, Bash(python3:*), Bash(git:*)
 ---
 
 # /baseline-review — 베이스라인 동기화 검토

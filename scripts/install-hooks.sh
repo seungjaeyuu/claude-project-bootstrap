@@ -1,8 +1,11 @@
 #!/bin/bash
-# PROJECT_FRAMEWORK Hook 원클릭 설치
+# claude-project-bootstrap Hook 원클릭 설치
 #
-# 사용:
-#   bash ~/Documents/GitHub/_PROJECT_FRAMEWORK/hooks/install-hooks.sh
+# 사용 (플러그인 내부):
+#   bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-hooks.sh
+#
+# 사용 (수동 실행):
+#   스크립트가 위치한 플러그인 루트를 자동 추론
 #
 # 이 스크립트가 하는 일:
 #   1. Git pre-commit hook symlink 설치 (scripts/pre-commit-framework.sh → .git/hooks/pre-commit)
@@ -19,9 +22,11 @@ if [ -z "$ROOT" ]; then
   exit 1
 fi
 
-FRAMEWORK="$(cd "$(dirname "$0")/.." && pwd)"
+# 플러그인 설치 시: ${CLAUDE_PLUGIN_ROOT} 사용
+# 수동 실행 시: 스크립트의 자기 상위 디렉토리 (scripts/ → 플러그인 루트)
+FRAMEWORK="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 echo "📁 프로젝트 루트: $ROOT"
-echo "📁 프레임워크: $FRAMEWORK"
+echo "📁 플러그인 루트: $FRAMEWORK"
 echo ""
 
 # ─────────────────────────────────────────────────────────────
@@ -37,7 +42,7 @@ HOOK_TARGET="$ROOT/scripts/pre-commit-framework.sh"
 # scripts/pre-commit-framework.sh 가 없으면 복사
 if [ ! -f "$HOOK_TARGET" ]; then
   mkdir -p "$ROOT/scripts"
-  cp "$FRAMEWORK/hooks/pre-commit-framework.sh" "$HOOK_TARGET"
+  cp "$FRAMEWORK/scripts/pre-commit-framework.sh" "$HOOK_TARGET"
   chmod +x "$HOOK_TARGET"
   echo "✅ scripts/pre-commit-framework.sh 복사"
 fi
@@ -60,7 +65,7 @@ if [ -f "$CC_SETTINGS" ]; then
   echo "ℹ️  .claude/settings.json 이미 존재 — 건너뜀"
 else
   mkdir -p "$CC_DIR"
-  cp "$FRAMEWORK/hooks/settings.json.template" "$CC_SETTINGS"
+  cp "$FRAMEWORK/templates/settings.json.tmpl" "$CC_SETTINGS"
   echo "✅ .claude/settings.json 초기화 — matcher regex 를 프로젝트 UI 경로에 맞게 수정하세요"
 fi
 
@@ -75,9 +80,9 @@ for script in check_dict_duplicates.py check_accessibility_identifiers.py check_
   fi
 done
 
-# baseline.yml.template → baseline.yml (없을 때만)
+# baseline.yml.tmpl → baseline.yml (없을 때만)
 if [ ! -f "$ROOT/scripts/baseline.yml" ]; then
-  cp "$FRAMEWORK/scripts/baseline.yml.template" "$ROOT/scripts/baseline.yml"
+  cp "$FRAMEWORK/templates/baseline.yml.tmpl" "$ROOT/scripts/baseline.yml"
   echo "✅ scripts/baseline.yml 초기화 — apps 를 프로젝트에 맞게 수정하세요"
 fi
 
@@ -91,11 +96,11 @@ fi
 
 if [ -f "$ROOT/.gitignore" ]; then
   if ! grep -q "^\.secret/" "$ROOT/.gitignore"; then
-    echo "⚠️  .gitignore 에 .secret/ 패턴 없음 — _PROJECT_FRAMEWORK/.gitignore.template 참고 후 수동 추가 필요"
+    echo "⚠️  .gitignore 에 .secret/ 패턴 없음 — ${CLAUDE_PLUGIN_ROOT:-플러그인}/templates/gitignore.tmpl 참고 후 수동 추가 필요"
   fi
 else
-  cp "$FRAMEWORK/.gitignore.template" "$ROOT/.gitignore"
-  echo "✅ .gitignore 초기화 (.gitignore.template 기반)"
+  cp "$FRAMEWORK/templates/gitignore.tmpl" "$ROOT/.gitignore"
+  echo "✅ .gitignore 초기화 (gitignore.tmpl 기반)"
 fi
 
 echo ""
@@ -104,5 +109,5 @@ echo "✅ Hook 설치 완료. 다음 단계:"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "1. scripts/baseline.yml 의 apps 를 프로젝트에 맞게 수정"
 echo "2. .claude/settings.json 의 matcher regex 확인"
-echo "3. BASELINE.md 생성 (_PROJECT_FRAMEWORK/BASELINE_TEMPLATE.md 참조)"
+echo "3. BASELINE.md 생성 (플러그인 templates/BASELINE.md.tmpl 참조)"
 echo "4. 테스트 커밋으로 hook 동작 확인"
