@@ -72,7 +72,7 @@ fi
 # ─────────────────────────────────────────────────────────────
 # 3. 검증 스크립트 복사 (없을 때만)
 # ─────────────────────────────────────────────────────────────
-for script in check_dict_duplicates.py check_accessibility_identifiers.py check_baseline_sync.py baseline_status.py baseline_update_suggest.py; do
+for script in check_dict_duplicates.py check_accessibility_identifiers.py check_baseline_sync.py baseline_status.py baseline_update_suggest.py posttooluse_ax_check.sh; do
   if [ ! -f "$ROOT/scripts/$script" ] && [ -f "$FRAMEWORK/scripts/$script" ]; then
     cp "$FRAMEWORK/scripts/$script" "$ROOT/scripts/$script"
     chmod +x "$ROOT/scripts/$script"

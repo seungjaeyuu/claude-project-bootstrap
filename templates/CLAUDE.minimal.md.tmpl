@@ -1,0 +1,97 @@
+# [프로젝트명] — CLAUDE.md
+
+> **설계 원칙**: **네거티브 우선**. 고성능 LLM 이 자력 판단 가능한 일반 모범 사례는 제외. 프로젝트에 **특별히 해당되는 것** 만 명시.
+
+**플러그인 출처**: [`claude-project-bootstrap`](https://github.com/seungjaeyuu/claude-project-bootstrap) / Minimal tier (Q1~Q5 모두 No 상태).
+
+---
+
+## 규칙 층위 범례
+
+| 이모지 | 층위 | 의미 |
+|---|---|---|
+| 🚫 | Guardrail | 절대 금지. 롤백 불가한 피해. |
+| 📐 | Schema | 스키마·용어·명명 계약. |
+| 📎 | 참조 | 경로·환경 메타. 지침 아님. |
+| 💡 | 권장 | 모범 사례. 근거 시 override 가능. |
+
+---
+
+## 1. Git 안전
+
+### 🚫 절대 금지
+
+- `git reset --hard` (예외 없음)
+- `git checkout -- .` (전체 변경 취소)
+- `git clean -fd`
+- `git push --force` to main/master
+
+### 📐 규칙
+
+- 메인 브랜치는 **PR 거쳐야만** 반영
+- 커밋 전 `git status` + `git diff` 로 범위 확인
+- 한 커밋 = 하나의 목적
+
+---
+
+## 2. 시크릿 관리
+
+### 🚫 절대 금지
+
+- API 키·비밀번호·토큰을 **커밋 추적 파일에 평문** 포함 (코드/README/CLAUDE.md/이슈/커밋메시지)
+- 백엔드 보안 규칙 (Firestore rules 등) **default allow** 로 시작
+
+### 📐 규칙
+
+- 비밀 보관 위치: **`.secret/`** 또는 `.env.local` (모두 `.gitignore`)
+- 백엔드 보안 규칙은 **default deny** 로 시작
+
+---
+
+## 3. 코드 수정 원칙
+
+### 📐 규칙
+
+- 수정 전: 정의 → 사용처 전체 흐름 파악 (`grep` 기반)
+- 수정 후: 핵심 키워드 개수 비교로 누락·중복 확인
+- 한 번에 하나의 목적만 수정
+
+### 💡 권장 (override 가능)
+
+- 관례 있으면 따르고, 없으면 합리적 기본값 선택
+- 불확실한 부분은 코멘트로 이유 남기기
+
+---
+
+## 4. 사용자 의견 피드백 의무
+
+### 📐 규칙
+
+- 단순 동의 금지 (`네 맞습니다` 후 실행).
+- 사용자 의견이 **기존 설계·데이터 흐름과 충돌** 하면 **즉시 근거와 함께 지적**.
+- 분석 기반 반대 의견 제시는 **월권 아닌 의무**.
+
+---
+
+## 5. 문서 규칙
+
+### 📐 규칙
+
+- MD 파일명: `YYYYMMDD_` 접두어 (예: `20260423_어떤_문서.md`)
+- 경로: `docs/` 또는 프로젝트 루트
+- 개발 완료 보고: ✅ 완료 / ⏳ 미구현 / 📋 추가 필요 3상태 구분
+
+---
+
+## 📎 참조
+
+- 이 파일은 **Minimal tier**. E2E 테스트·hook·accessibility 검증 등이 필요하면 [`claude-project-bootstrap`](https://github.com/seungjaeyuu/claude-project-bootstrap) 재실행 또는 해당 템플릿 수동 추가.
+- 설계 원칙 상세: `${CLAUDE_PLUGIN_ROOT}/docs/design-principles.md` (플러그인 설치 시 참조).
+
+---
+
+## 변경 이력
+
+| 날짜 | 내용 |
+|---|---|
+| YYYY-MM-DD | claude-project-bootstrap Minimal tier 로 초기화 |
