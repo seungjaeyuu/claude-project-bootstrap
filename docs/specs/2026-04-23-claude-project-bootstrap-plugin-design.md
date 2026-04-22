@@ -295,7 +295,7 @@ Stage 1 (로컬 개발) → Stage 2 (GitHub push) → Stage 3 (로컬 검증)
 | 4 | `${CLAUDE_PLUGIN_ROOT}` 가 커맨드·hook 파일에서 해석되는 맥락 | `/init-project` 내부에서 이 변수가 bash 컨텍스트·Claude 프롬프트 컨텍스트 어디서 resolve 되는지 |
 | | ✅ **확인 (2026-04-23)**: 환경 변수. hook 실행 시 bash 셸에 노출. MCP server args·component files 에서 사용 가능. 플러그인 설치 위치로 runtime resolve. `/init-project` 본문의 `cp ${CLAUDE_PLUGIN_ROOT}/templates/...` 같은 bash 명령에서 정상 치환됨. → 계획상 경로 치환 방식 그대로 진행 가능. |
 | 5 | 커맨드 네임스페이스 (`/init-project` vs `/claude-project-bootstrap:init-project`) | 공존 정책 |
-| | ✅ **확인 (2026-04-23, plugin-dev:command-development)**: 플러그인 커맨드는 **`/init-project` 그대로** 노출 (prefix 강제 없음). `/help` 에서만 `(claude-project-bootstrap)` 라벨 붙음. 기존 글로벌 `~/.claude/commands/init-project.md.bak` 과 충돌 가능 — 백업 파일이 활성 상태가 아니므로 OK (이미 Phase 4 단계에서 백업으로 이동 완료). |
+| | ⚠ **Phase 0 오판 → Phase 7 실측 정정 (2026-04-23, Claude Code v2.1.117)**: 플러그인 커맨드는 **`/<plugin-name>:<command>` prefix 강제**. 즉 `/claude-project-bootstrap:init-project` 형식으로만 호출 가능. `/init-project` 단독 호출은 `Unknown command` 에러. Phase 0 에서 `plugin-dev:command-development` 의 "label in /help" 설명을 "prefix 없음" 으로 오독한 결과. **Phase 7 Task 7.2 에서 실제 설치 후 확증**. README, migration-guide 의 커맨드 표기를 prefix 형식으로 정정 필요 (Phase 8 precursor). |
 
 **추가 발견 (frontmatter 필드)**:
 - 슬래시 커맨드 frontmatter: `description`, `allowed-tools`, `model`, `argument-hint`, `disable-model-invocation`

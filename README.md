@@ -16,10 +16,12 @@ claude plugin marketplace add seungjaeyuu/claude-project-bootstrap
 claude plugin install claude-project-bootstrap
 
 # 3. 새 프로젝트 폴더에서 Claude Code 실행 후:
-/init-project
+/claude-project-bootstrap:init-project
 ```
 
-`/init-project` 가 대화형 질의를 통해 필요한 파일만 생성합니다.
+`/claude-project-bootstrap:init-project` 가 대화형 질의를 통해 필요한 파일만 생성합니다.
+
+> **Claude Code 커맨드 네임스페이스**: 플러그인 커맨드는 `/<plugin-name>:<command>` 형식 prefix 가 강제됩니다 (Claude Code v2.1.117 기준). 따라서 `/init-project` 단독 호출은 `Unknown command` 에러. 반드시 `/claude-project-bootstrap:` prefix 포함.
 
 ---
 
@@ -29,8 +31,8 @@ claude plugin install claude-project-bootstrap
 
 | 커맨드 | 용도 |
 |---|---|
-| `/init-project` | 새 프로젝트 초기화 — `CLAUDE.md`, `.gitignore`, `TESTING_FRAMEWORK.md`, `BASELINE.md`, hooks 등을 선택적으로 생성 |
-| `/baseline-review` | E2E 테스트 베이스라인 갱신 제안 (Git diff 기반) |
+| `/claude-project-bootstrap:init-project` | 새 프로젝트 초기화 — `CLAUDE.md`, `.gitignore`, `TESTING_FRAMEWORK.md`, `BASELINE.md`, hooks 등을 선택적으로 생성 |
+| `/claude-project-bootstrap:baseline-review` | E2E 테스트 베이스라인 갱신 제안 (Git diff 기반) |
 
 ### 생성되는 파일 (옵션별)
 

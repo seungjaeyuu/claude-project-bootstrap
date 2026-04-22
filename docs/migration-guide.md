@@ -7,9 +7,11 @@
 | 기존 | 신규 |
 |---|---|
 | `~/Documents/GitHub/_PROJECT_FRAMEWORK/` 로컬 폴더 | `claude plugin install claude-project-bootstrap` |
-| `/init-project` (글로벌 커맨드 파일) | `/init-project` (플러그인 커맨드) |
+| `/init-project` (글로벌 커맨드 파일) | **`/claude-project-bootstrap:init-project`** (플러그인 prefix 강제) |
 | 절대경로 `cp $PROJECT_FRAMEWORK/...` | 플러그인 내부 `${CLAUDE_PLUGIN_ROOT}/...` |
-| `~/Documents/GitHub/_PROJECT_FRAMEWORK/hooks/install-hooks.sh` 수동 실행 | `/init-project` 가 내부적으로 실행 |
+| `~/Documents/GitHub/_PROJECT_FRAMEWORK/hooks/install-hooks.sh` 수동 실행 | `/claude-project-bootstrap:init-project` 가 내부적으로 실행 |
+
+> **커맨드 네임스페이스 주의**: Claude Code v2.1.117 기준, 플러그인 커맨드는 `/<plugin-name>:<command>` 형식이 강제됩니다. 기존에 `/init-project` 단독으로 썼다면 이제 `/claude-project-bootstrap:init-project` 로 호출해야 합니다.
 
 ## 마이그레이션 절차
 
