@@ -1,0 +1,21 @@
+{
+  "name": "seungjaeyuu-plugins",
+  "description": "Yu Seungjae's Claude Code plugins collection",
+  "owner": {
+    "name": "Yu Seungjae",
+    "email": "yu.seungjae@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "claude-project-bootstrap",
+      "description": "네거티브 우선 원칙과 베이스라인 하네스로 새 프로젝트를 부트스트랩하는 Claude Code 플러그인",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "Yu Seungjae",
+        "email": "yu.seungjae@gmail.com"
+      },
+      "homepage": "https://github.com/seungjaeyuu/claude-project-bootstrap"
+    }
+  ]
+}
