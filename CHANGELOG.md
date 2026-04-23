@@ -54,6 +54,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 7 로컬 검증 9/9 통과 + Phase 7 재검증 (Hook 재구현 후) E4 **완전체 PASS**
 - v0.2 로드맵: Issues #5 (argument UI 대응), #6 (Q# 축약 표기 풀어쓰기)
 
+## [0.1.1] - 2026-04-23
+
+### Changed
+
+- **`docs/design-principles.md` 전면 톤 개선** — 공개 가치 문서를 "문제→해결" 구조에서 "효과·가치 중심" 구조로 재작성
+  - 6개 섹션 제목 자연어화: 예 `"판정 Canonical = status.json"` → `"테스트 결과와 문서 설명 분리"`
+  - 각 섹션에 "이 구조가 제공하는 것" 불릿 3-4개 추가 (상태 관리 / 통일성 / 수정 개발 자동 도출 / 성과 측정 등)
+  - 본문 구조 통일: "원칙 → 이 구조가 제공하는 것 → 적용 → 배경"
+- **기술 용어 한국어 병기**: canonical → 기준 원본 / SSOT → 단일 원천 / historical narrative → 과거 맥락 요약 / tier → 단계 / PASS/FAIL/BLOCK → 통과/실패/보류
+
+### Notes
+
+- v0.1.0 → v0.1.1 은 **문서 톤 개선만**. 코드·기능 변경 없음 (완전 하위 호환, 재설치 불필요)
+- 외부 피드백 반영 (2026-04-23): "문제→해결 구조는 특정 프로젝트 시행착오 인상, 효과·가치 중심이 범용적이고 공감대 높음"
+
 ## [Unreleased]
 
 다음 릴리스 예정 개선사항:
