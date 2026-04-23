@@ -1,8 +1,8 @@
 {
-  "_comment_1": "Claude Code 설정 템플릿 (claude-project-bootstrap). UI 파일 편집 시 accessibility identifier 검증 스크립트 자동 실행.",
-  "_comment_2": "프로젝트별 수정 포인트: PostToolUse 의 matcher regex 를 실제 UI 파일 경로로 변경.",
-  "_comment_3": "예시 regex: 'apps/ios/.*\\.swift$', 'apps/.*/src/.*\\.(tsx|ts)$', 'lib/.*\\.dart$' 등.",
-  "_comment_4": "v0.1.0 개선: --quiet 제거 + 위반·경고 모두 systemMessage 로 전달 (Claude Code UI 가시화).",
+  "_comment_1": "Claude Code 설정 템플릿 (claude-project-bootstrap). UI 파일 편집 시 accessibility identifier 검증 자동 실행.",
+  "_comment_2": "Claude Code hook 스펙: stdin JSON 수신, stdout JSON (systemMessage) 응답.",
+  "_comment_3": "matcher 는 도구명 (Edit/Write/MultiEdit). 파일 경로 매칭은 wrapper 스크립트 내부에서 수행.",
+  "_comment_4": "프로젝트 파일 경로 정규식을 변경하려면 scripts/posttooluse_ax_check.py 의 MATCHER_PATTERN 수정.",
   "hooks": {
     "PostToolUse": [
       {
@@ -10,7 +10,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/posttooluse_ax_check.sh\" \"$CLAUDE_TOOL_FILE_PATH\" 2>&1"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/posttooluse_ax_check.py\""
           }
         ]
       }

@@ -174,18 +174,27 @@ cp ${CLAUDE_PLUGIN_ROOT}/scripts/baseline_update_suggest.py ./scripts/
 cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_baseline_sync.py ./scripts/
 ```
 
-### Step 5: Q3 Yes 시 Hook 설치
+### Step 5: Q3 Yes 시 Hook 설치 (Git pre-commit + 검증 스크립트 복사)
 
 ```bash
 bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-hooks.sh
 ```
 
-### Step 6: Q4 Yes 시 Accessibility 검증
+`install-hooks.sh` 는 **Git pre-commit hook** 과 **검증 스크립트들** 만 설치합니다. Claude Code PostToolUse hook (`.claude/settings.json`) 은 Q4 답변에 따라 Step 6 에서 조건부 설치.
+
+### Step 6: Q4 Yes 시 Claude Code PostToolUse hook 설치
+
+Q4 Yes 인 경우에만 `.claude/settings.json` 복사 (AX 검증 자동화):
 
 ```bash
-# install-hooks.sh 가 이미 복사했으면 skip
-cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_accessibility_identifiers.py ./scripts/ 2>/dev/null || true
+# Q4 Yes 시만 실행
+mkdir -p .claude
+cp ${CLAUDE_PLUGIN_ROOT}/templates/settings.json.tmpl ./.claude/settings.json
 ```
+
+이 hook 은 Edit/Write/MultiEdit 직후 `apps/.*\.(swift|kt|tsx)$` 파일에 대해 `scripts/posttooluse_ax_check.py` 를 호출합니다 (Python wrapper — Claude Code stdin JSON 스펙 준수).
+
+**Q4 No 인 경우** `.claude/settings.json` 자체를 생성하지 않음 — AX 검증이 무의미한 프로젝트에 hook 을 두면 노이즈.
 
 `ACCESSIBILITY_IDENTIFIERS.md` 는 프로젝트별 카탈로그이므로 **수동 작성** (플랫폼별 UI 컴포넌트 구조에 따라 다름).
 
