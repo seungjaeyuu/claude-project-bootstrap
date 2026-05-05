@@ -63,7 +63,7 @@ fi
 # 복사하지 않음. 대신 /init-project 커맨드가 Q4 (Accessibility identifier 검증)
 # 답변에 따라 조건부로 별도 복사함. 이유: Q4 No 인 프로젝트에 AX hook 을 주면
 # 무의미 + 잠재적 혼란.
-for script in check_dict_duplicates.py check_accessibility_identifiers.py check_baseline_sync.py baseline_status.py baseline_update_suggest.py posttooluse_ax_check.py; do
+for script in check_dict_duplicates.py check_accessibility_identifiers.py check_baseline_sync.py baseline_status.py baseline_update_suggest.py posttooluse_ax_check.py check_doc_size.py check_firebase_project.py; do
   if [ ! -f "$ROOT/scripts/$script" ] && [ -f "$FRAMEWORK/scripts/$script" ]; then
     cp "$FRAMEWORK/scripts/$script" "$ROOT/scripts/$script"
     chmod +x "$ROOT/scripts/$script"

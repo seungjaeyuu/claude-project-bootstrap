@@ -60,4 +60,12 @@ if [ -f "$SYNC_SCRIPT" ]; then
   python3 "$SYNC_SCRIPT" || true
 fi
 
+# ─────────────────────────────────────────────────────────────
+# (4) 문서 크기 경고 (차단 아님) — claude-project-bootstrap v0.2.0+
+# ─────────────────────────────────────────────────────────────
+DOC_SIZE_SCRIPT="$ROOT/scripts/check_doc_size.py"
+if [ -f "$DOC_SIZE_SCRIPT" ]; then
+  python3 "$DOC_SIZE_SCRIPT" "$ROOT" || true
+fi
+
 exit $EXIT
