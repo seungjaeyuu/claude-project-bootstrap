@@ -27,12 +27,16 @@ claude plugin install claude-project-bootstrap
 
 ## 제공하는 것
 
-### 슬래시 커맨드 2개
+### 슬래시 커맨드 6개
 
 | 커맨드 | 용도 |
 |---|---|
 | `/claude-project-bootstrap:init-project` | 새 프로젝트 초기화 — `CLAUDE.md`, `.gitignore`, `TESTING_FRAMEWORK.md`, `BASELINE.md`, hooks 등을 선택적으로 생성 |
 | `/claude-project-bootstrap:baseline-review` | E2E 테스트 베이스라인 갱신 제안 (Git diff 기반) |
+| `/claude-project-bootstrap:bash-permission` *(v0.2.0)* | Bash 권한 단계 도입·변경 (YOLO/Standard/Strict/None) |
+| `/claude-project-bootstrap:firebase-isolation` *(v0.2.0)* | Firebase 격리 도입 (`.firebaserc` + predeploy hook + 검증 스크립트) |
+| `/claude-project-bootstrap:slim-claude-md` *(v0.2.0)* | 비대해진 CLAUDE.md 슬림화 + 영역별 RULES 분리 (진단·확인 기반) |
+| `/claude-project-bootstrap:doc-size-hook` *(v0.2.0)* | 문서 크기 임계치 hook 도입 (CLAUDE.md 120줄 / RULES 250줄) |
 
 ### 생성되는 파일 (옵션별)
 
@@ -72,6 +76,26 @@ claude plugin install claude-project-bootstrap
 ## 마이그레이션 (기존 `_PROJECT_FRAMEWORK` 사용자)
 
 기존에 `~/Documents/GitHub/_PROJECT_FRAMEWORK/` 로컬 폴더 + `~/.claude/commands/init-project.md` 를 사용하셨다면 [`docs/migration-guide.md`](docs/migration-guide.md) 참조.
+
+## v0.2.0 새 기능 (기존 사용자 적용)
+
+v0.1.x 로 init 한 프로젝트는 **그대로 작동** — 자동 변경되지 않습니다. v0.2.0 의 새 기능을 도입하려면 4개 기능별 커맨드 사용:
+
+```bash
+# Bash 권한 단계 도입 (또는 변경)
+/claude-project-bootstrap:bash-permission
+
+# Firebase 격리 도입 (Firebase 사용 프로젝트만)
+/claude-project-bootstrap:firebase-isolation
+
+# CLAUDE.md 슬림화 + RULES 분리
+/claude-project-bootstrap:slim-claude-md
+
+# 문서 크기 hook 도입
+/claude-project-bootstrap:doc-size-hook
+```
+
+각 커맨드는 4중 안전장치(자동 백업 / Diff preview / 영역별 독립 / 본체는 진단·확인 기반) 내장. `_backup_v0.1/` 로 자동 백업되어 언제든 복원 가능. 자세한 내용은 [`CHANGELOG.md`](CHANGELOG.md) v0.2.0 항목.
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "name": "claude-project-bootstrap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "네거티브 우선 원칙과 베이스라인 하네스로 새 프로젝트를 부트스트랩하는 Claude Code 플러그인",
   "author": {
     "name": "Yu Seungjae",
