@@ -82,16 +82,35 @@ def parse_sections(content: str) -> list[tuple[str, int, list[str]]]:
     return sections
 
 
+MIN_CONFIDENCE = 2  # 매치 횟수 임계치 — 1회만 등장은 우연 일치 가능성
+
+
 def classify_section(title: str, body: list[str]) -> tuple[str | None, str | None]:
     """
     섹션 내용 기반으로 RULES 파일 분류 추론.
+
+    가중치 방식 — 패턴별 매치 횟수를 세고 가장 점수 높은 카테고리 선택.
+    제목의 매치는 본문 1매치보다 가중 (× 3) — 제목이 영역을 강하게 시사.
+    최고 점수가 MIN_CONFIDENCE 미만이면 분류 안 함 (None) — 머리말 / 사용 방법
+    같은 일반 섹션이 우연히 1회 매치된 키워드로 잘못 분류되는 것을 차단.
+
     반환: (RULES 파일명, 영역 설명) 또는 (None, None) — 분리 불요.
     """
-    text = title + "\n" + "\n".join(body)
+    body_text = "\n".join(body)
+    scores: list[tuple[int, str, str]] = []
     for pattern, rules_file, label in SECTION_PATTERNS:
-        if pattern.search(text):
-            return rules_file, label
-    return None, None
+        title_matches = len(pattern.findall(title))
+        body_matches = len(pattern.findall(body_text))
+        score = title_matches * 3 + body_matches
+        if score > 0:
+            scores.append((score, rules_file, label))
+    if not scores:
+        return None, None
+    scores.sort(key=lambda s: -s[0])
+    best_score, rules_file, label = scores[0]
+    if best_score < MIN_CONFIDENCE:
+        return None, None
+    return rules_file, label
 
 
 def diagnose(path: Path) -> int:
