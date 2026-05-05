@@ -1,0 +1,28 @@
+{
+  "_comment_1": "YOLO 단계 — 거의 모든 Bash 자동 실행. 파괴 명령만 deny.",
+  "_comment_2": "사용 케이스: 프로토타입 빠른 작업, 위험 명령 안 쓰는 환경.",
+  "_comment_3": "ask vs deny 원칙: 롤백 가능 = ask, 롤백 불가 = deny. YOLO 는 ask 거의 없음.",
+  "permissions": {
+    "allow": [
+      "Bash(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf $HOME:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git push --force:* main)",
+      "Bash(git push --force:* master)",
+      "Bash(git push -f:* main)",
+      "Bash(git push -f:* master)",
+      "Bash(firebase deploy:*)",
+      "Bash(npx prisma migrate reset:*)",
+      "Bash(prisma migrate reset:*)",
+      "Bash(dropdb:*)",
+      "Bash(psql:*-c \"DROP*)",
+      "Bash(mongo:*--eval \"db.dropDatabase*)"
+    ]
+  }
+}

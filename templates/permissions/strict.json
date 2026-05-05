@@ -1,0 +1,40 @@
+{
+  "_comment_1": "Strict 단계 — 읽기 전용만 자동, 그 외 모든 Bash ask, 파괴 명령 deny.",
+  "_comment_2": "사용 케이스: 보안 민감 프로젝트, Claude 가 뭘 할 때마다 일단 보고 싶은 환경.",
+  "_comment_3": "ask 항목은 명시 X — Claude Code 기본 동작이 unknown 명령에 ask.",
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(pwd:*)",
+      "Bash(echo:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(awk:*)",
+      "Bash(sed -n:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf $HOME:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git push --force:* main)",
+      "Bash(git push --force:* master)",
+      "Bash(git push -f:* main)",
+      "Bash(git push -f:* master)"
+    ]
+  }
+}

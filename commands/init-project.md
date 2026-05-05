@@ -29,6 +29,25 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash
 3. **주요 언어·프레임워크** (자유 답변)
 4. **Git 저장소 원격 URL** (선택, 생략 가능)
 
+---
+
+#### Q0. Bash 권한 단계 — 1개 선택
+
+Claude Code 의 Bash 명령 자동 실행 정책을 결정합니다. `.claude/settings.json` 의 `permissions` 키에 반영.
+
+| 단계 | 한 줄 요약 | 사용자 체감 예시 |
+|---|---|---|
+| **(1) YOLO** | 거의 모든 Bash 자동. 파괴 명령(`rm -rf`, `git reset --hard`, `git push --force` to main, `firebase deploy`, DB drop)만 deny | "프로토타입 빨리 돌리고 싶고, 위험 명령은 안 쓸게" |
+| **(2) Standard** *(권장)* | 읽기·일반 빌드 명령 자동, 파일 삭제·git 변경·deploy·패키지 변경·DB 마이그레이션은 ask | 보통 작업은 끊김 없이, 위험 명령에서만 한 번 묻기 |
+| **(3) Strict** | 읽기 전용(`ls`, `cat`, `git status`, `git diff` 등)만 자동. 그 외 ask | "Claude 가 뭘 할 때마다 일단 보고 싶음" / 보안 민감 |
+| **(4) None** | `permissions` 키 자체 미생성 — Claude Code 기본 동작 | "기본값으로 충분, 직접 안 건드림" |
+
+**ask vs deny 원칙**: 롤백 가능 = ask, 롤백 불가 = deny. 모든 단계의 deny 리스트가 일관 적용.
+
+선택값(1-4)을 받아 Step 0 에서 `.claude/settings.json` 에 머지 (None 이면 머지 생략).
+
+---
+
 ### 선택 옵션 (Y/N, 기본 N)
 
 각 옵션의 **무엇인지 / 언제 필요한지 / 생성 파일 / 기본 N 이유** 를 함께 제시하고 Y/N 받기.
@@ -50,6 +69,17 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash
 - **언제**: 서버리스 백엔드에 의존하는 앱. **실제 SDK 설치는 별개** — 이 옵션은 CLAUDE.md 에 보안 섹션 + `.env.example` 초안 추가만.
 - **생성**: CLAUDE.md 에 보안 규칙 섹션 + `.env.example` 초안
 - **기본 N 이유**: BaaS 미사용 프로젝트에는 불필요한 섹션.
+
+##### Q2a. (Q2 == Yes 시) 어떤 백엔드?
+
+  1. Firebase
+  2. Supabase
+  3. AWS Amplify
+  4. 기타
+
+##### Q2b. (Q2a == 1 Firebase 시) Firebase project ID?
+
+예: `aidea-prod`. 이 ID 로 `.firebaserc` 자동 생성 + `firebase.json` predeploy hook 자동 등록 + `scripts/check_firebase_project.py` 복사 → 다른 프로젝트로 잘못 deploy 되는 사고 차단.
 
 ---
 
@@ -86,6 +116,29 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash
 
 답변을 받은 후:
 
+### Step 0: Bash permission 머지 (Q0 답변 따라)
+
+Q0 답변에 따라 `.claude/settings.json` 의 `permissions` 키 머지:
+
+```bash
+mkdir -p .claude
+
+# Q0 == 1 (YOLO)
+cp ${CLAUDE_PLUGIN_ROOT}/templates/permissions/yolo.json .claude/settings.json
+
+# Q0 == 2 (Standard)
+cp ${CLAUDE_PLUGIN_ROOT}/templates/permissions/standard.json .claude/settings.json
+
+# Q0 == 3 (Strict)
+cp ${CLAUDE_PLUGIN_ROOT}/templates/permissions/strict.json .claude/settings.json
+
+# Q0 == 4 (None) — 파일 미생성
+```
+
+**Q4 (Accessibility hook) 와 머지 정책**: Step 6 에서 Q4 Yes 시 `templates/settings.json.tmpl` 의 `hooks` 키가 같은 파일에 머지. Step 0 의 `permissions` 키와 Step 6 의 `hooks` 키는 별개 키이므로 충돌 없음. Q0 == None + Q4 == No 이면 `.claude/settings.json` 자체 미생성.
+
+머지 시 기존 `_comment_*` 키는 Step 0 의 파일 생성 후 머지가 일어날 때 보존 (Claude Code 가 unknown 키를 무시).
+
 ### Step 1: tier 결정
 
 Q1~Q5 답변을 기준으로 **CLAUDE.md tier** 선택:
@@ -93,7 +146,7 @@ Q1~Q5 답변을 기준으로 **CLAUDE.md tier** 선택:
 | 조건 | Tier | 사용 템플릿 |
 |---|---|---|
 | Q1~Q5 **모두 N** | **Minimal** | `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.minimal.md.tmpl` (~97줄) |
-| Q1 Yes 또는 Q3 Yes 또는 Q4 Yes 또는 Q5 Yes | **Full** | `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.tmpl` (~298줄). 불필요 섹션 삭제. |
+| Q1/Q2/Q3/Q4/Q5 중 하나라도 Yes | **Full** | `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.tmpl` (120줄, 영역별 RULES 분리). |
 
 ### Step 2: CLAUDE.md 복사·치환
 
@@ -106,7 +159,34 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.tmpl ./CLAUDE.md
 ```
 
 - `[프로젝트명]`, `YYYY-MM-DD` 플레이스홀더 실제 값으로 치환
-- Full tier 경우 Q2/Q4 등 No 옵션에 해당하는 섹션 삭제
+- Full tier 경우 §Discovery 트리거 표 행을 Q1~Q4 답변에 따라 활성/삭제 (예: Q1 N 이면 RULES_E2E 행 삭제)
+- Q2 == Yes + Q2a == 1 (Firebase) 인 경우 Step 4a 에서 본체에 §NEW Firebase 격리 3줄 추가
+
+### Step 2a: Full tier 시 영역별 RULES 복사
+
+Full tier 일 때만 (Minimal 이면 RULES 0개 복사 — `${CLAUDE_PLUGIN_ROOT}/docs/specs/2026-05-05-v0.2.0-permissions-and-doc-slimming-design.md` §5.5/§7.3 정책).
+
+```bash
+mkdir -p docs/rules
+
+# 항상 복사 (Full tier 면)
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_TERMINOLOGY.md.tmpl docs/rules/RULES_TERMINOLOGY.md
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_REFACTORING.md.tmpl docs/rules/RULES_REFACTORING.md
+
+# Q1 Yes 시
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_E2E.md.tmpl docs/rules/RULES_E2E.md
+
+# Q2 Yes 시
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DATA_INTEGRITY.md.tmpl docs/rules/RULES_DATA_INTEGRITY.md
+
+# Q4 Yes 시
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_ACCESSIBILITY.md.tmpl docs/rules/RULES_ACCESSIBILITY.md
+
+# Q3 Yes 또는 Q4 Yes 시
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DICT_DUPLICATES.md.tmpl docs/rules/RULES_DICT_DUPLICATES.md
+```
+
+복사하지 않은 RULES 에 대응하는 §Discovery 표 행은 Step 2 의 CLAUDE.md 에서 삭제.
 
 ### Step 3: INDEX.md + .gitignore
 
@@ -174,6 +254,74 @@ cp ${CLAUDE_PLUGIN_ROOT}/scripts/baseline_update_suggest.py ./scripts/
 cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_baseline_sync.py ./scripts/
 ```
 
+### Step 4a: Q2 Yes + Q2a == Firebase 시 Firebase 격리 설정
+
+Q2 Yes + Q2a == 1 (Firebase) 인 경우만 실행. Q2b 에서 받은 project ID 를 `<FB_PROJECT_ID>` 라 한다.
+
+**4a-1. `.firebaserc` 생성**:
+
+```bash
+cat > .firebaserc <<EOF
+{
+  "projects": {
+    "default": "<FB_PROJECT_ID>"
+  }
+}
+EOF
+```
+
+**4a-2. `firebase.json` predeploy hook 등록**:
+
+기존 `firebase.json` 가 있으면 4개 영역(functions/hosting/firestore/storage)의 `predeploy` 키만 머지. 없으면 minimal 생성:
+
+```bash
+cp ${CLAUDE_PLUGIN_ROOT}/templates/firebase.json.tmpl ./firebase.json
+```
+
+(기존 파일 머지 케이스는 사용자 confirm 후 수동 머지 또는 jq 활용. 자세한 머지 로직은 `migrate_diagnose.py` 가 향후 사용 시 처리.)
+
+**4a-3. 검증 스크립트 복사**:
+
+```bash
+mkdir -p scripts
+cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_firebase_project.py ./scripts/
+chmod +x ./scripts/check_firebase_project.py
+```
+
+**4a-4. CLAUDE.md 본체에 §NEW Firebase 격리 inline (3줄)**:
+
+Step 2 에서 복사한 `CLAUDE.md` 의 §변경이력 직전에 다음 3줄 삽입:
+
+```markdown
+## NEW. 🚫 Firebase 프로젝트 격리 (project: <FB_PROJECT_ID>)
+
+- `firebase deploy` 단독 호출 금지. 반드시 `--project <FB_PROJECT_ID>` 명시
+- 사용자에게 deploy 명령 안내 시 `--project` 명시 형태로 제공
+- predeploy hook 이 활성 프로젝트와 `.firebaserc` 일치를 자동 검증
+```
+
+**4a-5. INDEX.md 에 직접 실행 체크리스트 추가**:
+
+Step 3 에서 복사한 `INDEX.md` 끝(변경 이력 직전)에 다음 추가:
+
+```markdown
+## Firebase deploy (직접 실행 체크리스트)
+
+터미널 직접 deploy 시 1초 검증:
+1. `cat .firebaserc` → `projects.default` 가 `<FB_PROJECT_ID>` 인지 확인
+2. `firebase deploy --project <FB_PROJECT_ID> --only <services>`
+```
+
+**4a-6. 글로벌 캐시 검증** (init 1회):
+
+```bash
+# ~/.config/configstore/firebase-tools.json 의 activeProjects 키에서
+# 현재 init 디렉토리(절대경로)의 매핑 검사. 다른 ID 매핑 시 경고.
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_firebase_project.py --init-check "<FB_PROJECT_ID>"
+```
+
+스크립트가 mismatch 발견 시 stderr 경고 출력, init 자체는 계속 진행.
+
 ### Step 5: Q3 Yes 시 Hook 설치 (Git pre-commit + 검증 스크립트 복사)
 
 ```bash
@@ -238,11 +386,19 @@ git remote add origin <URL>  # push 는 사용자 판단
 📦 생성된 파일
    (실제 생성된 파일 목록 — 절대경로 아닌 상대경로)
 
-⚙  1개만 확인하세요
+⚙  확인이 필요한 항목
+
    (hook 설치 사용자만 해당)
    scripts/baseline.yml 과 .claude/settings.json 의 ui_file_patterns / matcher regex
    → 기본값은 'apps/ios/.*\.swift$' 같은 통상 경로
    → 실제 프로젝트 구조 다르면 두 파일 같은 패턴으로 수정
+
+   (Q2 == Firebase 사용자만 해당)
+   Firebase 격리 확인:
+   • .firebaserc default: <FB_PROJECT_ID>
+   • firebase login 계정: (실행 시 firebase login:list 결과)
+   • 글로벌 캐시 의심 여부: (4a-6 의 검증 결과 — OK 또는 경고)
+   • 첫 deploy 전 권장: firebase use <FB_PROJECT_ID> (1회)
 
 🛠  프로젝트별 추가 작업 (플러그인 범위 밖)
    • Xcode/Next.js/Flutter 등 실제 프로젝트 스캐폴드
@@ -258,6 +414,8 @@ git remote add origin <URL>  # push 는 사용자 판단
 - **기존 파일 덮어쓰기 금지** (이미 `CLAUDE.md` 가 있으면 중단 + 3가지 복구 옵션 제시).
 - **커밋은 사용자 승인 후**. 자동으로 커밋하지 말 것.
 - **tier 결정 로직**: Q1~Q5 모두 N 이면 Minimal, 하나라도 Yes 면 Full.
+- **Minimal tier 는 RULES 0개 복사** (분리 RULES 사용 안 함). §Discovery 표도 Minimal 본체에 미수록.
+- **Q0 == None + Q4 == No**: `.claude/settings.json` 자체 생성 안 함. 그 외 조합은 머지 대상.
 
 ## 참조
 
