@@ -1,0 +1,84 @@
+# RULES — Accessibility Identifier (UI 앱 한정)
+
+> **발견 트리거**: 본 파일은 `CLAUDE.md` §Discovery 트리거 표에서 *UI 컴포넌트(Button/TextField 등) 편집* 시 read 됩니다.
+> **상위 정책**: `CLAUDE.md` (네거티브 우선 + 4층 범례 🚫 / 📐 / 📎 / 💡)
+> **프로젝트별 카탈로그**: 별도 `/ACCESSIBILITY_IDENTIFIERS.md` (있는 경우) — 플랫폼별 등록 identifier 목록.
+
+---
+
+## 1. 📐 엄격한 스키마
+
+`{feature}_{screen_context}_{element_role}_{type}` (snake_case + ASCII)
+
+예시:
+- `auth_login_email_field`
+- `cart_checkout_pay_button`
+- `notification_list_unread_badge`
+
+| 플랫폼 | 메커니즘 |
+|---|---|
+| iOS SwiftUI | `.accessibilityIdentifier("...")` |
+| Android Compose | `Modifier.testTag("...")` |
+| Web (Next.js 등) | `data-testid="..."` |
+| Flutter | `key: ValueKey('...')` |
+
+---
+
+## 2. 📐 적용 대상
+
+- 모든 인터랙티브 요소 (Button / TextField / Toggle 등)
+- 검증 대상 Text / Image (에러·배지·카운트·상태·타이틀·메시지)
+- 비표시 view 의 wrapper 도 식별 필요 시 포함
+
+---
+
+## 3. 📐 자동 강제 3중
+
+1. **Claude Code PostToolUse hook** — Edit/Write/MultiEdit 후 UI 파일 자동 검증 (`scripts/posttooluse_ax_check.py`)
+2. **Git pre-commit** — 커밋 시 일괄 검증
+3. **수동 전체 스캔** — release 전 `python3 scripts/check_accessibility_identifiers.py` 단독 실행
+
+---
+
+## 4. 🚫 NavigationLink 내부 Button AX 병합 (iOS SwiftUI)
+
+`NavigationLink { label: { ... Button ... } }` 구조에서 내부 Button 의 identifier 가 AX 트리에서 소실되는 버그 존재.
+
+**`.accessibilityElement(children: .ignore)` 단독은 부족** — "자식 무시" 지 "부모 탈출" 이 아님.
+
+### 해결 패턴 (둘 중 하나)
+
+#### 패턴 1 — ZStack 분리
+
+```swift
+ZStack {
+    NavigationLink { DetailView() } label: { EmptyView() }.opacity(0)
+
+    RowContent()
+        .accessibilityIdentifier("cart_list_row_button")
+}
+```
+
+NavigationLink 자체는 invisible, RowContent 가 시각·AX 양쪽 책임.
+
+#### 패턴 2 — highPriorityGesture
+
+```swift
+RowContent()
+    .accessibilityIdentifier("cart_list_row_button")
+    .highPriorityGesture(
+        TapGesture().onEnded {
+            navigate()
+        }
+    )
+```
+
+NavigationLink tap 우선순위 역전 — RowContent 의 tap 이 먼저 잡힘.
+
+---
+
+## 5. 📎 참조
+
+- 프로젝트 고유 identifier 카탈로그: `/ACCESSIBILITY_IDENTIFIERS.md` (있는 경우)
+- 검증 스크립트: `scripts/check_accessibility_identifiers.py`
+- E2E 와의 관계: AX identifier 가 정확해야 `RULES_E2E.md` 의 UI 탐색이 동작

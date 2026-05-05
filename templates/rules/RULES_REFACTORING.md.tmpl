@@ -1,0 +1,105 @@
+# RULES — 대규모 변경 / 리팩토링 시 누락 검증
+
+> **발견 트리거**: 본 파일은 `CLAUDE.md` §Discovery 트리거 표에서 *100줄 이상 파일 변경 / 대규모 리팩토링* 작업 시 read 됩니다.
+> **횡단 규칙 안내**: 본체 §2 에 핵심 1줄(`grep -c <키워드>` 기록·재확인) 이 inline 으로 명시되어 있다. 본 RULES 는 그 절차의 상세 + 자주 누락되는 패턴 라이브러리.
+> **상위 정책**: `CLAUDE.md` (네거티브 우선 + 4층 범례 🚫 / 📐 / 📎 / 💡)
+
+---
+
+## 1. 🚫 grep 기반 사전·사후 검증 (필수 절차)
+
+### 수정 전
+
+핵심 키워드(필드명, 함수명, API 호출 등) 를 `grep -c` 로 등장 횟수를 기록.
+
+```bash
+grep -c "studentSchedule" $(git ls-files '*.swift') > /tmp/before.txt
+```
+
+### 수정 후
+
+같은 명령으로 재측정. 차이가 의도된 것인지 직접 비교.
+
+```bash
+grep -c "studentSchedule" $(git ls-files '*.swift') > /tmp/after.txt
+diff /tmp/before.txt /tmp/after.txt
+```
+
+### 라인 수 비교
+
+```bash
+git diff --stat HEAD~1
+```
+
+전체 라인 수 변화를 의도와 비교. 의도하지 않은 +/- 가 보이면 **그 파일을 다시 read 해서 확인**.
+
+---
+
+## 2. 🚫 파일 동일성 판단 시 다중 검증
+
+`diff` 의 `<` / `>` 방향만 보지 말 것 — 이름이 같지만 내용이 다른 파일을 같다고 오판 가능.
+
+```bash
+# 양쪽 다 사용
+diff a.swift b.swift
+shasum a.swift b.swift
+grep -c "<핵심 기능 키워드>" a.swift b.swift
+```
+
+세 결과가 일치할 때만 "동일 파일" 로 판단.
+
+---
+
+## 3. 🚫 대규모 리팩토링 시 필드 / 기능 누락 금지
+
+리팩토링 전 **인터페이스 추출**:
+
+1. state 변수 (예: ViewModel @Published) 목록
+2. 폼 필드 (TextField / DatePicker 등) 목록
+3. API 호출 (네트워크 클라이언트 메서드) 목록
+4. 업로드 / 첨부 목록 (이미지 / 파일)
+5. 외부 의존성 (Firestore listener, NotificationCenter 등)
+
+리팩토링 후 같은 목록을 재추출 → **diff 가 0** 인지 확인.
+
+### 앱 간 공유 필드 특히 주의
+
+iOS / Android 모노레포에서 한쪽만 수정하면 silent 누락 발생. 양쪽 모두 grep:
+
+```bash
+grep -rn "isVerifiedGuardian" apps/ios/
+grep -rn "isVerifiedGuardian" apps/android/
+```
+
+---
+
+## 4. 📐 자주 누락되는 패턴 라이브러리
+
+| 패턴 | 누락 시 증상 |
+|---|---|
+| ViewModel 의 `@Published` 가 view 에서 binding 만 제거되고 변수 자체는 남음 | dead state, build 통과, 런타임 무영향 — 추후 개발자가 사용하다 inconsistent 발견 |
+| API 호출 함수는 그대로인데 caller 가 빠짐 | dead code, 사용처 변경된 것을 모르고 함수 재호출 시도 |
+| 폼 필드 UI 만 제거되고 ViewModel state 유지 | 백엔드 payload 에 unused 필드 남음 → 백엔드 스키마 검증 실패 |
+| Firestore listener 의 `addSnapshotListener` 만 추가되고 `remove()` 누락 | 메모리 leak, 화면 dismissed 후에도 콜백 발화 |
+| Localization 키 추가만 하고 한쪽 언어 번역 누락 | 영어 빌드는 정상, 한국어 빌드에서 raw key 노출 |
+
+---
+
+## 5. 📐 commit 1단위 규칙
+
+리팩토링 commit 은 **하나의 단위 = 하나의 의도**:
+
+- ❌ "리팩토링 + 새 기능 추가" 한 commit
+- ✅ "ViewModel 분리" / "새 기능 추가" 두 commit
+- ❌ "field 이름 변경 + 무관 typo 수정"
+- ✅ "field 이름 변경" / "typo 수정" 두 commit
+
+근거: 사고 발생 시 `git bisect` 또는 revert 단위가 그대로 의도 단위가 됨. 혼합 commit 은 revert 가 사고 외 영역까지 영향.
+
+---
+
+## 6. 📎 참조
+
+- 횡단 규칙 핵심: `CLAUDE.md` 본체 §2 "대규모 변경 시 누락 검증"
+- dict 매핑 변경은 `RULES_DICT_DUPLICATES.md` 와 함께 적용 (중복 키 검증 추가 1단계)
+- E2E 영향이 있는 리팩토링은 `RULES_E2E.md` + `TESTING_FRAMEWORK.md §20.7` baseline 갱신 검토

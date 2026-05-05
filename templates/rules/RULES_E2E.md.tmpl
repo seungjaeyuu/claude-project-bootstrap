@@ -1,0 +1,99 @@
+# RULES — E2E 테스트 / Codex Orchestrator
+
+> **발견 트리거**: 본 파일은 `CLAUDE.md` §Discovery 트리거 표에서 *E2E 테스트 / Codex orchestrator 작업* 시 read 됩니다.
+> **상위 정책**: `CLAUDE.md` (네거티브 우선 + 4층 범례 🚫 / 📐 / 📎 / 💡)
+> **상세 프레임워크**: `TESTING_FRAMEWORK.md` (이 RULES 는 핵심 가드만, 절차·도구는 TESTING_FRAMEWORK 참조)
+
+---
+
+## 1. 핵심 원칙
+
+| 원칙 | 층위 |
+|---|---|
+| **코드 수정은 Claude 만** — Codex 는 테스트 실행·판정·리포트만 | 🚫 |
+| **시뮬레이터 격리** — 각 Lane 은 자기 UDID 만. `booted` / `all` 금지 | 🚫 |
+| **Cross-lane destructive op 절대 금지** (§2 P0) | 🚫 |
+| 누락 방지 — `validate_suite_coverage.py` 차집합 = 0 | 📐 |
+| 시드 UI 흐름 무결성 | 📐 |
+| BLOCKED 패턴 라이브러리 축적 | 📐 |
+
+---
+
+## 2. 🚫 Cross-Lane Destructive Op (P0)
+
+각 Lane Codex 는 **자기 UDID/프로세스 트리 바깥 어떤 리소스도 파괴적 조작 금지**. charter 명시 여부 무관하게 적용.
+
+**절대 금지**:
+1. `pkill -f` cross-lane, `killall codex` / `killall Simulator`, 다른 워커 MCP child kill
+2. cross-UDID `xcrun simctl shutdown` / `erase` / `boot` / `install` / `launch` / `terminate`
+3. 자기 BLOCKED 리포트 "운영 권고" 자율 집행
+4. Ambiguous cleanup 시 BLOCKED + abort (정리 금지)
+
+**사용자 지시 해석**:
+- "정리하라" → "정리가 필요하다고 **보고**하라"
+- "Lane X 재개" → "자기 Lane 만 재개"
+- **"다른 테스트에 영향 없이"** → 어떤 `pkill` / `shutdown` 도 금지
+
+**사고 배경**: 병렬 AI 테스트에서 워커가 자신의 리포트 내 "운영 권고" 를 자율 집행하면 다른 Lane 을 cross-kill 할 수 있음. 실제 프로덕션 사고 사례 존재 (수백 건 테스트 결과 손실).
+
+---
+
+## 3. 🚫 Orchestrator 설계 필수 (재발 방지)
+
+- **charter 는 argv 가 아닌 파일 경로 전달**. `codex "$(cat charter.md)"` 금지 — `ps aux` 노출 → `pkill -f '문구'` 취약
+- wrapper + preflight 이중으로 중복 process guard (`pgrep -f "$CHARTER_PATH"`)
+- Terminal cleanup trap (EXIT INT TERM) — Codex TUI 비정상 종료 시 escape sequence 잔존 차단
+- 현실적 timeout: 4-Lane E2E 완주 6~12시간, 1시간 timeout 은 의미 없음
+- MCP 자식 프로세스 leak 정기 감지 (`npm exec firebase-tools mcp`, `@playwright/mcp` orphan)
+
+---
+
+## 4. 📐 테스트 계정 / 시뮬 격리
+
+- 계정 명명: `{lane}_{role}_{seq}_{YYYYMMDD}@test.com`
+- Lane 간 계정 공유 금지, 탈퇴 테스트용 전용 계정
+- charter 에 격리 블록 inline:
+  ```
+  ⚠️ 시뮬레이터 격리: 이 Lane UDID = {UDID}
+  모든 xcrun simctl 에 반드시 UDID 명시. booted/all 금지.
+  다른 UDID 제어 시 Lane 간 간섭 사고 발생.
+  ```
+
+---
+
+## 5. 📐 AX 드라이버 UDID 격리 (macOS Simulator)
+
+병렬 Lane 환경에서 필수 패턴:
+
+- UDID → Simulator window lookup (`simulatorWindowForUDID`)
+- 상대좌표 → 절대좌표 호출 시점 재계산 (`click-in-window <UDID> <rx> <ry>`)
+- 🚫 전역 AX 탐색 금지 (`search-app` → `search-window <UDID>`)
+- `type-text` 는 포커스 의존 → 가능하면 `set-value-direct` (AX attribute set)
+
+---
+
+## 6. 💡 Codex Orchestration 패턴 (실기기·수동 테스트)
+
+자동화 불가 테스트는 Codex 를 **실행 주체가 아닌 orchestrator** 로 사용:
+
+```
+[Codex 선언] → [사용자 수동 실행] → [사용자 피드백] → [Codex 기록] → [다음 항목]
+```
+
+Codex 는 직접 개입 금지, 코드 수정 금지, 사용자 피드백 없이 PASS/FAIL 임의 결정 금지.
+
+---
+
+## 7. 📎 BLOCKED 패턴 축적
+
+BLOCKED 원인과 해결법을 프레임워크 라이브러리에 누적. 상세: `TESTING_FRAMEWORK.md §13`.
+
+---
+
+## 8. 🚫 Bash 스크립트 pipefail + pgrep 주의
+
+`set -eo pipefail` 환경에서 `$(pgrep -f "..." | wc -l)` 는 no-match 시 조용히 스크립트 종료. 해결:
+
+```bash
+OTHERS=$( (pgrep -f "..." || true) | wc -l | tr -d ' ')
+```

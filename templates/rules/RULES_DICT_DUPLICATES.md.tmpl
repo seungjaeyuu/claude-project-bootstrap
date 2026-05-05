@@ -1,0 +1,86 @@
+# RULES — Dictionary Literal 중복 키 (Swift / Kotlin / TypeScript)
+
+> **발견 트리거**: 본 파일은 `CLAUDE.md` §Discovery 트리거 표에서 *매핑·번역·설정 dict 편집* 시 read 됩니다.
+> **상위 정책**: `CLAUDE.md` (네거티브 우선 + 4층 범례 🚫 / 📐 / 📎 / 💡)
+
+---
+
+## 1. 🚫 컴파일러가 잡지 못하는 런타임 fatal error
+
+매핑·번역·설정 딕셔너리에서 **반복적으로 발생하는 P0 사고**. 다음 언어에서 컴파일러가 중복 키를 잡지 못한다:
+
+| 언어 | 동작 | 사고 형태 |
+|---|---|---|
+| Swift | `Dictionary literal contains duplicate keys` | 런타임 fatal error |
+| Kotlin | `mapOf` 는 마지막 값 우선, 컴파일 경고 없음 | silent 데이터 손실 |
+| TypeScript | object literal 중복 키, lint 만 경고 (default off) | silent 덮어쓰기 |
+
+### 실제 에러 메시지 (Swift)
+
+```
+Swift/Dictionary.swift:840: Fatal error: Dictionary literal contains duplicate keys
+```
+
+---
+
+## 2. 📐 검증 절차 (필수)
+
+### 수정 후
+
+```bash
+python3 scripts/check_dict_duplicates.py <수정한_파일>
+```
+
+종료 코드 0 이면 통과, 비-0 이면 중복 키 위치 출력.
+
+### 자동 강제
+
+- **Git pre-commit hook**: `.git/hooks/pre-commit` 이 dict 파일 변경 감지 시 자동 실행
+- **CI**: PR 단계에서 동일 스크립트 실행
+
+---
+
+## 3. 📐 자주 발생하는 패턴
+
+### 패턴 1 — 번역 사전 (i18n)
+
+```swift
+let messages: [String: String] = [
+    "auth.login.failed": "로그인 실패",
+    "auth.login.failed": "다시 시도해주세요"  // ❌ 중복
+]
+```
+
+→ 번역 키는 alphabetical 정렬 + 검증 스크립트로 차단.
+
+### 패턴 2 — 에러 코드 매핑
+
+```kotlin
+val errorMessages = mapOf(
+    "E001" to "네트워크 오류",
+    "E002" to "인증 실패",
+    "E001" to "타임아웃"  // ❌ 중복, "네트워크 오류" 가 silent 덮어써짐
+)
+```
+
+→ 코드 enum 으로 type-safe 강제 권장.
+
+### 패턴 3 — 설정 객체 (config.ts)
+
+```typescript
+const config = {
+    apiUrl: "https://prod.example.com",
+    timeout: 5000,
+    apiUrl: "https://staging.example.com"  // ❌ silent 덮어쓰기
+};
+```
+
+→ ESLint `no-dupe-keys` 규칙 활성화 + lint 차단.
+
+---
+
+## 4. 📎 참조
+
+- 검증 스크립트: `scripts/check_dict_duplicates.py`
+- 사고 사례: 결제 중간 코드 매핑에서 중복 키로 일부 거래가 잘못된 메시지로 표시된 P0 — 이 RULES 는 그 재발 방지가 목적
+- 큰 매핑 dict 편집 시 `RULES_REFACTORING.md` 의 grep 검증과 병행

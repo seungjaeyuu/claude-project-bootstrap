@@ -1,0 +1,61 @@
+# RULES — 데이터 정합성 (백엔드 연동 앱 한정)
+
+> **발견 트리거**: 본 파일은 `CLAUDE.md` §Discovery 트리거 표에서 *Firestore / 백엔드 데이터 호출 코드* 작업 시 read 됩니다.
+> **상위 정책**: `CLAUDE.md` (네거티브 우선 + 4층 범례 🚫 / 📐 / 📎 / 💡)
+
+---
+
+## 1. 📐 자동 생성·등록 기능
+
+- 중복 검증 필수
+- 기본값의 부작용 분석
+- 관련 엔티티 상태 검증
+- 모호한 필드 설계 금지 (기본값·충돌 처리 명확화)
+
+---
+
+## 2. 🚫 Firestore catch 블록 silent fail (iOS 기반 Firebase 앱 한정)
+
+- `try await` catch 에 `print(...)` 금지. **`Logger.error(subsystem/category)`** 필수
+- `whereField + order + limit` → composite index 선언 필수
+- "빈 결과" vs "쿼리 실패" 로그 구분
+- offline queue 주의: `updateData` / `setData` / `delete` 는 offline 시 throw 안 함 → optimistic UI 시 `NetworkMonitor` 사전 가드 필수
+
+### 권장 패턴 (Swift)
+
+```swift
+do {
+    try await db.collection("orders").document(id).setData(payload)
+} catch {
+    Logger.error.error("주문 저장 실패: \(error.localizedDescription, privacy: .public)")
+    throw error
+}
+```
+
+❌ 금지: `print("error: \(error)")` — 로그 시스템 외부에 남아 추적 불가, privacy redaction 미적용.
+
+---
+
+## 3. 🚫 시드 무결성 (E2E 테스트 한정)
+
+시드는 **앱 UI 흐름이 실제로 만들 수 있는 상태만** 생성.
+
+- 참조 ID 는 부모 문서와 함께 생성
+- 네임스페이스 혼용 금지
+- "관리자 SDK 로만 만들 수 있는 상태" → UI 흐름 검증 의미 상실
+
+---
+
+## 4. 📐 데이터 마이그레이션 시 검증 체크리스트
+
+- 마이그레이션 전 row/document count 기록
+- 마이그레이션 후 동일 count 확인 (또는 의도된 차이 명시)
+- 누락 가능 필드는 default 값 정의 명시 (null vs missing 구분)
+- rollback 절차 문서화 — 미정의 마이그레이션은 배포 금지
+
+---
+
+## 5. 📎 참조
+
+- 보안 규칙 (Firestore Rules, Supabase RLS) 은 default deny 로 시작 — 본 RULES 가 아닌 `CLAUDE.md` 본체 §시크릿/§API 키 섹션의 일반 원칙
+- E2E 시드와 데이터 정합성 충돌 시 `RULES_E2E.md §4` 의 시드 무결성 규칙 우선
