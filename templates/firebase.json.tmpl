@@ -1,0 +1,28 @@
+{
+  "_comment_1": "Firebase 격리 안전장치 — predeploy hook 이 활성 프로젝트와 .firebaserc default 일치를 검증.",
+  "_comment_2": "사용 안 하는 영역의 entry 는 사용자가 후속 정리 (예: hosting 만 쓰는 프로젝트는 functions/firestore/storage 블록 삭제).",
+  "_comment_3": "검증 스크립트는 scripts/check_firebase_project.py — chmod +x 필요.",
+  "functions": {
+    "predeploy": [
+      "python3 scripts/check_firebase_project.py"
+    ]
+  },
+  "hosting": {
+    "predeploy": [
+      "python3 scripts/check_firebase_project.py"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json",
+    "predeploy": [
+      "python3 scripts/check_firebase_project.py"
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules",
+    "predeploy": [
+      "python3 scripts/check_firebase_project.py"
+    ]
+  }
+}
