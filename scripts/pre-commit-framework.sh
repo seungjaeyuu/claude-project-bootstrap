@@ -5,6 +5,7 @@
 #   (1) Swift/Kotlin/TS dictionary literal 중복 키 (차단)
 #   (2) Accessibility identifier 스키마/중복 (차단, Swift 파일 감지 시)
 #   (3) 베이스라인 동기화 경고 (경고만, TESTING_FRAMEWORK §20.7 L1)
+#   (5) plugin.json ↔ marketplace.json 버전 동기화 (차단)
 #
 # 각 검사는 해당 스크립트가 scripts/ 에 있을 때만 실행.
 # 프로젝트별로 불필요한 언어 검사는 grep 패턴 수정 또는 해당 블록 제거.
@@ -66,6 +67,20 @@ fi
 DOC_SIZE_SCRIPT="$ROOT/scripts/check_doc_size.py"
 if [ -f "$DOC_SIZE_SCRIPT" ]; then
   python3 "$DOC_SIZE_SCRIPT" "$ROOT" || true
+fi
+
+# ─────────────────────────────────────────────────────────────
+# (5) plugin.json ↔ marketplace.json 버전 동기화 (차단)
+# ─────────────────────────────────────────────────────────────
+VERSION_SYNC_SCRIPT="$ROOT/scripts/check_version_sync.py"
+if [ -f "$VERSION_SYNC_SCRIPT" ]; then
+  STAGED_JSON=$(git diff --cached --name-only | grep -E '(plugin|marketplace)\.json$' || true)
+  if [ -n "$STAGED_JSON" ]; then
+    echo "🔍 plugin.json ↔ marketplace.json 버전 동기화 검사..."
+    if ! python3 "$VERSION_SYNC_SCRIPT"; then
+      EXIT=1
+    fi
+  fi
 fi
 
 exit $EXIT
