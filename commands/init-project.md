@@ -37,7 +37,7 @@ Claude Code 의 Bash 명령 자동 실행 정책을 결정합니다. `.claude/se
 
 | 단계 | 한 줄 요약 | 사용자 체감 예시 |
 |---|---|---|
-| **(1) YOLO** | 거의 모든 Bash 자동. 파괴 명령(`rm -rf`, `git reset --hard`, `git push --force` to main, `firebase deploy`, DB drop)만 deny | "프로토타입 빨리 돌리고 싶고, 위험 명령은 안 쓸게" |
+| **(1) YOLO** | 거의 모든 Bash 자동. 파괴 명령(`rm -rf`, `git reset --hard`, `git push --force` to main, DB drop)만 deny | "프로토타입 빨리 돌리고 싶고, 위험 명령은 안 쓸게" |
 | **(2) Standard** *(권장)* | 읽기·일반 빌드 명령 자동, 파일 삭제·git 변경·deploy·패키지 변경·DB 마이그레이션은 ask | 보통 작업은 끊김 없이, 위험 명령에서만 한 번 묻기 |
 | **(3) Strict** | 읽기 전용(`ls`, `cat`, `git status`, `git diff` 등)만 자동. 그 외 ask | "Claude 가 뭘 할 때마다 일단 보고 싶음" / 보안 민감 |
 | **(4) None** | `permissions` 키 자체 미생성 — Claude Code 기본 동작 | "기본값으로 충분, 직접 안 건드림" |
