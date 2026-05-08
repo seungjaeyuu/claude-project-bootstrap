@@ -5,17 +5,20 @@
     "name": "Yu Seungjae",
     "email": "yu.seungjae@gmail.com"
   },
+  "repository": "https://github.com/seungjaeyuu/claude-project-bootstrap",
   "plugins": [
     {
       "name": "claude-project-bootstrap",
       "description": "네거티브 우선 원칙과 베이스라인 하네스로 새 프로젝트를 부트스트랩하는 Claude Code 플러그인",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "source": "./",
       "author": {
         "name": "Yu Seungjae",
         "email": "yu.seungjae@gmail.com"
       },
-      "homepage": "https://github.com/seungjaeyuu/claude-project-bootstrap"
+      "homepage": "https://github.com/seungjaeyuu/claude-project-bootstrap",
+      "repository": "https://github.com/seungjaeyuu/claude-project-bootstrap",
+      "license": "MIT"
     }
   ]
 }
