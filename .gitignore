@@ -15,3 +15,9 @@ __pycache__/
 # Local development
 *.log
 .secret/
+
+# Claude Code (개인 로컬 설정 / worktree 메타 — 팀 공유 X)
+# templates/gitignore.tmpl 의 권장 패턴과 일관 (settings.json·commands 만 화이트리스트)
+.claude/*
+!.claude/settings.json
+!.claude/commands/
