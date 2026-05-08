@@ -19,7 +19,7 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(d
 
 ### Step 1. Firebase project ID 입력
 
-사용자에게 프로젝트 ID 받기 (예: `aidea-prod`). 이 값을 `<FB_PROJECT_ID>` 라 한다.
+사용자에게 프로젝트 ID 받기 (예: `appfoo-prod`). 이 값을 `<FB_PROJECT_ID>` 라 한다.
 
 ### Step 2. 백업
 

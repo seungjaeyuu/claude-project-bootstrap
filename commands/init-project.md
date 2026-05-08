@@ -79,7 +79,7 @@ Claude Code 의 Bash 명령 자동 실행 정책을 결정합니다. `.claude/se
 
 ##### Q2b. (Q2a == 1 Firebase 시) Firebase project ID?
 
-예: `aidea-prod`. 이 ID 로 `.firebaserc` 자동 생성 + `firebase.json` predeploy hook 자동 등록 + `scripts/check_firebase_project.py` 복사 → 다른 프로젝트로 잘못 deploy 되는 사고 차단.
+예: `appfoo-prod`. 이 ID 로 `.firebaserc` 자동 생성 + `firebase.json` predeploy hook 자동 등록 + `scripts/check_firebase_project.py` 복사 → 다른 프로젝트로 잘못 deploy 되는 사고 차단.
 
 ---
 

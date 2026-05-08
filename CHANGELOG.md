@@ -84,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added — Firebase 격리 안전장치
 
-사용자 사고 사례(aidea 프로젝트가 `forkfork-xxx` 같은 다른 프로젝트로 잘못 deploy) 재발 방지. `firebase deploy` 가 어디서 호출되든 (Claude / 사용자 직접 / CI) `predeploy` hook 이 활성 프로젝트 검증을 자동 실행.
+사용자 사고 사례(appfoo 프로젝트가 `appbar-xxx` 같은 다른 프로젝트로 잘못 deploy) 재발 방지. `firebase deploy` 가 어디서 호출되든 (Claude / 사용자 직접 / CI) `predeploy` hook 이 활성 프로젝트 검증을 자동 실행.
 
 `init-project` 에서 Q2 Yes 시 Q2a (백엔드 종류) → Q2a == Firebase 시 Q2b (project ID) sub-input.
 

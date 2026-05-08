@@ -17,7 +17,7 @@
 1. 마켓플레이스 공개 배포 — 타 사용자가 `claude plugin install` 한 줄로 설치 가능
 2. 절대경로 의존 제거 — `${CLAUDE_PLUGIN_ROOT}` 기반 이식성 확보
 3. 버전 관리 — semver 로 업그레이드·롤백 체계화
-4. 사적 맥락 제거 — 현재 31건 산재한 SunnyWay 프로젝트 흔적을 generic 화
+4. 사적 맥락 제거 — 현재 31건 산재한 OriginalProject 프로젝트 흔적을 generic 화
 
 ### 1.2 배경
 
@@ -146,10 +146,10 @@ claude-project-bootstrap/
 
 | 유형 | 규칙 | 예시 |
 |---|---|---|
-| **"SunnyWay" 고유명사** | 맥락 따라 삭제 or "실제 프로덕션 프로젝트" 로 치환 | "SunnyWay TESTING_FRAMEWORK.md §13 참조" → 삭제 |
+| **"OriginalProject" 고유명사** | 맥락 따라 삭제 or "실제 프로덕션 프로젝트" 로 치환 | "OriginalProject TESTING_FRAMEWORK.md §13 참조" → 삭제 |
 | **구체 사고 날짜+내부 맥락** | 일반화된 리스크 설명으로 재작성. 날짜·Lane명·건수 제거 | "2026-04-14 Lane B Codex 가 ... 303건 중 262건 손실" → "병렬 AI 테스트에서 워커가 자신의 리포트 내 '운영 권고' 를 자율 집행하면 cross-kill 리스크. 실제 사고 사례 존재." |
 | **ID 예시** (`PRV-06-R14`, `DEV-066`) | 범용 placeholder | `PRV-06-R14` → `APP-01-R01`, `DEV-066` → `DEV-XXX` |
-| **경로 예시** (`sunnyway/apps/...`) | Generic 경로 | `sunnyway/apps/student_app_ios/SunnyWay` → `apps/ios/` |
+| **경로 예시** (`original-project/apps/...`) | Generic 경로 | `original-project/apps/student_app_ios/OriginalProject` → `apps/ios/` |
 | **"보호자/가족/학부모" 용어** | 삭제 대신 **교육적 예시로 유지** + 라벨 | "프로젝트 고유 용어 정의 예시 (실제 프로덕션 프로젝트의 경우)" |
 | **GitHub PR 번호 / Notion URL** | 삭제 |
 
@@ -158,8 +158,8 @@ claude-project-bootstrap/
 | 파일 | 강도 | 주요 작업 |
 |---|---|---|
 | `README.md` | 🔴 전면 재작성 | 플러그인 사용자 시점으로 전환 |
-| `templates/CLAUDE.md.tmpl` | 🟡 부분 수정 | 10건 SunnyWay 언급 제거, Lane B 사고 섹션 generic 화 |
-| `templates/TESTING_FRAMEWORK.md.tmpl` | 🟡 부분 수정 | 4건 SunnyWay 참조 제거 |
+| `templates/CLAUDE.md.tmpl` | 🟡 부분 수정 | 10건 OriginalProject 언급 제거, Lane B 사고 섹션 generic 화 |
+| `templates/TESTING_FRAMEWORK.md.tmpl` | 🟡 부분 수정 | 4건 OriginalProject 참조 제거 |
 | `templates/BASELINE.md.tmpl` | 🟢 1건만 | `EXAMPLE-S01` → `APP-01-R01` |
 | `scripts/baseline_status.py` | 🟢 주석만 | `--help` 예시 `PRV-06-R14` → `APP-01-R01` |
 | `scripts/check_accessibility_identifiers.py` | 🟢 주석만 | 경로 예시 generic 화 |
@@ -254,7 +254,7 @@ Stage 1 (로컬 개발) → Stage 2 (GitHub push) → Stage 3 (로컬 검증)
 | 7 | 커밋 시도 | pre-commit 이 `check_baseline_sync.py` + `check_dict_duplicates.py` 실행. UI 수정 + baseline 미갱신 시 경고 |
 | 8 | `/baseline-review` 실행 | `baseline_update_suggest.py` 호출, Git diff 분석 결과 출력 |
 | 9 | **회귀**: 기존 `CLAUDE.md` 있는 디렉토리에서 `/init-project` | **중단** + 알림 (덮어쓰기 방지) |
-| 10 | **정적 검증**: generic 화 누락 | 플러그인 저장소 전체 `grep -r "SunnyWay\|Lane B\|PRV-06\|sunnyway" .` **0건** (보호자는 예시 섹션만 허용) |
+| 10 | **정적 검증**: generic 화 누락 | 플러그인 저장소 전체 `grep -r "OriginalProject\|Lane B\|PRV-06\|original-project" .` **0건** (보호자는 예시 섹션만 허용) |
 
 ### 5.3 버전·태깅
 
@@ -274,7 +274,7 @@ Stage 1 (로컬 개발) → Stage 2 (GitHub push) → Stage 3 (로컬 검증)
 
 ### 5.5 🚫 주의 사항
 
-- **현재 작업 디렉토리는 SunnyWay worktree** — 플러그인 저장소는 **별도 위치** (`~/Documents/GitHub/claude-project-bootstrap/`) 생성. SunnyWay 워크트리에 섞이면 안 됨.
+- **현재 작업 디렉토리는 OriginalProject worktree** — 플러그인 저장소는 **별도 위치** (`~/Documents/GitHub/claude-project-bootstrap/`) 생성. OriginalProject 워크트리에 섞이면 안 됨.
 - **기존 `~/Documents/GitHub/_PROJECT_FRAMEWORK/` 는 읽기만** (참조용). archive 대상이므로 파일 수정 금지.
 - **`git reset --hard` 는 Stage 5 archive 준비에서만 허용** (사용자 이번 한정 승인). 플러그인 저장소 초기화는 `git init` 으로 깨끗하게.
 

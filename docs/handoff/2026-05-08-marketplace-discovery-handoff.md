@@ -119,11 +119,9 @@ EOF
 | `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md` | 없음 | bug / feature / question 3종 |
 | 영문 README (`README.en.md`) 또는 ko/en 분리 | 없음 | 글로벌 기여 진입장벽 — 한국어 100% 라 비한국어권 기여자 차단 |
 | GitHub Actions CI | 없음 | `scripts/` 의 Python 스크립트 lint/test, JSON 스키마 검증 |
-| 민감 정보 점검 | **미실시** | `docs/specs/` 에 `aidea`, `forkfork-xxx` 같은 실제 프로젝트명 노출 — 사용자 사고 사례 인용. 공개되어도 OK인지 사용자 확인 필요 |
+| 민감 정보 점검 | **✅ 2026-05-08 처리** | 외부 프로젝트명 8개 실명을 generic 가명으로 일괄 치환 (41건, 7개 파일). 매핑 표는 git history 비노출 — 사용자만 보유. 추가 노출 시 사용자 컨택. |
 
-**P3-우선 액션 (다음 세션 시작 시 가장 먼저)**:
-1. `git grep -nEi 'aidea|forkfork|sunnyway|<기타 실제 프로젝트명>' -- docs/ commands/ templates/ README.md` 로 실명 노출 위치 전수 점검
-2. 사용자에게 "실명 그대로 둘지 / 가명 처리할지" 결정 받기
+**P3-우선 액션 (다음 세션)**: 실명 → 가명 치환은 2026-05-08 세션에서 처리 완료. 다음 세션은 이 항목 skip 가능. 단 신규 추가 콘텐츠에 외부 프로젝트명 재유입이 없는지 PR 단위 점검은 계속 필요.
 
 ## 5. 다음 세션 시작 시 권장 첫 명령
 
@@ -144,7 +142,7 @@ gh api search/code -X GET -f q='filename:marketplace.json path:.claude-plugin "c
 
 다음 세션 시작 시 사용자에게 확인 받을 항목:
 
-1. **P3 민감정보 점검** — 실제 프로젝트명 노출 처리 방식
+1. ~~**P3 민감정보 점검**~~ — 2026-05-08 처리 완료
 2. **version SSOT 결정** — pre-commit sync 검증 vs release 스크립트 vs 둘 다
 3. **영문 README 추가 여부** — 글로벌 기여 받을지 / 한국어권 한정 운영할지
 4. **Anthropic 공식 PR 시도 여부** — 기각 시 영향 평가 (없음, 그냥 retry 가능)
