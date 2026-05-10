@@ -1,0 +1,20 @@
+---
+description: 프로젝트 상태 요약
+---
+다음 항목을 확인하여 요약합니다:
+
+1. `git status` — 변경 파일, 현재 브랜치
+2. 현재 버전·빌드번호 (VERSION 또는 package.json 또는 project.yml 에서)
+3. `TASK.md` 미완료 항목 수 (파일 존재 시)
+4. 최근 5개 커밋 — `git log --oneline -5`
+
+## 출력 형식
+
+```
+📍 브랜치: <branch>
+📦 버전: <version> (빌드 <build>)
+📋 백로그: <n>건 미완료 (TASK.md)
+📝 최근 커밋:
+   <hash> <message>
+   ...
+```

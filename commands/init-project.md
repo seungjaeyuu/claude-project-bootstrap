@@ -4,6 +4,8 @@ argument-hint: (선택 없음 — 대화형 질의)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash(cat:*), Bash(chmod:*), Bash(ln:*), Bash(git:*), Bash(bash:*), Bash(test:*), Bash(ls:*), Bash(rm:*)
 ---
 
+> **v0.3.0**: 이 커맨드는 `/init` 으로 이름이 변경되었습니다. 동일 기능을 실행합니다.
+
 # /init-project — 새 프로젝트 초기화
 
 `claude-project-bootstrap` 플러그인을 사용해 현재 작업 디렉토리를 프로젝트로 초기화.

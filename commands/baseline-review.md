@@ -4,6 +4,8 @@ argument-hint: [--app ios|android|...] [--since 14days]
 allowed-tools: Read, Edit, Bash(python3:*), Bash(git:*)
 ---
 
+> **v0.3.0**: 이 커맨드는 `/audit --baseline` 에서도 동일 기능을 실행합니다.
+
 # /baseline-review — 베이스라인 동기화 검토
 
 사용자 트리거 (E2E 테스트 세션 시작 / 릴리스 준비 / 정기 점검) 시 호출되는 slash command.

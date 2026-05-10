@@ -4,6 +4,8 @@ argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(python3:*), Bash(wc:*)
 ---
 
+> **v0.3.0**: 이 커맨드는 `/init --slim` 에 통합되었습니다. 동일 기능을 실행합니다.
+
 # /slim-claude-md — CLAUDE.md 슬림화 + RULES 분리
 
 비대해진 `CLAUDE.md` 본체를 임계치(120줄) 이하로 슬림화. 영역별 상세는 `docs/rules/RULES_*.md` 로 분리. **자동 분리하지 않음** — 진단 리포트로 후보 제시 후 사용자가 후보별 yes/no.

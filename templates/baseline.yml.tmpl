@@ -6,8 +6,8 @@
 # ⚠️ 생성 주체
 # ─────────────────────────────────────────────────────────────
 # 이 파일은 사용자가 수동 작성하지 않는다.
-# `/init-project` slash command 가 **프로젝트 유형 질의 후** 맞춤으로
-# 동적 생성한다 (TESTING_FRAMEWORK §20.9 E 원칙).
+# `/init` slash command 가 **프로젝트 유형 질의 후** 맞춤으로
+# 동적 생성한다.
 #
 # 예시 타입별 생성 결과:
 #   iOS 단일       → apps.ios 만 활성
@@ -16,7 +16,7 @@
 #   iOS+Android 모노레포 → apps.ios + apps.android 활성
 #
 # 본 파일은 **참조용 최소 예시**만 포함. 실제 프로젝트 베이스라인은
-# /init-project 실행 결과물을 참고할 것.
+# /init 실행 결과물을 참고할 것.
 #
 # 사용 주체 (생성 후):
 #   - scripts/baseline_status.py        (ID 조회·집계)
@@ -30,8 +30,8 @@ default_app: <APP_NAME>
 
 apps:
   <APP_NAME>:
-    baseline: <APP_NAME_UPPER>_MASTER_TEST_BASELINE.md
-    status_dir: docs/<APP_NAME>/testing_harness/run
+    baseline: docs/test/baseline/<APP_NAME_UPPER>_BASELINE.md
+    status_dir: docs/test/result/<APP_NAME>
     ui_file_patterns:
       - '<ui_regex>'              # 예: 'apps/ios/.*\.swift$'
     exclude_prefixes: [BUG]

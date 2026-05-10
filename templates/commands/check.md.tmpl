@@ -1,0 +1,15 @@
+---
+description: 빠른 품질 체크 (lint + typecheck + test)
+---
+lint, typecheck, 단위 테스트를 일괄 실행합니다.
+
+## 실행 명령
+
+(프로젝트 유형별 명령 — /init 시 자동 채움)
+
+### 예시 (유형별)
+
+- **iOS (SwiftUI)**: `swiftlint lint && xcodebuild test -scheme <scheme> -sdk iphonesimulator`
+- **Android (Kotlin)**: `./gradlew lint && ./gradlew test`
+- **Web (Next.js/TypeScript)**: `npm run lint && npx tsc --noEmit && npm test`
+- **Flutter**: `flutter analyze && flutter test`

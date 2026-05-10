@@ -177,9 +177,98 @@ v0.2.0 의 `templates/permissions/yolo.json` `deny` 리스트에 `Bash(firebase 
 - `Standard` / `Strict` 단계는 영향 없음 (Standard 는 `Bash(firebase:*)` 를 ask, Strict 는 미명시 → 기본 ask).
 - 기존 v0.2.0 사용자: 플러그인 재설치 후 `init-project` 재실행하거나, `.claude/settings.json` 의 `permissions.deny` 에서 `Bash(firebase deploy:*)` 한 줄 직접 제거.
 
+## [0.3.0] - 2026-05-11
+
+### Added — 컨텍스트 최적화 3종
+
+- **.claudeignore 자동 생성**: 프로젝트 유형별 바이너리·빌드 산출물 제외 (iOS/Android/Web/Flutter 섹션)
+- **enabledPlugins**: `.claude/settings.json` 에서 불필요 플러그인 비활성화 → 0 토큰 소비. `/audit --context` 가 자동 제안
+- **.claude/commands/ 기본 3개**: `/build`, `/check`, `/status` — 빌드 명령을 CLAUDE.md 에서 분리
+
+### Added — 커맨드 체계 재설계 (8개 → 4개 메인 + 하위호환)
+
+- `/init` — 신규 초기화 + 기존 프로젝트 설정 변경 메뉴 (기존 `/init-project` 흡수)
+  - `--bash`, `--firebase`, `--slim`, `--hook`, `--plugins` 직접 옵션
+  - Q3(Hook)/Q4(AX) → Q1(E2E) 하위 질의로 흡수 (최대 12회 → 8회)
+  - Q5(개발예정사항) → Q3(TASK.md) 승격 + 영문화
+- `/audit` — 품질·컨텍스트·베이스라인 일괄 점검 (기존 `/baseline-review` 흡수)
+  - `--context`, `--baseline`, `--quality` 옵션
+- `/release` — 출시 준비 체크 (보안·법적·버전·i18n·테스트 5개 카테고리)
+- `/guide` — 프로젝트 단계 자동 감지 + 커맨드 안내
+- 기존 5개 커맨드(`/bash-permission`, `/firebase-isolation`, `/slim-claude-md`, `/doc-size-hook`, `/init-project`)는 하위호환 유지
+
+### Added — 프로젝트 라이프사이클 프레임워크
+
+`RULES_PROJECT_LIFECYCLE.md` — SDLC + PMBOK 기반 6단계 모델 (기획→설계→개발→테스트→출시→운영). 강제가 아닌 체크리스트.
+
+### Added — 빌드번호 자동 증가 + XcodeGen 동기화
+
+- `RULES_VERSIONING.md` — semver + 빌드번호 SSOT 규칙 (iOS/Android/Web 플랫폼별 정본 위치)
+- `pre-commit-framework.sh` §(6) — main 브랜치 커밋 시 정본 파일 +1 자동 staging
+  - iOS: `project.yml` 다중 경로 탐색 (`iOS/`, 루트, `app/`) + `xcodegen generate` + `.xcodeproj` 재staging
+  - 🚫 이중 증가 방지: 이 hook 이 유일한 빌드번호 증가 경로
+- `post-merge.sh` — merge 후 `project.yml` 변경 감지 시 `.xcodeproj` 자동 재생성 (빌드번호 불변)
+- `install-hooks.sh` — post-merge hook 설치 블록 추가
+- CLAUDE.md §2 에 `📐 버전·빌드번호` + `🚫 빌드번호 이중 증가 방지` 가드레일 추가
+
+### Added — 표준 폴더 구조
+
+- `docs/` 표준 7개 폴더: summary, error, event, cost-plan, handoff, test, rules
+- `apps/` 플랫폼별 폴더: 프로젝트 유형(a~e)에 따라 자동 생성
+- 🚫 docs/ 하위 폴더명 안티패턴: 플러그인·도구 명칭으로 폴더 생성 금지
+
+### Added — TASK.md + tasks/ 백로그 구조
+
+기존 `개발예정사항.md` + `개발예정사항_상세/` 를 영문화. 인덱스(`TASK.md`) + 상세(`tasks/DEV-XXX.md`) 2계층.
+
+### Changed — CLAUDE.md.tmpl 슬림화 (120 → ~94줄)
+
+- §4 빌드 → `.claude/commands/build.md` 이동
+- §7 API키 → §2 에 🚫 1줄 병합
+- §3 발견 트리거에 VERSIONING, PROJECT_LIFECYCLE 행 추가
+- §4 문서·폴더 규칙 신설 (YYYYMMDD 접두어 + 폴더 명명)
+- §6 모노레포 → §5 축소
+
+### Changed — CLAUDE.minimal.md.tmpl 슬림화 (97 → ~67줄)
+
+Full 템플릿과 구조 통일 (§1 범례 → §2 횡단 가드레일 → §3 문서·폴더).
+
+### Changed — TESTING_FRAMEWORK.md.tmpl 슬림화 (167 → ~130줄)
+
+- §2 Cross-Lane: 25줄→3줄 (RULES_E2E.md 참조)
+- §20.8 baseline_status.py: 15줄→5줄 (--help 참조)
+- §20.9 새 플랫폼 추가: 삭제 (init이 자동 생성)
+- 경로: docs/test/ 기준
+
+### Changed — BASELINE.md.tmpl 슬림화
+
+- 파일명: `{APP}_MASTER_TEST_BASELINE.md` → `{APP}_BASELINE.md`
+- 상태 범례 표 삭제 → TESTING_FRAMEWORK 참조 1줄
+- 경로: `docs/test/baseline/` 기준
+
+### Changed — INDEX.md.tmpl 재설계
+
+- E2E 전용 하드코딩 → 조건부 HTML 주석
+- apps/ 플랫폼별 구조 반영
+- 빌드·품질 명령 섹션 추가 (/build, /check, /status)
+- docs/ 폴더 구조 가이드 + 안티패턴
+- 주요 문서 인덱스 섹션 (사용자 등록)
+- 스크립트·자동화 섹션 조건부
+
+### Changed — design-principles.md §1 보강
+
+"컨텍스트 예산" 관점 추가. 임계치 근거를 "가독성"에서 "컨텍스트 윈도우 유한 자원"으로 확장. enabledPlugins + .claudeignore 메커니즘 언급.
+
+### Notes
+
+- v0.2.x 와 100% 하위 호환 — 기존 프로젝트·커맨드 자동 변경 없음
+- 기존 커맨드는 유지하되 v0.3.0 안내 메시지 추가
+- CLAUDE.md 토큰은 전 버전 대비 감소 (120→~94줄)
+- 신규 파일 대부분은 `.gitkeep`(0줄) 또는 on-demand RULES
+
 ## [Unreleased]
 
 다음 릴리스 예정 개선사항:
-- Claude Code argument UI 제약 대응 — 4줄 설명 노출 방안 (#5)
-- "Q1"~"Q5" 축약 표기 → 풀어쓴 설명으로 교체 (#6)
+- `/retro-check` — 회고 커맨드 (v0.4.0 예정)
+- Claude Code argument UI 제약 대응 (#5)
 - YOLO 단계 deny 리스트 보강 (사용자 피드백 기반)

@@ -4,6 +4,8 @@ argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(chmod:*), Bash(python3:*)
 ---
 
+> **v0.3.0**: 이 커맨드는 `/init --firebase` 에 통합되었습니다. 동일 기능을 실행합니다.
+
 # /firebase-isolation — Firebase 프로젝트 격리 도입
 
 다른 Firebase 프로젝트로 잘못 deploy 되는 사고를 메커니즘으로 차단. `predeploy` hook 이 어디서 호출되든 (Claude / 사용자 직접 / CI) 활성 프로젝트 검증을 자동 실행.
