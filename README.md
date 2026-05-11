@@ -25,6 +25,25 @@ claude plugin install claude-project-bootstrap
 
 ---
 
+## 업데이트 (기존 설치 사용자)
+
+Claude Code 에는 전용 `upgrade` 명령이 없어 **마켓플레이스 갱신 → 재설치** 2스텝입니다.
+
+```bash
+# 1) 마켓플레이스 메타데이터 새로고침 (새 버전 인식)
+claude plugin marketplace update seungjaeyuu-plugins
+
+# 2) 재설치 = 업데이트
+claude plugin uninstall claude-project-bootstrap@seungjaeyuu-plugins
+claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
+```
+
+세션 안에서는 `/plugin ...` 슬래시 커맨드도 동일하며, 끝에 `/reload-plugins` 로 현재 세션에 즉시 반영할 수 있습니다. `/plugin` 대화형 UI 의 **Marketplaces → Update marketplace listings** 경로, 또는 해당 마켓플레이스의 **auto-update** 토글로도 가능합니다.
+
+> 마켓플레이스 식별자가 헷갈리면 `claude plugin marketplace list` 로 확인하세요 (이 저장소는 `seungjaeyuu-plugins`).
+
+---
+
 ## 제공하는 것
 
 ### 슬래시 커맨드 6개

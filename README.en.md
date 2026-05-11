@@ -27,6 +27,25 @@ claude plugin install claude-project-bootstrap
 
 ---
 
+## Updating (already-installed users)
+
+Claude Code has no dedicated `upgrade` command — it's a two-step **refresh marketplace → reinstall**:
+
+```bash
+# 1) Refresh marketplace metadata (so the new version is seen)
+claude plugin marketplace update seungjaeyuu-plugins
+
+# 2) Reinstall = update
+claude plugin uninstall claude-project-bootstrap@seungjaeyuu-plugins
+claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
+```
+
+The same works as `/plugin ...` slash commands inside a session; append `/reload-plugins` to apply it to the current session immediately. You can also use the `/plugin` interactive UI (**Marketplaces → Update marketplace listings**) or toggle **auto-update** for the marketplace.
+
+> Not sure of the marketplace identifier? Run `claude plugin marketplace list` (this repo registers as `seungjaeyuu-plugins`).
+
+---
+
 ## What It Provides
 
 ### 6 Slash Commands
