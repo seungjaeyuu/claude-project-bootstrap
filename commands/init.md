@@ -1,5 +1,5 @@
 ---
-description: 프로젝트 초기화 — 네거티브 우선 원칙 + 컨텍스트 최적화 스캐폴드
+description: Initialize a project — negative-first principle + context-optimization scaffold — 프로젝트 초기화 + 설정 변경
 argument-hint: (선택 없음 — 대화형 질의) 또는 --bash | --firebase | --slim | --hook | --plugins
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash(cat:*), Bash(chmod:*), Bash(ln:*), Bash(git:*), Bash(bash:*), Bash(test:*), Bash(ls:*), Bash(rm:*)
 ---

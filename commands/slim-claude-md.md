@@ -1,5 +1,5 @@
 ---
-description: CLAUDE.md 슬림화 + 영역별 RULES 분리 (진단 → 사용자 후보별 yes/no → yes 한 후보만 분리)
+description: Slim down CLAUDE.md + split per-area RULES (diagnose → per-candidate yes/no → split only approved) — CLAUDE.md 슬림화 + RULES 분리
 argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(python3:*), Bash(wc:*)
 ---

@@ -1,5 +1,5 @@
 ---
-description: 품질·컨텍스트·베이스라인 점검
+description: Audit quality, context size, and baseline — 품질·컨텍스트·베이스라인 점검
 argument-hint: (선택) --context | --baseline | --quality
 allowed-tools: Read, Bash(grep:*), Bash(wc:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(git:*), Bash(python3:*)
 ---

@@ -1,5 +1,5 @@
 ---
-description: Firebase 격리 안전장치 도입 — .firebaserc + firebase.json predeploy hook + 검증 스크립트 + CLAUDE.md 가드
+description: Add Firebase isolation guardrails — .firebaserc + firebase.json predeploy hook + verify script + CLAUDE.md guard — Firebase 격리 안전장치 도입
 argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(chmod:*), Bash(python3:*)
 ---

@@ -1,5 +1,5 @@
 ---
-description: 현재 프로젝트 단계 감지 + 사용 가능한 커맨드 안내
+description: Detect the current project stage and suggest available commands — 현재 프로젝트 단계 감지 + 커맨드 안내
 argument-hint: (선택 없음 — 자동 감지)
 allowed-tools: Read, Bash(grep:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(git:*), Bash(wc:*)
 ---

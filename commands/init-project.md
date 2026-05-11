@@ -1,5 +1,5 @@
 ---
-description: 새 프로젝트 초기화 — 네거티브 우선 원칙 + 베이스라인 하네스 스캐폴드
+description: Initialize a new project — negative-first principle + baseline harness scaffold (renamed to /init) — 새 프로젝트 초기화
 argument-hint: (선택 없음 — 대화형 질의)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash(cat:*), Bash(chmod:*), Bash(ln:*), Bash(git:*), Bash(bash:*), Bash(test:*), Bash(ls:*), Bash(rm:*)
 ---

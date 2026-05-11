@@ -1,5 +1,5 @@
 ---
-description: 문서 크기 hook 도입 — check_doc_size.py 복사 + pre-commit 통합 (CLAUDE.md 120줄 / RULES 250줄)
+description: Install the doc-size hook — copy check_doc_size.py + wire into pre-commit (CLAUDE.md 120 / RULES 250 lines) — 문서 크기 hook 도입
 argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(chmod:*), Bash(ln:*)
 ---

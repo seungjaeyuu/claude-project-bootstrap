@@ -268,6 +268,9 @@ Full 템플릿과 구조 통일 (§1 범례 → §2 횡단 가드레일 → §3 
 
 ## [Unreleased]
 
+### Changed
+- 공식 카탈로그(`anthropics/claude-plugins-official`) 제출 준비: `marketplace.json` 루트의 비표준 `repository` 키 제거 (`claude plugin validate` 통과), `plugin.json` 의 `repository` 를 객체형(`{type, url}`)으로 변경, 매니페스트 및 10개 커맨드 `description` 을 영문 우선(영/한 병기)으로 전환
+
 다음 릴리스 예정 개선사항:
 - `/retro-check` — 회고 커맨드 (v0.4.0 예정)
 - Claude Code argument UI 제약 대응 (#5)

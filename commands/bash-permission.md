@@ -1,5 +1,5 @@
 ---
-description: Bash 권한 단계 도입·변경 (YOLO/Standard/Strict/None) — 기존 .claude/settings.json 의 permissions 키 머지
+description: Set/change Bash permission tier (YOLO/Standard/Strict/None), merging existing .claude/settings.json permissions — Bash 권한 단계 도입·변경
 argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*)
 ---

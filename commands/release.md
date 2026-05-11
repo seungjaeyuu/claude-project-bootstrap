@@ -1,5 +1,5 @@
 ---
-description: 출시 준비 점검 — 보안·법적·버전·i18n·테스트 일괄 체크
+description: Pre-release readiness check — security, legal, version, i18n, tests — 출시 준비 점검
 argument-hint: (선택 없음 — 자동 점검)
 allowed-tools: Read, Bash(grep:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(git:*), Bash(wc:*), Bash(python3:*)
 ---
