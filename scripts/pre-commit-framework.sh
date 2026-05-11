@@ -6,6 +6,7 @@
 #   (2) Accessibility identifier 스키마/중복 (차단, Swift 파일 감지 시)
 #   (3) 베이스라인 동기화 경고 (경고만, TESTING_FRAMEWORK §20.7 L1)
 #   (5) plugin.json ↔ marketplace.json 버전 동기화 (차단)
+#   (6) 빌드번호 자동 증가 + xcodeproj 재생성 (main, XcodeGen)
 #
 # 각 검사는 해당 스크립트가 scripts/ 에 있을 때만 실행.
 # 프로젝트별로 불필요한 언어 검사는 grep 패턴 수정 또는 해당 블록 제거.
@@ -81,6 +82,74 @@ if [ -f "$VERSION_SYNC_SCRIPT" ]; then
       EXIT=1
     fi
   fi
+fi
+
+# ─────────────────────────────────────────────────────────────
+# (6) 빌드번호 자동 증가 + xcodeproj 재생성 (main 브랜치, XcodeGen 프로젝트 전용)
+#     project.yml 의 CURRENT_PROJECT_VERSION 증가 → xcodegen generate → staging
+#     🚫 수동 증가 금지: 이 hook 과 겹치면 이중 증가 발생
+# ─────────────────────────────────────────────────────────────
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+if [ "$BRANCH" = "main" ]; then
+
+  # ── iOS (XcodeGen) ──
+  PROJYML=""
+  for candidate in "$ROOT/iOS/project.yml" "$ROOT/project.yml" "$ROOT/app/project.yml"; do
+    if [ -f "$candidate" ]; then
+      PROJYML="$candidate"
+      break
+    fi
+  done
+
+  if [ -n "$PROJYML" ] && grep -q 'CURRENT_PROJECT_VERSION:' "$PROJYML"; then
+    CUR=$(grep 'CURRENT_PROJECT_VERSION:' "$PROJYML" | head -1 | sed 's/.*: *"\([0-9]*\)".*/\1/')
+    if [ -n "$CUR" ] && [ "$CUR" -eq "$CUR" ] 2>/dev/null; then
+      NXT=$((CUR + 1))
+      sed -i '' "s/CURRENT_PROJECT_VERSION: \"$CUR\"/CURRENT_PROJECT_VERSION: \"$NXT\"/" "$PROJYML"
+      git add "$PROJYML"
+      echo "📦 빌드번호: $CUR → $NXT (main branch auto-increment)"
+
+      # xcodeproj 재생성 (XcodeGen 설치 시)
+      PROJYML_DIR="$(dirname "$PROJYML")"
+      if command -v xcodegen &>/dev/null; then
+        (cd "$PROJYML_DIR" && xcodegen generate --quiet 2>/dev/null)
+        XCODEPROJ=$(find "$PROJYML_DIR" -maxdepth 1 -name "*.xcodeproj" -type d | head -1)
+        if [ -n "$XCODEPROJ" ]; then
+          git add "$XCODEPROJ"
+          echo "📦 .xcodeproj 재생성 완료 (빌드번호 동기화)"
+        fi
+      fi
+    fi
+  fi
+
+  # ── Android (Gradle) ──
+  GRADLE_FILE=""
+  [ -f "$ROOT/android/app/build.gradle.kts" ] && GRADLE_FILE="$ROOT/android/app/build.gradle.kts"
+  [ -f "$ROOT/android/app/build.gradle" ] && GRADLE_FILE="$ROOT/android/app/build.gradle"
+  [ -z "$GRADLE_FILE" ] && [ -f "$ROOT/app/build.gradle.kts" ] && GRADLE_FILE="$ROOT/app/build.gradle.kts"
+  [ -z "$GRADLE_FILE" ] && [ -f "$ROOT/app/build.gradle" ] && GRADLE_FILE="$ROOT/app/build.gradle"
+  if [ -n "$GRADLE_FILE" ]; then
+    CUR=$(grep -m1 'versionCode' "$GRADLE_FILE" | sed 's/.*versionCode[= ]*\([0-9]*\).*/\1/')
+    if [ -n "$CUR" ] && [ "$CUR" -eq "$CUR" ] 2>/dev/null; then
+      NXT=$((CUR + 1))
+      sed -i '' "s/versionCode[= ]*$CUR/versionCode $NXT/" "$GRADLE_FILE"
+      git add "$GRADLE_FILE"
+      echo "📦 Android 빌드번호: $CUR → $NXT"
+    fi
+  fi
+
+  # ── Web / Node ──
+  PKG_JSON="$ROOT/package.json"
+  if [ -f "$PKG_JSON" ] && grep -q '"buildNumber"' "$PKG_JSON"; then
+    CUR=$(grep '"buildNumber"' "$PKG_JSON" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    if [ -n "$CUR" ] && [ "$CUR" -eq "$CUR" ] 2>/dev/null; then
+      NXT=$((CUR + 1))
+      sed -i '' "s/\"buildNumber\": *$CUR/\"buildNumber\": $NXT/" "$PKG_JSON"
+      git add "$PKG_JSON"
+      echo "📦 Web 빌드번호: $CUR → $NXT"
+    fi
+  fi
+
 fi
 
 exit $EXIT

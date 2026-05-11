@@ -1,7 +1,6 @@
-# CLAUDE.md 기준 템플릿 (Full tier)
+# [프로젝트명] — CLAUDE.md
 
-> 새 프로젝트의 `CLAUDE.md` 작성 시 이 파일을 참조.
-> **설계 원칙**: 네거티브 우선 + LLM 자력 판단 가능한 일반 모범 사례 제외 + 임계치 120줄 이하 (`scripts/check_doc_size.py` 가 강제).
+> **설계 원칙**: 네거티브 우선 + LLM 자력 판단 가능한 일반 모범 사례 제외 + 임계치 120줄 이하.
 > **분리 규칙**: 영역별 상세는 `docs/rules/RULES_*.md` 로 분리. 본체는 횡단 가드레일 + 발견 트리거 표만.
 
 ---
@@ -26,16 +25,28 @@
 - 브랜치 동기화는 `git pull --rebase`. 메인 반영은 사용자 질의 후 + 원격 push 필수
 - 한 커밋 = 하나의 목적 (작업 범위 외 파일 변경 금지)
 
+### 🚫 시크릿·API 키
+- API 키·비밀번호·토큰을 커밋 추적 파일에 평문 포함 금지. `.secret/` 또는 `.env.local` 에 보관 (`.gitignore` 보호)
+
 ### 📐 사용자 의견 피드백 의무
 - 단순 동의 금지. 동의 전 기존 설계·코드·데이터 흐름부터 확인
-- 사용자 판단이 기능 누락·역할 분리 오류·정합성 문제 조짐이면 **즉시 근거와 함께 경고** (월권 아닌 의무)
+- 사용자 판단이 기능 누락·역할 분리 오류·정합성 문제 조짐이면 **즉시 근거와 함께 경고**
 
 ### 📐 개발 완료 보고
 - ✅ 완료 / ⏳ 미구현 / 📋 추가 필요 3상태 구분. 미완성을 완성으로 포장 금지.
 
-### 🚫 대규모 변경 시 누락 검증 (필수, 횡단)
+### 🚫 대규모 변경 시 누락 검증
 - 수정 전 `grep -c <키워드>` 기록 → 수정 후 재확인 → 라인 수 비교
-- 상세 절차·자주 누락되는 패턴: `docs/rules/RULES_REFACTORING.md`
+- 상세 절차: `docs/rules/RULES_REFACTORING.md`
+
+### 📐 버전·빌드번호
+- 빌드번호 단일 원천 + main 커밋마다 자동 +1. 상세: `docs/rules/RULES_VERSIONING.md`
+
+### 🚫 빌드번호 이중 증가 방지 (XcodeGen 프로젝트)
+- **수동 증가 금지**: `project.yml` 의 `CURRENT_PROJECT_VERSION` 을 직접 수정하지 말 것. pre-commit hook §(6) 이 main 브랜치 커밋 시 자동 +1 처리
+- **merge 커밋**: `git merge` 는 pre-commit 미발동 → 빌드번호 불변 (정상). 후속 커밋에서 자동 증가
+- **worktree**: main repo 의 hook 을 공유하므로 hook 미설치에 해당하지 않음
+- **post-merge hook**: merge 후 `.xcodeproj` 자동 재생성 (빌드번호 동기화)
 
 ---
 
@@ -49,72 +60,40 @@
 | UI 컴포넌트 (Button/TextField 등) 편집 | `docs/rules/RULES_ACCESSIBILITY.md` |
 | 100줄 이상 파일 변경 / 대규모 리팩토링 | `docs/rules/RULES_REFACTORING.md` |
 | Firestore / 백엔드 데이터 호출 코드 | `docs/rules/RULES_DATA_INTEGRITY.md` |
-| E2E 테스트 / Codex orchestrator 작업 | `docs/rules/RULES_E2E.md` + `TESTING_FRAMEWORK.md` |
+| E2E 테스트 / Codex orchestrator 작업 | `docs/rules/RULES_E2E.md` + `docs/test/TESTING_FRAMEWORK.md` |
 | 도메인 용어가 등장하는 코멘트·UI 텍스트 | `docs/rules/RULES_TERMINOLOGY.md` |
+| 버전 변경 / 릴리스 / main 커밋 | `docs/rules/RULES_VERSIONING.md` |
+| 출시 준비 / 프로젝트 단계 점검 | `docs/rules/RULES_PROJECT_LIFECYCLE.md` |
 | 위 행에 해당 안 되거나 분류 모호 | `${CLAUDE_PLUGIN_ROOT}/docs/design-principles.md` (메타 원칙) |
 
 분류가 모호하면 fallback 행을 read — 누락보다 안전하다.
 
 ---
 
-## 4. 빌드
+## 4. 문서·폴더 규칙
 
-```bash
-# Next.js
-npm run build
+### 📐 문서 규칙
+- MD 파일명: `YYYYMMDD_` 접두어 (예: `20260511_release_notes.md`)
+- 개발 백로그 (선택): 인덱스(`TASK.md`) + 상세(`tasks/DEV-XXX.md`) 2계층
 
-# Flutter (빌드 번호 자동 증가 필수 프로젝트)
-./scripts/increment_build_number.sh && flutter build
-
-# SwiftUI
-./scripts/increment_build_number.sh && xcodebuild -scheme [스킴명] build
-
-# Kotlin + Compose
-./gradlew assembleDebug
-```
-
-프로젝트에 해당하지 않는 줄은 삭제.
+### 📐 폴더 명명
+- `docs/` 하위 폴더명은 **문서의 목적·역할** 기준 (summary, error, event, handoff 등)
+- 🚫 플러그인·도구·스킬 명칭으로 폴더 생성 금지 (superpowers/, figma-designs/ 등)
 
 ---
 
-## 5. 문서 규칙
-
-- MD 파일명: `YYYYMMDD_` 접두어 (예: `20260505_release_notes.md`)
-- 경로: `docs/` 또는 프로젝트 루트
-- 개발 백로그 (선택): 인덱스(`/개발예정사항.md`) + 상세(`/개발예정사항_상세/DEV-XXX.md`) 2계층
-- 백로그 상태 변경 시 인덱스·상세 양쪽 동시 업데이트
-
----
-
-## 6. 모노레포 분산 (해당 시)
+## 5. 모노레포 분산 (해당 시)
 
 | 위치 | 내용 |
 |---|---|
 | 루트 | 본 CLAUDE.md (공통) |
-| 앱 디렉토리 | `apps/<app>/CLAUDE.md` (프레임워크별·앱 고유) |
+| 앱 디렉토리 | `apps/<platform>/CLAUDE.md` (플랫폼·앱 고유) |
 | 영역별 RULES | `docs/rules/RULES_*.md` |
-| E2E 프레임워크 | `TESTING_FRAMEWORK.md` |
-| 사용자 공통 | `~/.claude/CLAUDE.md` (자동 적용) |
 
 Claude Code 는 하위 `CLAUDE.md` 를 on-demand 로드.
 
 ---
 
-## 7. 외부 API 키 (로컬 전용)
-
-### 🚫 평문 노출 금지
-모든 개인 API 키는 `.secret/<서비스>.md` 또는 `.env.local` 아래 관리. `.gitignore` 보호.
-
-CLAUDE.md 에는 **경로만** 참조:
-
-```markdown
-| 서비스 | 경로 |
-|---|---|
-| Notion API | [.secret/notion.md](.secret/notion.md) |
-```
-
----
-
 ## 변경 이력
 
-- YYYY-MM-DD — claude-project-bootstrap Full tier 초기화 (네거티브 우선 + 4층 범례 + 영역별 RULES 분리)
+- YYYY-MM-DD — claude-project-bootstrap Full tier 초기화 (v0.3.0)

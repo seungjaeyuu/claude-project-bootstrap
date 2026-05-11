@@ -1,0 +1,66 @@
+# RULES_VERSIONING — 버전·빌드번호 관리 규칙
+
+> **트리거**: 빌드번호 변경, 버전 변경, 릴리스 작업 시 참조.
+
+---
+
+## 원칙
+
+### 📐 semver (Semantic Versioning)
+
+`MAJOR.MINOR.PATCH` — 릴리스 시 사람이 관리.
+
+| 변경 | 의미 | 예시 |
+|---|---|---|
+| MAJOR | 하위 호환 깨짐 | 1.0.0 → 2.0.0 |
+| MINOR | 하위 호환 유지 기능 추가 | 1.0.0 → 1.1.0 |
+| PATCH | 버그 수정 | 1.0.0 → 1.0.1 |
+
+### 📐 빌드번호 단일 원천 (SSOT)
+
+빌드번호는 **한 곳에만 정수**로 존재. 파생처는 변수 치환 또는 빌드 시 자동 생성.
+pre-commit hook 이 main 브랜치 커밋 시 **정수 +1** 수행 + 자동 staging.
+
+---
+
+## 플랫폼별 정본 위치
+
+| 플랫폼 | 정본 파일 | 정본 필드 | 파생처 (직접 수정 금지) |
+|---|---|---|---|
+| **iOS (XcodeGen)** | `iOS/project.yml` | `CURRENT_PROJECT_VERSION` | Info.plist ← `$(CURRENT_PROJECT_VERSION)` 변수 치환 |
+| **Android** | `android/app/build.gradle(.kts)` | `versionCode` | AndroidManifest.xml ← Gradle 빌드 시 자동 주입 |
+| **Web / Node** | `package.json` | `buildNumber` | 번들러 환경변수 또는 런타임 읽기 |
+
+---
+
+## 🚫 금지
+
+- Info.plist 의 `CFBundleVersion` 에 하드코딩 숫자 기입 — 반드시 `$(CURRENT_PROJECT_VERSION)`
+- 정본 이외의 파일에서 빌드번호 직접 수정
+- **`project.yml` 의 `CURRENT_PROJECT_VERSION` 수동 증가 금지** — pre-commit hook §(6) 이 유일한 증가 경로. 수동 +1 시 hook 과 합산되어 이중 증가 발생
+- main 커밋 시 빌드번호 미증가 (hook 미설치 환경이라도 수동 +1 필수)
+- `version` (semver) 과 `buildNumber` (정수) 혼동 — 별개 관리
+
+---
+
+## 자동 강제
+
+`scripts/pre-commit-framework.sh` §(6):
+1. main 브랜치 감지
+2. 플랫폼 자동 감지 (해당 파일 존재 시에만)
+3. 정본 +1 → `git add`
+
+---
+
+## 검증 명령
+
+```bash
+# iOS
+grep 'CURRENT_PROJECT_VERSION:' iOS/project.yml
+
+# Android
+grep 'versionCode' android/app/build.gradle*
+
+# Web
+grep '"buildNumber"' package.json
+```

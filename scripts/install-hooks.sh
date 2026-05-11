@@ -57,6 +57,27 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────────
+# 1-2. Git post-merge hook (XcodeGen xcodeproj 재생성)
+# ─────────────────────────────────────────────────────────────
+POST_MERGE_LINK="$HOOK_DIR/post-merge"
+POST_MERGE_TARGET="$ROOT/scripts/post-merge.sh"
+
+if [ ! -f "$POST_MERGE_TARGET" ] && [ -f "$FRAMEWORK/scripts/post-merge.sh" ]; then
+  cp "$FRAMEWORK/scripts/post-merge.sh" "$POST_MERGE_TARGET"
+  chmod +x "$POST_MERGE_TARGET"
+  echo "✅ scripts/post-merge.sh 복사"
+fi
+
+if [ -L "$POST_MERGE_LINK" ]; then
+  echo "ℹ️  post-merge hook 이미 설치됨: $(readlink "$POST_MERGE_LINK")"
+elif [ -e "$POST_MERGE_LINK" ]; then
+  echo "⚠️  post-merge hook 이 이미 있음 (symlink 아님). 수동 확인 권장."
+else
+  ln -sf "../../scripts/post-merge.sh" "$POST_MERGE_LINK"
+  echo "✅ Git post-merge hook 설치"
+fi
+
+# ─────────────────────────────────────────────────────────────
 # 2. 검증 스크립트 복사 (없을 때만)
 # ─────────────────────────────────────────────────────────────
 # 주의: .claude/settings.json (Claude Code PostToolUse hook) 은 본 스크립트에서

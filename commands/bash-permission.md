@@ -4,6 +4,8 @@ argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*)
 ---
 
+> **v0.3.0**: 이 커맨드는 `/init --bash` 에 통합되었습니다. 동일 기능을 실행합니다.
+
 # /bash-permission — Bash 권한 단계 도입·변경
 
 `.claude/settings.json` 의 `permissions` 키를 4단계 중 하나로 설정한다. 기존 `hooks` 키는 보존. 마이그레이션·재설정 양쪽 용도.

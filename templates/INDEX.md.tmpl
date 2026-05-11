@@ -11,18 +11,7 @@
 |---|---|---|
 | 1 | [CLAUDE.md](CLAUDE.md) | 프로젝트 공통 규칙 |
 | 2 | 본 INDEX.md | 전체 지도 |
-| 3 | [개발예정사항.md](개발예정사항.md) | 개발 백로그 인덱스 (선택) |
-
----
-
-## 핵심 운영 문서 (루트)
-
-| 문서 | 한 줄 설명 |
-|---|---|
-| [CLAUDE.md](CLAUDE.md) | 프로젝트 규칙 (모든 세션 자동 로드) |
-| [TESTING_FRAMEWORK.md](TESTING_FRAMEWORK.md) | E2E 테스트 하네스 프레임워크 (§20 베이스라인 규약 포함) |
-| [<APP>_MASTER_TEST_BASELINE.md](<APP>_MASTER_TEST_BASELINE.md) | 각 앱 베이스라인 |
-| [개발예정사항.md](개발예정사항.md) | 개발 백로그 인덱스 (선택) |
+| 3 | [TASK.md](TASK.md) | 개발 백로그 인덱스 (선택) |
 
 ---
 
@@ -30,16 +19,57 @@
 
 ```
 apps/
-├── <app1>/          # 설명
-├── <app2>/          # 설명
+├── <platform>/      # 플랫폼별 앱 (ios, android, web, flutter 등)
 packages/
-└── <shared>/        # 공유 패키지 (있는 경우)
-infra/               # 백엔드 인프라 (있는 경우)
+└── <shared>/        # 공유 패키지 (모노레포 시)
 ```
 
-| 앱 | 스택 | 대상 | CLAUDE.md |
-|---|---|---|---|
-| <app1> | Next.js / SwiftUI / Kotlin Compose / Flutter / ... | ... | [있음](apps/<app1>/CLAUDE.md) |
+| 앱 | 스택 | CLAUDE.md |
+|---|---|---|
+| <app1> | (스택 기재) | [있음](apps/<app1>/CLAUDE.md) |
+
+---
+
+## 빌드·품질 명령
+
+| 명령 | 용도 |
+|---|---|
+| `/build` | 프로젝트 빌드 (`.claude/commands/build.md`) |
+| `/check` | lint + typecheck + test 일괄 (`.claude/commands/check.md`) |
+| `/status` | git 상태 + 버전 + 백로그 요약 (`.claude/commands/status.md`) |
+
+---
+
+## docs/ 폴더 구조
+
+```
+docs/
+├── rules/           # CLAUDE.md 영역별 상세 규칙 (RULES_*.md)
+├── summary/         # 회의록·요약
+├── error/           # 에러 분석·트러블슈팅
+├── event/           # 이벤트 로그·변경 이력
+├── cost-plan/       # 비용 계획·요금제
+├── handoff/         # 인계 문서
+└── test/            # 테스트 전체
+    ├── TESTING_FRAMEWORK.md   # E2E 테스트 규약 (설정 시)
+    ├── baseline/              # 앱별 베이스라인
+    ├── result/                # 테스트 결과 (앱별 하위)
+    └── feedback/              # 테스트 피드백
+```
+
+### 🚫 폴더 명명 안티패턴
+
+- `docs/` 하위 폴더명은 **문서의 목적·역할** 기준
+- 플러그인·도구·스킬 명칭으로 폴더 생성 금지 (superpowers/, figma-designs/ 등)
+
+---
+
+## 주요 문서 인덱스
+
+| 문서 | 한 줄 설명 |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | 프로젝트 규칙 (모든 세션 자동 로드) |
+| (사용자가 프로젝트 주요 문서 등록) | |
 
 ---
 
@@ -47,13 +77,16 @@ infra/               # 백엔드 인프라 (있는 경우)
 
 | 경로 | 용도 |
 |---|---|
-| `scripts/baseline.yml` | 멀티플랫폼 베이스라인 설정 ([§20.1](TESTING_FRAMEWORK.md)) |
-| `scripts/baseline_status.py` | 상태 조회 ([§20.8](TESTING_FRAMEWORK.md)) |
-| `scripts/baseline_update_suggest.py` | Git diff 기반 갱신 제안 ([§20.7](TESTING_FRAMEWORK.md)) |
-| `scripts/pre-commit-framework.sh` | Git pre-commit hook |
 | `.claude/settings.json` | Claude Code hook + permission |
-| `.claude/commands/` | Slash command (`/baseline-review` 등) |
-| `.secret/` | API 키·비밀 (gitignore) |
+| `.claude/commands/` | 슬래시 커맨드 (`/build`, `/check`, `/status`) |
+| `.secret/` | API 키·비밀 (gitignore 보호) |
+
+<!-- E2E 테스트 설정 시 아래 주석 해제
+| `scripts/baseline.yml` | 멀티플랫폼 베이스라인 설정 |
+| `scripts/baseline_status.py` | 상태 조회 |
+| `scripts/baseline_update_suggest.py` | Git diff 기반 갱신 제안 |
+| `scripts/pre-commit-framework.sh` | Git pre-commit hook |
+-->
 
 ---
 
@@ -70,4 +103,4 @@ infra/               # 백엔드 인프라 (있는 경우)
 
 | 날짜 | 내용 |
 |---|---|
-| YYYY-MM-DD | 초판 — PROJECT_FRAMEWORK 기반 초기화 |
+| YYYY-MM-DD | 초판 — claude-project-bootstrap v0.3.0 기반 초기화 |
