@@ -1,5 +1,5 @@
 ---
-description: Pre-release readiness check — security, legal, version, i18n, tests — 출시 준비 점검
+description: Pre-release readiness check — security, legal, version, i18n, tests, accessibility — 출시 준비 점검
 argument-hint: (선택 없음 — 자동 점검)
 allowed-tools: Read, Bash(grep:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(git:*), Bash(wc:*), Bash(python3:*)
 ---
@@ -15,7 +15,7 @@ allowed-tools: Read, Bash(grep:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(g
 
 ---
 
-## 점검 항목 (5개 카테고리)
+## 점검 항목 (6개 카테고리)
 
 ### 1. 버전·빌드번호
 
@@ -54,6 +54,30 @@ grep -m1 '## ' CHANGELOG.md 2>/dev/null
 - E2E 설정이 없으면 건너뜀
 - 설정이 있으면: `/audit --baseline` 실행과 동일
 
+### 6. 접근성 (Accessibility)
+
+`docs/rules/RULES_ACCESSIBILITY.md` 존재 시만 실행 (init 시 Accessibility 검증 활성화한 프로젝트).
+미존재 시 건너뜀.
+
+- [ ] AX identifier 스키마 검증 — snake_case + type 접미사
+- [ ] 인터랙티브 요소 `.accessibilityIdentifier()` 부여 여부
+- [ ] 전역 identifier 중복 (cross-file)
+
+**검증 방법**:
+```bash
+# Swift 소스 디렉토리 자동 감지 후 실행
+# --features 는 프로젝트별 feature prefix (ACCESSIBILITY_IDENTIFIERS.md 참조)
+find . -type d -name "*.xcodeproj" -o -name "Package.swift" 2>/dev/null | head -1
+python3 scripts/check_accessibility_identifiers.py --recursive \
+    --features auth,settings,common \
+    <iOS 소스 경로>
+```
+
+**판정 기준**:
+- exit 0 → PASS
+- exit 1 → 위반 존재 (세부 내역은 stderr)
+- `--strict-missing` 옵션으로 인터랙티브 요소 누락도 위반 처리 가능
+
 ---
 
 ## 출력 형식
@@ -82,6 +106,12 @@ grep -m1 '## ' CHANGELOG.md 2>/dev/null
 5. 테스트
    ✅ PASS: <n>건 / ⚠️ FAIL: <n>건
 
+6. 접근성 (Accessibility)
+   ✅ identifier 스키마: 위반 0건
+   ⚠️ 인터랙티브 미부여: <n>건 (warning)
+   — 또는 —
+   ⏭️ RULES_ACCESSIBILITY.md 미존재 — 건너뜀
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -91,3 +121,5 @@ grep -m1 '## ' CHANGELOG.md 2>/dev/null
 
 - 프로젝트 라이프사이클: `docs/rules/RULES_PROJECT_LIFECYCLE.md`
 - 버전·빌드번호: `docs/rules/RULES_VERSIONING.md`
+- 접근성 규칙: `docs/rules/RULES_ACCESSIBILITY.md`
+- 접근성 검증 스크립트: `scripts/check_accessibility_identifiers.py`

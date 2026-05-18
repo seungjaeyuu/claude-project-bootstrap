@@ -20,6 +20,10 @@ E2E 테스트 하네스(AX 탐색)는 `.accessibilityIdentifier()` 문자열로 
     python3 scripts/check_accessibility_identifiers.py --recursive \
         apps/ios/
 
+    # 프로젝트별 feature prefix 지정
+    python3 scripts/check_accessibility_identifiers.py --features auth,cart,profile \
+        --recursive apps/ios/
+
     # 조용히 (CI/hook 용)
     python3 scripts/check_accessibility_identifiers.py --quiet <files>
 
@@ -48,12 +52,9 @@ VALID_TYPES = (
     "label title badge status count message error icon"
 ).split()
 
-# {feature} 시작부 검증 (확장 가능)
-VALID_FEATURES = {
-    "auth", "dashboard", "notice", "academy_notice", "settings", "guardian",
-    "location", "attendance", "academy", "course", "common", "schedule",
-    "notification",
-}
+# {feature} 시작부 검증
+# --features CLI 옵션으로 프로젝트별 지정. 미지정 시 feature prefix 검증 건너뜀.
+_ACTIVE_FEATURES: set[str] | None = None
 
 # 문자열 literal 기반 정적 identifier 의 엄격 규칙
 # 예: "auth_login_submit_button"  /  "notice_list_row_\(notice.id)"
@@ -152,18 +153,15 @@ def find_missing_interactives(lines: list[str]) -> list[tuple[int, str]]:
     return missing
 
 
-def validate_schema(identifier: str) -> str | None:
+def validate_schema(identifier: str, features: set[str] | None = None) -> str | None:
     """
     스키마 위반 시 사유 문자열 반환 (None 이면 pass).
     - snake_case + ASCII
     - type 접미사 포함
-    - feature prefix 카탈로그 매칭
+    - feature prefix 카탈로그 매칭 (features 가 None 이면 건너뜀)
     """
-    # dynamic suffix 제거 후 정적 prefix 만 검증 (중첩 괄호 지원)
     static_part = strip_dynamic_interpolations(identifier)
-    # 연속된 `_` 를 단일 `_` 로 병합 (dynamic 이 중간에 있으면 __ 가 생김)
     static_part = re.sub(r'_+', '_', static_part)
-    # 양 끝 `_` 정리
     static_part = static_part.strip("_")
 
     if not re.match(r'^[a-z][a-z0-9_]*$', static_part):
@@ -173,12 +171,11 @@ def validate_schema(identifier: str) -> str | None:
     if len(parts) < 3:
         return f"형식 부족 ({len(parts)} 토큰, 최소 3: feature/screen/element + type)"
 
-    # feature prefix 검증 (복합 feature 인 academy_notice 도 지원)
-    feature_candidates = [parts[0], f"{parts[0]}_{parts[1]}" if len(parts) > 1 else None]
-    if not any(c in VALID_FEATURES for c in feature_candidates if c):
-        return f"미등록 feature prefix: '{parts[0]}' (허용: {', '.join(sorted(VALID_FEATURES))})"
+    if features is not None:
+        feature_candidates = [parts[0], f"{parts[0]}_{parts[1]}" if len(parts) > 1 else None]
+        if not any(c in features for c in feature_candidates if c):
+            return f"미등록 feature prefix: '{parts[0]}' (허용: {', '.join(sorted(features))})"
 
-    # type 접미사 검증 (마지막 토큰 또는 dynamic 직전 토큰)
     if parts[-1] not in VALID_TYPES:
         return f"type 접미사 누락/오류 (마지막 토큰: '{parts[-1]}', 허용: {', '.join(VALID_TYPES)})"
 
@@ -186,7 +183,10 @@ def validate_schema(identifier: str) -> str | None:
 
 
 def check_file(
-    path: pathlib.Path, all_identifiers: dict[str, list[str]], quiet: bool
+    path: pathlib.Path,
+    all_identifiers: dict[str, list[str]],
+    quiet: bool,
+    features: set[str] | None = None,
 ) -> tuple[int, int]:
     """
     단일 파일 검사.
@@ -201,9 +201,8 @@ def check_file(
     violations = 0
     warnings = 0
 
-    # identifier 추출 + 스키마 검증
     for line_no, identifier in extract_identifiers(lines):
-        reason = validate_schema(identifier)
+        reason = validate_schema(identifier, features)
         if reason:
             violations += 1
             if not quiet:
@@ -246,18 +245,31 @@ def main() -> int:
         action="store_true",
         help="인터랙티브 요소 누락도 exit code 에 반영 (기본은 warning)",
     )
+    parser.add_argument(
+        "--features",
+        type=str,
+        default=None,
+        help="쉼표 구분 feature prefix 목록 (예: auth,cart,profile). 미지정 시 feature 검증 건너뜀",
+    )
     args = parser.parse_args()
+
+    features: set[str] | None = None
+    if args.features:
+        features = {f.strip() for f in args.features.split(",") if f.strip()}
 
     files = list(gather_files(args.targets, args.recursive))
     if not files:
         print("검사 대상 .swift 파일 없음", file=sys.stderr)
         return 2
 
+    if features is None:
+        print("ℹ --features 미지정: feature prefix 검증 건너뜀 (snake_case + type 만 검사)", file=sys.stderr)
+
     all_identifiers: dict[str, list[str]] = defaultdict(list)
     total_violations = 0
     total_warnings = 0
     for path in files:
-        v, w = check_file(path, all_identifiers, args.quiet)
+        v, w = check_file(path, all_identifiers, args.quiet, features)
         total_violations += v
         total_warnings += w
 
