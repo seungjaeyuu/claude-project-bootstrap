@@ -274,17 +274,24 @@ Full 템플릿과 구조 통일 (§1 범례 → §2 횡단 가드레일 → §3 
   - `plugin.json` 의 `repository` 를 객체형(`{ "type": "git", "url": ... }`)으로 변경
   - 매니페스트 및 10개 커맨드 `description` 을 영문 우선(영/한 병기)으로 전환
 
-## [0.3.2] - 2026-05-18
+## [0.3.2] - 2026-05-14
 
 ### Added
 - `/release` 접근성(Accessibility) 점검 카테고리 추가 (6번째 카테고리)
   - `docs/rules/RULES_ACCESSIBILITY.md` 존재 시만 실행 (opt-in)
   - `check_accessibility_identifiers.py --recursive` 자동 실행
+- `SECURITY.md` — 보안 취약점 비공개 신고 절차 (GitHub Community Standards 8/8 달성)
+- README에 "업데이트 (기존 설치 사용자)" 섹션 추가
 
 ### Changed
 - `check_accessibility_identifiers.py` 이식성 수정
   - `VALID_FEATURES` 하드코딩 제거 → `--features` CLI 옵션으로 프로젝트별 지정
   - 미지정 시 feature prefix 검증 건너뜀 (snake_case + type 접미사만 검사)
+
+### Docs
+- `docs/handoff/20260509_bootstrap_context_optimization.md` — 컨텍스트 최적화 핸드오프
+- `docs/specs/20260511_bootstrap_build_number_spec.md` — 빌드번호 설계 스펙
+- `docs/session_reports/20260511_v0.3.0_release.md` — v0.3.0 릴리스 세션 리포트
 
 ## [Unreleased]
 
