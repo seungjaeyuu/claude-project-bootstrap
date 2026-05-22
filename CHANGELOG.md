@@ -293,6 +293,56 @@ Full 템플릿과 구조 통일 (§1 범례 → §2 횡단 가드레일 → §3 
 - `docs/specs/20260511_bootstrap_build_number_spec.md` — 빌드번호 설계 스펙
 - `docs/session_reports/20260511_v0.3.0_release.md` — v0.3.0 릴리스 세션 리포트
 
+## [0.3.3] - 2026-05-22
+
+### Added — 웹 SEO 가이드라인 자동화
+
+웹 프로젝트 초기화 시 SEO 가이드라인·검증 스크립트·pre-commit hook 을 자동 적용.
+AIDEA 프로젝트에서 실전 검증된 패턴을 범용 플러그인 템플릿으로 일반화.
+
+- `scripts/check_seo.py` — 14항목 SEO 검증 스크립트
+  - title width (15-40 Naver 폭), meta description (45-80), og:tags, twitter:tags
+  - canonical, hreflang (ko/en/x-default), viewport, h1 count, JSON-LD, html lang, og:image
+  - East Asian width 계산 (한글 2칸): 네이버 검색 최적화 지원
+  - `--quiet` 옵션, exit code: 0=pass / 1=fail / 2=usage error
+- `templates/SEO_GUIDELINE.md.tmpl` — 범용 SEO 가이드라인 (플레이스홀더: `[HTML_PATH]`, `[SITE_URL]`)
+  - 7섹션: 메타 태그 제한, 14항목 체크리스트, HTML 구조, robots.txt, sitemap, Cache-Control, 검증
+- `templates/rules/RULES_SEO.md.tmpl` — 발견 트리거 대상 도메인 규칙
+- `commands/seo-setup.md` — 기존 프로젝트에 SEO 후속 도입하는 독립 커맨드
+  - 3개 대화형 질의 (HTML 경로, 사이트 URL, pre-commit hook)
+  - 6단계 실행 + 완료 리포트
+
+### Changed — `/init` (v0.3.0 메인 커맨드)
+
+- Q4 SEO 질의 추가 (Q4a HTML 경로, Q4b 사이트 URL)
+- `--seo` 직접 옵션 + 설정 변경 메뉴 `f) SEO 가이드라인 도입`
+- Q1b(hooks) 없이 Q4 Yes 시 스마트 제안 ("Q1b Yes 도 권장")
+- Step 4d SEO 설정 블록 추가
+- 대화형 질의 최대 8회 → 10회
+
+### Changed — `/init-project` (하위호환 레거시)
+
+- Q6 SEO 질의 추가 (Q6a HTML 경로, Q6b 사이트 URL)
+- Q3(hooks) 없이 Q6 Yes 시 스마트 제안
+- Step 4b SEO 설정 블록 추가
+
+### Changed — `/release` 출시 준비 점검
+
+- 7번째 카테고리 "SEO" 추가 (6→7대 카테고리)
+  - `SEO_GUIDELINE.md` 존재 시만 실행 (opt-in)
+  - HTML 메타 태그 14항목, robots.txt, sitemap.xml, JSON-LD 검증
+
+### Changed — pre-commit hook
+
+- `pre-commit-framework.sh` §(7) SEO 검증 블록 추가
+  - staged HTML 파일 대상 `check_seo.py --quiet` 자동 실행
+  - 위반 시 커밋 차단 + 가이드 참조 안내
+- `install-hooks.sh` — `check_seo.py` 복사 대상 추가
+
+### Changed — CLAUDE.md 템플릿
+
+- §3 발견 트리거 표에 SEO 행 추가: `랜딩 페이지 HTML / 메타 태그 / SEO 관련 수정 → RULES_SEO.md + SEO_GUIDELINE.md`
+
 ## [Unreleased]
 
 다음 릴리스 예정 개선사항:

@@ -48,9 +48,9 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 
 | Command | Purpose |
 |---|---|
-| `/claude-project-bootstrap:init` | Initialize new project + reconfigure existing (up to 8 interactive prompts) |
+| `/claude-project-bootstrap:init` | Initialize new project + reconfigure existing (up to 10 interactive prompts) |
 | `/claude-project-bootstrap:audit` | Quality, context, and baseline checks (`--context`, `--baseline`, `--quality`) |
-| `/claude-project-bootstrap:release` | Release readiness check (version, security, legal, i18n, testing, accessibility) |
+| `/claude-project-bootstrap:release` | Release readiness check (version, security, legal, i18n, testing, accessibility, SEO — 7 categories) |
 | `/claude-project-bootstrap:guide` | Auto-detect project phase + recommend commands |
 
 #### Feature Commands (v0.2.0+, backward-compatible)
@@ -63,6 +63,7 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 | `/claude-project-bootstrap:firebase-isolation` | Add Firebase isolation (`.firebaserc` + predeploy hook) |
 | `/claude-project-bootstrap:slim-claude-md` | Slim down CLAUDE.md + split into per-domain RULES |
 | `/claude-project-bootstrap:doc-size-hook` | Add doc size threshold hook (CLAUDE.md 120 lines / RULES 250 lines) |
+| `/claude-project-bootstrap:seo-setup` | Add SEO guideline, validation script, and hook to existing web projects |
 
 ### Generated Files (by option)
 
@@ -74,6 +75,7 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 | Firebase/Supabase? (Yes) | Default-deny security rules guide + `.env.example` |
 | Auto-install hooks? (Yes) | `.claude/settings.json`, `.git/hooks/pre-commit` + `post-merge` symlink, `scripts/check_*.py` |
 | TASK.md backlog? (Yes) | `TASK.md` + `tasks/DEV-XXX.md` two-layer structure |
+| Web SEO? (Yes) | `SEO_GUIDELINE.md`, `scripts/check_seo.py`, `docs/rules/RULES_SEO.md` |
 
 ### Per-Domain RULES (on-demand loading)
 
@@ -89,6 +91,7 @@ CLAUDE.md body (~99 lines) keeps only cross-cutting guardrails + a discovery tri
 | `RULES_REFACTORING.md` | 100+ line file changes / major refactoring |
 | `RULES_VERSIONING.md` | Version changes / releases / main commits |
 | `RULES_PROJECT_LIFECYCLE.md` | Release prep / project phase checks |
+| `RULES_SEO.md` | Landing page HTML / meta tags / SEO-related changes |
 
 ### Automatic Build Number Management
 
