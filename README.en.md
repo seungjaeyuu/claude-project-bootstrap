@@ -42,6 +42,23 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 
 ## What It Provides
 
+### Which command should I use?
+
+> New to this plugin? Start with `/init`. Not sure what you need? `/guide` will help.
+
+```mermaid
+flowchart TD
+    START{"What are you trying to do?"}
+    START -->|"Start a new project"| INIT["/init"]
+    START -->|"Change existing settings"| INIT
+    START -->|"Quality / context check"| AUDIT["/audit"]
+    START -->|"Release readiness check"| RELEASE["/release"]
+    START -->|"Not sure what I need"| GUIDE["/guide"]
+    INIT -.->|"Add SEO only"| SEO["/seo-setup"]
+    INIT -.->|"Bash permissions only"| BASH["/bash-permission"]
+    INIT -.->|"Firebase only"| FIREBASE["/firebase-isolation"]
+```
+
 ### Slash Commands
 
 #### Main Commands (v0.3.0+)
@@ -65,6 +82,28 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 | `/claude-project-bootstrap:doc-size-hook` | Add doc size threshold hook (CLAUDE.md 120 lines / RULES 250 lines) |
 | `/claude-project-bootstrap:seo-setup` | Add SEO guideline, validation script, and hook to existing web projects |
 
+### `/init` Workflow
+
+`/init` walks you through interactive prompts to select only the options your project needs. Answering Yes to any question unlocks sub-questions.
+
+```mermaid
+flowchart TD
+    INIT["/init"] --> Q0["Q0: Bash permission tier<br>(YOLO / Standard / Strict / None)"]
+    Q0 --> Q1{"Q1: E2E test<br>framework?"}
+    Q1 -->|Yes| Q1S["Q1a: App type selection<br>Q1b: Auto-install hooks?"]
+    Q1 -->|No| Q2
+    Q1S --> Q2{"Q2: Backend<br>service?"}
+    Q2 -->|Yes| Q2S["Q2a: Backend type<br>Q2b: Project ID"]
+    Q2 -->|No| Q3
+    Q2S --> Q3{"Q3: TASK.md<br>backlog?"}
+    Q3 --> Q4{"Q4: Web SEO?"}
+    Q4 -->|Yes| Q4S["Q4a: HTML file path<br>Q4b: Site URL"]
+    Q4 -->|No| GEN
+    Q4S --> GEN["Generate files + completion report"]
+```
+
+> All prompts default to **No**. Selecting nothing generates only minimal files (Minimal tier).
+
 ### Generated Files (by option)
 
 | Option | Generated Files |
@@ -76,6 +115,50 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 | Auto-install hooks? (Yes) | `.claude/settings.json`, `.git/hooks/pre-commit` + `post-merge` symlink, `scripts/check_*.py` |
 | TASK.md backlog? (Yes) | `TASK.md` + `tasks/DEV-XXX.md` two-layer structure |
 | Web SEO? (Yes) | `SEO_GUIDELINE.md`, `scripts/check_seo.py`, `docs/rules/RULES_SEO.md` |
+
+### Generated File Structure
+
+Below is the full project structure when all options are set to Yes. In practice, only files matching your selected options are generated.
+
+```
+your-project/
+├── CLAUDE.md                        ← Cross-cutting guardrails + trigger table (~99 lines)
+├── INDEX.md                         ← Project map
+├── .gitignore                       ← Security + build artifact protection
+├── .claudeignore                    ← Context optimization
+├── .secret/                         ← Secret files (git-excluded)
+│
+├── .claude/
+│   ├── settings.json                ← Bash permissions + hook config
+│   └── commands/
+│       ├── build.md                 ← /build command
+│       ├── check.md                 ← /check command
+│       └── status.md                ← /status command
+│
+├── docs/
+│   ├── rules/                       ← Per-domain RULES (on-demand loading)
+│   │   ├── RULES_E2E.md
+│   │   ├── RULES_DATA_INTEGRITY.md
+│   │   ├── RULES_ACCESSIBILITY.md
+│   │   ├── RULES_VERSIONING.md
+│   │   ├── RULES_SEO.md
+│   │   └── ...
+│   └── test/
+│       └── baseline/                ← E2E baseline docs
+│
+├── scripts/
+│   ├── pre-commit-framework.sh      ← pre-commit hook body
+│   ├── post-merge.sh                ← post-merge hook
+│   ├── check_seo.py                 ← SEO 14-point validation
+│   ├── check_doc_size.py            ← Doc size validation
+│   ├── check_accessibility_identifiers.py
+│   └── ...
+│
+├── SEO_GUIDELINE.md                 ← SEO guideline (web projects)
+├── TESTING_FRAMEWORK.md             ← E2E test conventions
+├── TASK.md                          ← Backlog index
+└── tasks/                           ← Backlog details (DEV-XXX.md)
+```
 
 ### Per-Domain RULES (on-demand loading)
 
@@ -109,7 +192,23 @@ CLAUDE.md body (~99 lines) keeps only cross-cutting guardrails + a discovery tri
 
 **Negative-first** — Rules only say what NOT to do; everything else is allowed. General best practices a high-performance LLM can figure out on its own are excluded.
 
-**4-tier rule legend** — 🚫 Guardrail / 📐 Schema / 📎 Reference / 💡 Recommendation. Each rule's enforcement level is explicit.
+**4-tier rule legend** — Each rule has an explicit enforcement level:
+
+```mermaid
+flowchart LR
+    G["🚫 Guardrail<br>Blocks on violation"]
+    S["📐 Schema<br>Format enforced"]
+    R["📎 Reference<br>Consult when needed"]
+    H["💡 Recommendation<br>Optional"]
+    G --- S --- R --- H
+```
+
+| Tier | Meaning | Example |
+|---|---|---|
+| 🚫 Guardrail | Blocks commit or requires immediate fix | No `git reset --hard` |
+| 📐 Schema | Must follow the defined format | Build number managed only in source-of-truth file |
+| 📎 Reference | Consult when relevant | Test writing guidelines |
+| 💡 Recommendation | Nice to follow, not enforced | Log dev plans in Notion |
 
 **Context window is finite** — ~200K tokens, with plugins/MCP consuming ~19%. Optimized via `.claudeignore`, `enabledPlugins`, and on-demand RULES loading.
 
