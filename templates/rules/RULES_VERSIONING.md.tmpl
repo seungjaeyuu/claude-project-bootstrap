@@ -40,6 +40,22 @@ pre-commit hook 이 main 브랜치 커밋 시 **정수 +1** 수행 + 자동 stag
 - **`project.yml` 의 `CURRENT_PROJECT_VERSION` 수동 증가 금지** — pre-commit hook §(6) 이 유일한 증가 경로. 수동 +1 시 hook 과 합산되어 이중 증가 발생
 - main 커밋 시 빌드번호 미증가 (hook 미설치 환경이라도 수동 +1 필수)
 - `version` (semver) 과 `buildNumber` (정수) 혼동 — 별개 관리
+- **릴리스 4단계 중 일부만 실행하고 완료 보고 금지** — 아래 릴리스 실행 체크리스트 전체를 한 번에 수행
+
+---
+
+## 📐 릴리스 실행 체크리스트
+
+`chore(release): vX.Y.Z` 커밋 후 반드시 4단계를 **연속** 완료:
+
+| 순서 | 작업 | 명령 예시 |
+|---|---|---|
+| 1 | 릴리스 커밋 | `git commit -m "chore(release): vX.Y.Z"` |
+| 2 | 원격 push | `git push origin main` |
+| 3 | Git 태그 생성 + push | `git tag vX.Y.Z <릴리스-커밋-SHA> && git push origin vX.Y.Z` |
+| 4 | GitHub Release 생성 | `gh release create vX.Y.Z --title "vX.Y.Z — 제목" --notes "..."` |
+
+사전 확인: `git tag -l` + `gh release list` 로 기존 태그·릴리스 패턴(제목 형식, 노트 구조) 확인 후 동일 스타일 적용.
 
 ---
 
