@@ -343,6 +343,11 @@ AIDEA 프로젝트에서 실전 검증된 패턴을 범용 플러그인 템플�
 
 - §3 발견 트리거 표에 SEO 행 추가: `랜딩 페이지 HTML / 메타 태그 / SEO 관련 수정 → RULES_SEO.md + SEO_GUIDELINE.md`
 
+### Changed — RULES_VERSIONING.md 릴리스 실행 체크리스트
+
+- 릴리스 4단계 가드레일 추가: commit → push → git tag → GitHub Release
+- 일부만 실행하고 완료 보고하는 것을 🚫 금지 항목으로 명시
+
 ## [Unreleased]
 
 다음 릴리스 예정 개선사항:
