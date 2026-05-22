@@ -12,10 +12,11 @@ allowed-tools: Read, Bash(grep:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(g
 
 1. `docs/rules/RULES_PROJECT_LIFECYCLE.md` Read — 체크리스트 확인.
 2. `docs/rules/RULES_VERSIONING.md` Read — 빌드번호 규칙 확인.
+3. `SEO_GUIDELINE.md` Read — SEO 체크리스트 확인 (있을 경우).
 
 ---
 
-## 점검 항목 (6개 카테고리)
+## 점검 항목 (7개 카테고리)
 
 ### 1. 버전·빌드번호
 
@@ -78,6 +79,21 @@ python3 scripts/check_accessibility_identifiers.py --recursive \
 - exit 1 → 위반 존재 (세부 내역은 stderr)
 - `--strict-missing` 옵션으로 인터랙티브 요소 누락도 위반 처리 가능
 
+### 7. SEO (웹 프로젝트, SEO 설정 시)
+
+`SEO_GUIDELINE.md` 존재 시만 실행. 미존재 시 건너뜀.
+
+- [ ] HTML 메타 태그 14항목 자동 검증 — `check_seo.py`
+- [ ] `robots.txt` 존재 + 크롤러 등록 확인
+- [ ] `sitemap.xml` 존재 + `<lastmod>` 최신 여부
+- [ ] JSON-LD 구조화 데이터 유효성
+
+**검증 방법**:
+```bash
+# SEO_GUIDELINE.md 에 명시된 HTML 경로로 실행
+python3 scripts/check_seo.py <html-file>
+```
+
 ---
 
 ## 출력 형식
@@ -112,6 +128,13 @@ python3 scripts/check_accessibility_identifiers.py --recursive \
    — 또는 —
    ⏭️ RULES_ACCESSIBILITY.md 미존재 — 건너뜀
 
+7. SEO
+   ✅ 메타 태그 14항목 통과
+   ✅ robots.txt 존재 (크롤러 15종)
+   ⚠️ sitemap.xml lastmod 이 30일 이전 — 갱신 권장
+   — 또는 —
+   ⏭️ SEO_GUIDELINE.md 미존재 — 건너뜀
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -123,3 +146,5 @@ python3 scripts/check_accessibility_identifiers.py --recursive \
 - 버전·빌드번호: `docs/rules/RULES_VERSIONING.md`
 - 접근성 규칙: `docs/rules/RULES_ACCESSIBILITY.md`
 - 접근성 검증 스크립트: `scripts/check_accessibility_identifiers.py`
+- SEO 가이드라인: `SEO_GUIDELINE.md`
+- SEO 검증 스크립트: `scripts/check_seo.py`

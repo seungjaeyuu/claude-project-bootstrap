@@ -7,6 +7,7 @@
 #   (3) 베이스라인 동기화 경고 (경고만, TESTING_FRAMEWORK §20.7 L1)
 #   (5) plugin.json ↔ marketplace.json 버전 동기화 (차단)
 #   (6) 빌드번호 자동 증가 + xcodeproj 재생성 (main, XcodeGen)
+#   (7) SEO 가이드라인 검증 (HTML 파일, check_seo.py 존재 시)
 #
 # 각 검사는 해당 스크립트가 scripts/ 에 있을 때만 실행.
 # 프로젝트별로 불필요한 언어 검사는 grep 패턴 수정 또는 해당 블록 제거.
@@ -150,6 +151,23 @@ if [ "$BRANCH" = "main" ]; then
     fi
   fi
 
+fi
+
+# ─────────────────────────────────────────────────────────────
+# (7) SEO 가이드라인 검증 (HTML 파일, check_seo.py 존재 시)
+# ─────────────────────────────────────────────────────────────
+SEO_SCRIPT="$ROOT/scripts/check_seo.py"
+if [ -f "$SEO_SCRIPT" ]; then
+  HTML_FILES=$(git diff --cached --name-only --diff-filter=AM | grep -E '\.html$' || true)
+  if [ -n "$HTML_FILES" ]; then
+    echo "🔍 SEO 가이드라인 검증..."
+    if ! echo "$HTML_FILES" | xargs python3 "$SEO_SCRIPT" --quiet; then
+      echo ""
+      echo "❌ 커밋 차단: SEO 가이드라인 위반"
+      echo "   가이드: SEO_GUIDELINE.md"
+      EXIT=1
+    fi
+  fi
 fi
 
 exit $EXIT

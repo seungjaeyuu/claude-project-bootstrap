@@ -114,6 +114,29 @@ Claude Code 의 Bash 명령 자동 실행 정책을 결정합니다. `.claude/se
 
 ---
 
+#### Q6. 웹 SEO 가이드라인 적용? (기본: N, **웹 프로젝트 권장**)
+
+- **무엇인지**: 랜딩 페이지 HTML 의 메타 태그·구조·구조화 데이터를 14개 항목으로 자동 검증. pre-commit hook 으로 커밋 차단.
+- **언제**: 검색 엔진 노출이 필요한 웹 사이트/랜딩 페이지. **SPA 프레임워크(Next.js/Nuxt)** 는 빌드 결과물에 적용 가능.
+- **생성**: `SEO_GUIDELINE.md` + `scripts/check_seo.py` + `docs/rules/RULES_SEO.md` + pre-commit hook 에 SEO 블록 활성화
+- **기본 N 이유**: 백엔드·모바일·내부 도구에는 불필요.
+- **💡 스마트 제안**: Q6 Yes 선택 시 Q3 (Hook 자동 설치) 도 Yes 권장. Q3 N 이면 `check_seo.py` 수동 실행만 가능하고 커밋 시 자동 차단이 동작하지 않음.
+
+##### Q6a. (Q6 == Yes 시) 랜딩 페이지 HTML 경로?
+
+예: `public/index.html`, `src/index.html`, `_design/_web/index.html`.
+프레임워크별 기본값 제안:
+- Vite / React CRA: `index.html`
+- Next.js (static export): `out/index.html`
+- 정적 사이트: `public/index.html`
+- Firebase Hosting: `public/index.html`
+
+##### Q6b. (Q6 == Yes 시) 사이트 URL? (선택, 나중에 설정 가능)
+
+예: `https://example.com/`. canonical / og:url 에 사용. 생략 시 `[SITE_URL]` 플레이스홀더 유지.
+
+---
+
 ## 실행 절차
 
 답변을 받은 후:
@@ -143,12 +166,12 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/permissions/strict.json .claude/settings.json
 
 ### Step 1: tier 결정
 
-Q1~Q5 답변을 기준으로 **CLAUDE.md tier** 선택:
+Q1~Q6 답변을 기준으로 **CLAUDE.md tier** 선택:
 
 | 조건 | Tier | 사용 템플릿 |
 |---|---|---|
-| Q1~Q5 **모두 N** | **Minimal** | `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.minimal.md.tmpl` (~97줄) |
-| Q1/Q2/Q3/Q4/Q5 중 하나라도 Yes | **Full** | `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.tmpl` (120줄, 영역별 RULES 분리). |
+| Q1~Q6 **모두 N** | **Minimal** | `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.minimal.md.tmpl` (~97줄) |
+| Q1~Q6 중 하나라도 Yes | **Full** | `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.tmpl` (120줄, 영역별 RULES 분리). |
 
 ### Step 2: CLAUDE.md 복사·치환
 
@@ -186,6 +209,9 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_ACCESSIBILITY.md.tmpl docs/rules/
 
 # Q3 Yes 또는 Q4 Yes 시
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DICT_DUPLICATES.md.tmpl docs/rules/RULES_DICT_DUPLICATES.md
+
+# Q6 Yes 시
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_SEO.md.tmpl docs/rules/RULES_SEO.md
 ```
 
 복사하지 않은 RULES 에 대응하는 §Discovery 표 행은 Step 2 의 CLAUDE.md 에서 삭제.
@@ -324,6 +350,39 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_firebase_project.py --init-check "<F
 
 스크립트가 mismatch 발견 시 stderr 경고 출력, init 자체는 계속 진행.
 
+### Step 4b: Q6 Yes 시 SEO 설정
+
+Q6 Yes 인 경우만 실행. Q6a 에서 받은 HTML 경로를 `<HTML_PATH>`, Q6b 의 사이트 URL 을 `<SITE_URL>` 라 한다.
+
+**4b-1. SEO_GUIDELINE.md 복사·치환**:
+
+```bash
+cp ${CLAUDE_PLUGIN_ROOT}/templates/SEO_GUIDELINE.md.tmpl ./SEO_GUIDELINE.md
+```
+
+`[HTML_PATH]`, `[SITE_URL]`, `YYYY-MM-DD` 플레이스홀더를 실제 값으로 치환.
+Q6b 생략 시 `[SITE_URL]` 은 그대로 유지 (사용자가 나중에 설정).
+
+**4b-2. check_seo.py 복사**:
+
+```bash
+mkdir -p scripts
+cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_seo.py ./scripts/check_seo.py
+chmod +x ./scripts/check_seo.py
+```
+
+**4b-3. CLAUDE.md 본체에 §NEW SEO inline (3줄)**:
+
+Step 2 에서 복사한 `CLAUDE.md` 의 §변경이력 직전에 다음 삽입:
+
+```markdown
+## NEW. 🚫 웹 SEO 가이드라인 (자동 검증)
+
+- HTML 메타 태그 수정 시 `SEO_GUIDELINE.md` 참조 필수
+- 수동 검증: `python3 scripts/check_seo.py <HTML_PATH>`
+- pre-commit hook 에서 자동 검증 (커밋 차단)
+```
+
 ### Step 5: Q3 Yes 시 Hook 설치 (Git pre-commit + 검증 스크립트 복사)
 
 ```bash
@@ -402,6 +461,12 @@ git remote add origin <URL>  # push 는 사용자 판단
    • 글로벌 캐시 의심 여부: (4a-6 의 검증 결과 — OK 또는 경고)
    • 첫 deploy 전 권장: firebase use <FB_PROJECT_ID> (1회)
 
+   (Q6 == SEO 사용자만 해당)
+   SEO 검증 확인:
+   • 대상 HTML: <HTML_PATH>
+   • 수동 검증: python3 scripts/check_seo.py <HTML_PATH>
+   • Q6b 미입력 시: SEO_GUIDELINE.md 의 [SITE_URL] 을 실제 URL 로 교체 필요
+
 🛠  프로젝트별 추가 작업 (플러그인 범위 밖)
    • Xcode/Next.js/Flutter 등 실제 프로젝트 스캐폴드
    • Git 원격 설정 (필요 시)
@@ -415,7 +480,7 @@ git remote add origin <URL>  # push 는 사용자 판단
 - **사용자 Yes 한 옵션만** 파일 생성. 미선택 옵션의 파일은 만들지 말 것.
 - **기존 파일 덮어쓰기 금지** (이미 `CLAUDE.md` 가 있으면 중단 + 3가지 복구 옵션 제시).
 - **커밋은 사용자 승인 후**. 자동으로 커밋하지 말 것.
-- **tier 결정 로직**: Q1~Q5 모두 N 이면 Minimal, 하나라도 Yes 면 Full.
+- **tier 결정 로직**: Q1~Q6 모두 N 이면 Minimal, 하나라도 Yes 면 Full.
 - **Minimal tier 는 RULES 0개 복사** (분리 RULES 사용 안 함). §Discovery 표도 Minimal 본체에 미수록.
 - **Q0 == None + Q4 == No**: `.claude/settings.json` 자체 생성 안 함. 그 외 조합은 머지 대상.
 

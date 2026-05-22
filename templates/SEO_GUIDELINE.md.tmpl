@@ -1,0 +1,126 @@
+# 랜딩 페이지 SEO 가이드라인
+
+> `[HTML_PATH]` 수정 시 준수해야 할 SEO 규칙.
+> 자동 검증: `python3 scripts/check_seo.py [HTML_PATH]`
+> pre-commit hook 에서 자동 실행됨 (커밋 차단).
+
+---
+
+## 1. 메타 태그 길이 한도
+
+네이버 너비 기준: 한글/전각 = 2, ASCII/반각 = 1.
+
+| 태그 | 네이버 한도 | Google 참고 | 비고 |
+|---|---|---|---|
+| `<title>` | **15~40** (너비) | ~60자 | 사이트명 + 핵심 키워드 포함 |
+| `<meta description>` | **45~80** (너비) | ~160자 | 차별화된 설명, 행동 유도 |
+| `og:title` | **≤40** (너비) | — | `<title>` 과 동일 권장 |
+| `og:description` | **≤80** (너비) | — | `<meta description>` 과 동일 권장 |
+| `twitter:title` | **≤40** (너비) | — | `<title>` 과 동일 권장 |
+| `twitter:description` | **≤80** (너비) | — | `<meta description>` 과 동일 권장 |
+
+### 너비 계산법
+
+```python
+import unicodedata
+def naver_width(s):
+    return sum(2 if unicodedata.east_asian_width(ch) in ('W','F') else 1 for ch in s)
+```
+
+---
+
+## 2. 필수 메타 태그 체크리스트
+
+| # | 태그 | 필수 | 검사 항목 |
+|---|---|---|---|
+| 1 | `<title>` | ✅ | 1개, 너비 15~40 |
+| 2 | `<meta name="description">` | ✅ | 1개, 너비 45~80 |
+| 3 | `<link rel="canonical">` | ✅ | `[SITE_URL]` |
+| 4 | `<html lang="ko">` | ✅ | 기본 언어 명시 |
+| 5 | `hreflang` | ✅ | ko, en, x-default 3개 |
+| 6 | `viewport` | ✅ | `width=device-width` |
+| 7 | `og:title` | ✅ | 너비 ≤40 |
+| 8 | `og:description` | ✅ | 너비 ≤80 |
+| 9 | `og:image` | ✅ | 1200x630, URL 접근 가능 |
+| 10 | `og:url` | ✅ | canonical 과 동일 |
+| 11 | `twitter:card` | ✅ | `summary_large_image` |
+| 12 | `twitter:title` | ✅ | 너비 ≤40 |
+| 13 | `twitter:description` | ✅ | 너비 ≤80 |
+| 14 | JSON-LD | ✅ | 유효한 JSON, `@type` 존재 |
+
+---
+
+## 3. HTML 구조 규칙
+
+- **h1 태그**: 페이지당 **정확히 1개**
+- **헤딩 계층**: h1 → h2 → h3 순서 유지 (h1 없이 h2 시작 금지)
+- **이미지 alt**: 모든 `<img>` 에 의미 있는 `alt` 속성 필수
+- **서버 렌더링**: 핵심 콘텐츠는 HTML 마크업에 직접 포함 (JS 로딩 의존 금지)
+
+---
+
+## 4. robots.txt 크롤러 관리
+
+### 권장 등록 크롤러 (15종)
+
+**검색 엔진**: `*`, `Googlebot`, `Bingbot`
+**네이버**: `Yeti`
+**OpenAI**: `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`
+**Google AI**: `Google-Extended`
+**Anthropic**: `ClaudeBot`, `Claude-Web`
+**Apple**: `Applebot-Extended`
+**기타 LLM**: `PerplexityBot`, `Meta-ExternalAgent`, `Bytespider`, `CCBot`
+
+### 크롤러 추가 시
+
+1. `User-agent:` 블록 추가
+2. `Allow: /` + `Allow: /llms.txt` 명시
+3. 본 문서의 크롤러 목록 업데이트
+
+---
+
+## 5. sitemap.xml 관리
+
+- 페이지 추가/삭제 시 sitemap 동시 업데이트
+- `<lastmod>` 를 실제 수정일로 갱신
+- 배포 후 Google Search Console + 네이버 Search Advisor 에서 재제출
+
+---
+
+## 6. Cache-Control 정책 (호스팅 설정 참고)
+
+| 파일 유형 | Cache-Control | 이유 |
+|---|---|---|
+| HTML (진입점) | `no-cache` | 항상 최신 콘텐츠 |
+| JS / CSS | `max-age=604800` (7일) | 정적 에셋 |
+| 이미지 / 폰트 / 동영상 | `max-age=31536000, immutable` | 변경 시 파일명 변경 |
+| sitemap.xml / robots.txt | `max-age=3600` (1시간) | 적절한 갱신 빈도 |
+
+---
+
+## 7. 검증 방법
+
+### 자동 (pre-commit hook)
+
+HTML 파일이 staged 상태이면 `scripts/check_seo.py` 자동 실행.
+실패 시 커밋 차단.
+
+### 수동
+
+```bash
+python3 scripts/check_seo.py [HTML_PATH]
+```
+
+### 배포 후 외부 검증
+
+- **Google**: Search Console → URL 검사
+- **네이버**: Search Advisor → 검증 → 간단체크
+- **구조화 데이터**: https://search.google.com/test/rich-results
+
+---
+
+## 변경 이력
+
+| 날짜 | 변경 |
+|---|---|
+| YYYY-MM-DD | 초판 — claude-project-bootstrap SEO 가이드라인 적용 |

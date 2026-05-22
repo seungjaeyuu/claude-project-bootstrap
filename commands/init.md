@@ -1,6 +1,6 @@
 ---
 description: Initialize a project — negative-first principle + context-optimization scaffold — 프로젝트 초기화 + 설정 변경
-argument-hint: (선택 없음 — 대화형 질의) 또는 --bash | --firebase | --slim | --hook | --plugins
+argument-hint: (선택 없음 — 대화형 질의) 또는 --bash | --firebase | --slim | --hook | --plugins | --seo
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash(cat:*), Bash(chmod:*), Bash(ln:*), Bash(git:*), Bash(bash:*), Bash(test:*), Bash(ls:*), Bash(rm:*)
 ---
 
@@ -18,6 +18,7 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash
 | `/init --slim` | CLAUDE.md 슬림화 직행 | `/slim-claude-md` |
 | `/init --hook` | 문서 크기 hook 직행 | `/doc-size-hook` |
 | `/init --plugins` | 플러그인 최적화 직행 | (신규) |
+| `/init --seo` | SEO 가이드라인 도입 직행 | `/seo-setup` |
 
 옵션 없이 호출 시 → 아래 전제 조건 확인부터 시작.
 
@@ -42,11 +43,12 @@ CLAUDE.md가 이미 존재합니다.
    c) CLAUDE.md 슬림화 + RULES 분리
    d) 문서 크기 hook 도입
    e) 플러그인 최적화 (enabledPlugins)
+   f) SEO 가이드라인 도입
 3) 취소
 ```
 
 1 선택 시: 기존 CLAUDE.md, INDEX.md, docs/rules/ 를 `_backup/` 폴더로 이동 후 신규 초기화 흐름 진행.
-2a~2e 선택 시: 해당 기능만 단독 실행 (아래 각 Step 참조).
+2a~2f 선택 시: 해당 기능만 단독 실행 (2f SEO 는 `/seo-setup` 커맨드 실행).
 3 선택 시: 중단.
 
 ---
@@ -123,7 +125,22 @@ Claude Code 의 Bash 명령 자동 실행 정책. `.claude/settings.json` 의 `p
 
 ---
 
-**질의 수**: 필수 3 + Q0~Q3 = **최소 4회, 최대 8회**.
+#### Q4. 웹 SEO 가이드라인 적용? (기본: N, **웹 프로젝트 권장**)
+
+- **무엇**: 랜딩 페이지 HTML 의 메타 태그·구조·구조화 데이터를 14개 항목으로 자동 검증. pre-commit hook 으로 커밋 차단.
+- **언제**: 검색 엔진 노출이 필요한 웹 사이트/랜딩 페이지.
+- **생성**: `SEO_GUIDELINE.md` + `scripts/check_seo.py` + `docs/rules/RULES_SEO.md`
+- **기본 N 이유**: 백엔드·모바일·내부 도구에는 불필요.
+- **💡 스마트 제안**: Q4 Yes 시 Q1b (Hook 설치) 도 Yes 권장 — pre-commit 자동 검증 활성화.
+
+##### Q4 == Yes 시 하위 질의:
+
+**Q4a.** 랜딩 페이지 HTML 경로? (예: `index.html`, `public/index.html`)
+**Q4b.** 사이트 URL? (선택, 생략 가능. 예: `https://example.com/`)
+
+---
+
+**질의 수**: 필수 3 + Q0~Q4 = **최소 4회, 최대 10회**.
 
 ---
 
@@ -154,8 +171,8 @@ Q1b (Hook) Yes 시 Step 4b 에서 `hooks` 키가 같은 파일에 머지됨. `pe
 
 | 조건 | Tier | 템플릿 |
 |---|---|---|
-| Q1~Q3 **모두 N** | **Minimal** | `CLAUDE.minimal.md.tmpl` (~67줄) |
-| Q1/Q2/Q3 중 하나라도 Yes | **Full** | `CLAUDE.md.tmpl` (~94줄) |
+| Q1~Q4 **모두 N** | **Minimal** | `CLAUDE.minimal.md.tmpl` (~67줄) |
+| Q1~Q4 중 하나라도 Yes | **Full** | `CLAUDE.md.tmpl` (~94줄) |
 
 ### Step 2: CLAUDE.md 복사·치환
 
@@ -168,7 +185,7 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.tmpl ./CLAUDE.md
 ```
 
 - `[프로젝트명]`, `YYYY-MM-DD` 플레이스홀더를 실제 값으로 치환
-- Full tier: §3 발견 트리거 표 행을 Q1~Q3 답변에 따라 활성/삭제
+- Full tier: §3 발견 트리거 표 행을 Q1~Q4 답변에 따라 활성/삭제
 
 ### Step 2a: Full tier 시 영역별 RULES 복사
 
@@ -192,6 +209,9 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_ACCESSIBILITY.md.tmpl docs/rules/
 
 # Q1b Yes 시 (Hook — dict 중복 검사 포함)
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DICT_DUPLICATES.md.tmpl docs/rules/RULES_DICT_DUPLICATES.md
+
+# Q4 Yes 시 (SEO)
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_SEO.md.tmpl docs/rules/RULES_SEO.md
 ```
 
 ### Step 3: INDEX.md + .gitignore + .claudeignore + commands + docs/ + apps/
@@ -327,6 +347,31 @@ chmod +x ./scripts/check_firebase_project.py
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_firebase_project.py --init-check "<FB_PROJECT_ID>"
 ```
 
+### Step 4d: Q4 Yes 시 SEO 설정
+
+Q4a 에서 받은 HTML 경로 = `<HTML_PATH>`, Q4b 의 사이트 URL = `<SITE_URL>`.
+
+```bash
+# SEO_GUIDELINE.md 복사·치환
+cp ${CLAUDE_PLUGIN_ROOT}/templates/SEO_GUIDELINE.md.tmpl ./SEO_GUIDELINE.md
+# [HTML_PATH], [SITE_URL], YYYY-MM-DD 치환. Q4b 생략 시 [SITE_URL] 유지.
+
+# check_seo.py 복사
+mkdir -p scripts
+cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_seo.py ./scripts/check_seo.py
+chmod +x ./scripts/check_seo.py
+
+# CLAUDE.md 에 SEO 섹션 삽입 — §변경이력 직전
+```
+
+```markdown
+## NEW. 🚫 웹 SEO 가이드라인 (자동 검증)
+
+- HTML 메타 태그 수정 시 `SEO_GUIDELINE.md` 참조 필수
+- 수동 검증: `python3 scripts/check_seo.py <HTML_PATH>`
+- pre-commit hook 에서 자동 검증 (커밋 차단)
+```
+
 ### Step 5: Q3 Yes 시 백로그 구조
 
 ```bash
@@ -395,7 +440,7 @@ git init && git add . && git commit -m "chore: initialize from claude-project-bo
 - **사용자 Yes 한 옵션만** 파일 생성. 미선택 옵션의 파일은 만들지 말 것.
 - **기존 파일 덮어쓰기 금지** (CLAUDE.md 존재 시 설정 변경 메뉴 제시).
 - **커밋은 사용자 승인 후**. 자동으로 커밋하지 말 것.
-- **tier 결정 로직**: Q1~Q3 모두 N 이면 Minimal, 하나라도 Yes 면 Full.
+- **tier 결정 로직**: Q1~Q4 모두 N 이면 Minimal, 하나라도 Yes 면 Full.
 - **Minimal tier 는 RULES 0개 복사**. §Discovery 트리거 표도 미수록.
 - **Q0 == None + Q1b == No**: `.claude/settings.json` 자체 생성 안 함 (commands/ 는 생성).
 - **.claudeignore 는 항상 생성** — 프로젝트 유형에 맞는 섹션 활성화.

@@ -1,0 +1,56 @@
+# RULES_SEO — 웹 SEO 규칙
+
+> **트리거**: 랜딩 페이지 HTML 수정, 메타 태그 편집, robots.txt / sitemap.xml 변경 시 참조.
+
+---
+
+## 🚫 절대 규칙
+
+1. **`<title>` 너비 15~40** (네이버 기준, 전각=2 / ASCII=1). 초과·미달 시 커밋 차단.
+2. **`<meta description>` 너비 45~80**. 초과·미달 시 커밋 차단.
+3. **`<h1>` 페이지당 정확히 1개**. 0개 또는 2개 이상 금지.
+4. **`og:image` 필수**. 1200×630 권장.
+5. **canonical URL 필수**. `<link rel="canonical">` 누락 금지.
+6. **JSON-LD 구조화 데이터** `@type` 필수.
+
+---
+
+## 📐 메타 태그 일관성
+
+- `og:title` / `twitter:title` 은 `<title>` 과 동일 값 권장
+- `og:description` / `twitter:description` 은 `<meta description>` 과 동일 값 권장
+- `og:url` 은 canonical URL 과 일치해야 함
+- `hreflang` 은 ko, en, x-default 3개 필수
+
+---
+
+## 📐 HTML 구조
+
+- 헤딩 계층: h1 → h2 → h3 순서 유지 (건너뛰기 금지)
+- 모든 `<img>` 에 의미 있는 `alt` 속성 필수 (장식 이미지: `alt=""`)
+- 핵심 콘텐츠는 HTML 마크업에 직접 포함 (JS 동적 렌더링 의존 금지)
+
+---
+
+## 📐 robots.txt / sitemap.xml
+
+- 페이지 추가·삭제 시 `sitemap.xml` 동시 업데이트 필수
+- `<lastmod>` 를 실제 수정일로 갱신
+- 크롤러 추가 시 `robots.txt` + SEO_GUIDELINE.md 크롤러 목록 동시 업데이트
+
+---
+
+## 자동 검증
+
+| 시점 | 명령 | 차단 |
+|---|---|---|
+| 수동 | `python3 scripts/check_seo.py <html-file>` | — |
+| pre-commit | 자동 (HTML 파일 staged 시) | ✅ 실패 시 차단 |
+| `/release` | 7번 SEO 카테고리 | 경고 |
+
+---
+
+## 참조
+
+- 전체 가이드: `SEO_GUIDELINE.md`
+- 검증 스크립트: `scripts/check_seo.py` (14개 항목)
