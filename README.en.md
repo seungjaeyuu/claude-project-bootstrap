@@ -53,7 +53,9 @@ flowchart TD
     START -->|"Change existing settings"| INIT
     START -->|"Quality / context check"| AUDIT["/audit"]
     START -->|"Release readiness check"| RELEASE["/release"]
+    START -->|"Set up deploy docs"| DEPLOY["/deploy-setup"]
     START -->|"Not sure what I need"| GUIDE["/guide"]
+    RELEASE -.->|"No deploy docs found"| DEPLOY
     INIT -.->|"Add SEO only"| SEO["/seo-setup"]
     INIT -.->|"Bash permissions only"| BASH["/bash-permission"]
     INIT -.->|"Firebase only"| FIREBASE["/firebase-isolation"]
@@ -61,13 +63,14 @@ flowchart TD
 
 ### Slash Commands
 
-#### Main Commands (v0.3.0+)
+#### Main Commands (v0.3.0+, deploy-setup v0.3.4+)
 
 | Command | Purpose |
 |---|---|
 | `/claude-project-bootstrap:init` | Initialize new project + reconfigure existing (up to 10 interactive prompts) |
 | `/claude-project-bootstrap:audit` | Quality, context, and baseline checks (`--context`, `--baseline`, `--quality`) |
-| `/claude-project-bootstrap:release` | Release readiness check (version, security, legal, i18n, testing, accessibility, SEO — 7 categories) |
+| `/claude-project-bootstrap:release` | Release readiness check (deploy doc chain + version, security, legal, i18n, testing, accessibility, SEO — 7 categories) |
+| `/claude-project-bootstrap:deploy-setup` | Scaffold deployment doc lazy-reference chain (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → release record) |
 | `/claude-project-bootstrap:guide` | Auto-detect project phase + recommend commands |
 
 #### Feature Commands (v0.2.0+, backward-compatible)

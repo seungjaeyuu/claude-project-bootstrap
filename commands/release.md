@@ -16,6 +16,34 @@ allowed-tools: Read, Bash(grep:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(g
 
 ---
 
+## Step 0: 배포 문서 체인 확인
+
+점검 시작 전, 배포 문서 인프라가 구축되어 있는지 확인한다.
+
+**검증 방법**:
+```bash
+ls docs/deployment/DEPLOYMENT_INDEX.md 2>/dev/null
+```
+
+- **존재** → 다음 점검으로 진행.
+- **미존재** → 아래 안내 출력 후 사용자 선택을 기다린다:
+
+```
+⚠️ 배포 문서 체인(DEPLOYMENT_INDEX.md)이 없습니다.
+   배포 절차·이력 관리를 위해 /deploy-setup 을 먼저 실행하세요.
+
+   → /deploy-setup : 4계층 레이지 참조 체인 구축
+     (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록)
+
+   [1] /deploy-setup 실행 후 /release 재개
+   [2] 배포 문서 없이 나머지 점검만 계속
+```
+
+- **[1] 선택 시** → `/deploy-setup` 실행을 안내하고 현재 `/release` 를 중단한다.
+- **[2] 선택 시** → Step 0 결과를 `⏭️ 배포 문서 체인 미구축 — 건너뜀`으로 기록하고 나머지 점검을 계속한다.
+
+---
+
 ## 점검 항목 (7개 카테고리)
 
 ### 1. 버전·빌드번호
@@ -101,6 +129,11 @@ python3 scripts/check_seo.py <html-file>
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🚀 출시 준비 점검
+
+0. 배포 문서 체인
+   ✅ DEPLOYMENT_INDEX.md 존재
+   — 또는 —
+   ⏭️ 배포 문서 체인 미구축 — /deploy-setup 권장
 
 1. 버전·빌드번호
    ✅ 빌드번호: <n> (정본 파일 일치)

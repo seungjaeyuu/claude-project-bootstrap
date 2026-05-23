@@ -293,6 +293,25 @@ Full 템플릿과 구조 통일 (§1 범례 → §2 횡단 가드레일 → §3 
 - `docs/specs/20260511_bootstrap_build_number_spec.md` — 빌드번호 설계 스펙
 - `docs/session_reports/20260511_v0.3.0_release.md` — v0.3.0 릴리스 세션 리포트
 
+## [0.3.4] - 2026-05-23
+
+### Added — `/deploy-setup` 배포 문서 레이지 참조 체인 구축
+
+배포 절차·이력을 4계층 레이지 참조로 구조화하는 독립 커맨드 추가.
+
+- `commands/deploy-setup.md` — 배포 문서 스캐폴드 커맨드
+  - CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록 4계층 체인
+  - 7종 배포 대상 지원 (App Store, Google Play, Firebase Hosting/Functions, Docker, npm/PyPI, 기타)
+  - 대상별 DEPLOYMENT_INDEX.md 템플릿 자동 생성
+  - idempotent 설계 (기존 파일 보존, 중복 실행 안전)
+
+### Changed — `/release` 출시 준비 점검
+
+- Step 0 "배포 문서 체인 확인" 추가 (7대 카테고리 점검 전 실행)
+  - `docs/deployment/DEPLOYMENT_INDEX.md` 존재 확인
+  - 미존재 시 `/deploy-setup` 실행 안내 + 선택지 제공
+  - 출력 형식에 항목 0 결과 반영
+
 ## [0.3.3] - 2026-05-22
 
 ### Added — 웹 SEO 가이드라인 자동화
@@ -354,3 +373,4 @@ AIDEA 프로젝트에서 실전 검증된 패턴을 범용 플러그인 템플�
 - `/retro-check` — 회고 커맨드 (v0.4.0 예정)
 - Claude Code argument UI 제약 대응 (#5)
 - YOLO 단계 deny 리스트 보강 (사용자 피드백 기반)
+- `/deploy-setup` + `/release` 연동 강화

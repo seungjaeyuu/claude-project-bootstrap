@@ -53,7 +53,9 @@ flowchart TD
     START -->|"기존 설정 변경"| INIT
     START -->|"품질·컨텍스트 점검"| AUDIT["/audit"]
     START -->|"출시 준비 점검"| RELEASE["/release"]
+    START -->|"배포 문서 구축"| DEPLOY["/deploy-setup"]
     START -->|"뭘 해야 할지 모르겠다"| GUIDE["/guide"]
+    RELEASE -.->|"배포 문서 없으면"| DEPLOY
     INIT -.->|"SEO만 추가"| SEO["/seo-setup"]
     INIT -.->|"Bash 권한만"| BASH["/bash-permission"]
     INIT -.->|"Firebase만"| FIREBASE["/firebase-isolation"]
@@ -61,13 +63,14 @@ flowchart TD
 
 ### 슬래시 커맨드
 
-#### 메인 커맨드 (v0.3.0+)
+#### 메인 커맨드 (v0.3.0+, deploy-setup v0.3.4+)
 
 | 커맨드 | 용도 |
 |---|---|
 | `/claude-project-bootstrap:init` | 새 프로젝트 초기화 + 기존 프로젝트 설정 변경 (대화형 질의 최대 10회) |
 | `/claude-project-bootstrap:audit` | 품질·컨텍스트·베이스라인 일괄 점검 (`--context`, `--baseline`, `--quality`) |
-| `/claude-project-bootstrap:release` | 출시 준비 체크 (버전, 보안, 법적, i18n, 테스트, 접근성, SEO 7대 카테고리) |
+| `/claude-project-bootstrap:release` | 출시 준비 체크 (배포 문서 체인 + 버전, 보안, 법적, i18n, 테스트, 접근성, SEO 7대 카테고리) |
+| `/claude-project-bootstrap:deploy-setup` | 배포 문서 레이지 참조 체인 구축 (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록) |
 | `/claude-project-bootstrap:guide` | 프로젝트 단계 자동 감지 + 적합한 커맨드 안내 |
 
 #### 기능별 커맨드 (v0.2.0+, 하위호환 유지)
