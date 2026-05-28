@@ -1,12 +1,12 @@
 ---
-description: Add SEO guideline + validation to an existing web project — SEO 가이드라인·검증 스크립트 도입
+description: Add SEO + GEO guideline + validation to an existing web project — SEO + GEO 가이드라인·검증 스크립트 도입
 argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(grep:*), Bash(chmod:*), Bash(ln:*), Bash(python3:*)
 ---
 
-# /seo-setup — 기존 웹 프로젝트에 SEO 도입
+# /seo-setup — 기존 웹 프로젝트에 SEO + GEO 도입
 
-검색 엔진 최적화(SEO) 가이드라인·자동 검증 스크립트·pre-commit hook 을 기존 프로젝트에 추가.
+검색 엔진 최적화(SEO) + LLM 검색엔진 최적화(GEO) 가이드라인·자동 검증 스크립트·pre-commit hook 을 기존 프로젝트에 추가.
 `/init` 시 Q6=Yes 와 동일한 결과를 이미 초기화된 프로젝트에 적용.
 
 ## 전제 조건
@@ -68,34 +68,36 @@ chmod +x ./scripts/check_seo.py
 
 이미 존재하면 건너뜀 (버전 비교 후 업데이트 제안).
 
-### Step 3. RULES_SEO.md 복사
+### Step 3. RULES_SEO.md + RULES_GEO.md 복사
 
 ```bash
 mkdir -p docs/rules
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_SEO.md.tmpl ./docs/rules/RULES_SEO.md
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_GEO.md.tmpl ./docs/rules/RULES_GEO.md
 ```
 
 ### Step 4. CLAUDE.md 업데이트
 
-**4a. 발견 트리거 표에 SEO 행 추가** (§3 표가 있을 때만):
+**4a. 발견 트리거 표에 SEO·GEO 행 추가** (§3 표가 있을 때만):
 
 ```markdown
-| 랜딩 페이지 HTML / 메타 태그 / SEO 관련 수정 | `docs/rules/RULES_SEO.md` + `SEO_GUIDELINE.md` |
+| 랜딩 페이지 HTML / 메타 태그 / SEO·GEO 관련 수정 | `docs/rules/RULES_SEO.md` + `docs/rules/RULES_GEO.md` + `SEO_GUIDELINE.md` |
 ```
 
-이미 SEO 행이 있으면 건너뜀.
+이미 SEO·GEO 행이 있으면 건너뜀.
 
-**4b. §NEW SEO 섹션 추가** (§변경이력 직전):
+**4b. §NEW SEO + GEO 섹션 추가** (§변경이력 직전):
 
 ```markdown
-## NEW. 🚫 웹 SEO 가이드라인 (자동 검증)
+## NEW. 🚫 웹 SEO + GEO 가이드라인 (자동 검증)
 
 - HTML 메타 태그 수정 시 `SEO_GUIDELINE.md` 참조 필수
 - 수동 검증: `python3 scripts/check_seo.py <HTML_PATH>`
 - pre-commit hook 에서 자동 검증 (커밋 차단)
+- GEO: `llms.txt` + `llms-full.txt` 작성 필요 (규격: `docs/rules/RULES_GEO.md`)
 ```
 
-이미 "SEO 가이드라인" 섹션이 있으면 건너뜀.
+이미 "SEO + GEO 가이드라인" 섹션이 있으면 건너뜀.
 
 ### Step 5. (질의 3 == Y 시) pre-commit hook 설치/갱신
 
@@ -127,13 +129,14 @@ python3 scripts/check_seo.py <HTML_PATH>
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ SEO 설정 완료
+✅ SEO + GEO 설정 완료
 
 📦 생성/갱신된 파일
    SEO_GUIDELINE.md
    scripts/check_seo.py
    docs/rules/RULES_SEO.md
-   CLAUDE.md (발견 트리거 + §NEW SEO 섹션)
+   docs/rules/RULES_GEO.md
+   CLAUDE.md (발견 트리거 + §NEW SEO + GEO 섹션)
    .git/hooks/pre-commit (질의 3 == Y 시)
 
 ⚙  확인 필요
@@ -144,6 +147,7 @@ python3 scripts/check_seo.py <HTML_PATH>
 🛠  다음 단계
    • HTML 파일에 14개 필수 메타 태그 추가
    • robots.txt / sitemap.xml 생성
+   • llms.txt + llms-full.txt 작성 (규격: docs/rules/RULES_GEO.md)
    • 배포 후 Google Search Console / 네이버 Search Advisor 등록
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -152,7 +156,8 @@ python3 scripts/check_seo.py <HTML_PATH>
 
 ## 참조
 
-- SEO 가이드라인: `SEO_GUIDELINE.md`
-- 검증 스크립트: `scripts/check_seo.py` (14개 항목)
+- SEO + GEO 가이드라인: `SEO_GUIDELINE.md`
+- GEO 규칙: `docs/rules/RULES_GEO.md`
+- SEO 검증 스크립트: `scripts/check_seo.py` (14개 항목)
 - 도메인 규칙: `docs/rules/RULES_SEO.md`
-- 전체 초기화: `/init` (Q6 옵션)
+- 전체 초기화: `/init` (Q4 옵션)

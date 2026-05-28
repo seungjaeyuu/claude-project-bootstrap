@@ -56,7 +56,7 @@ flowchart TD
     START -->|"배포 문서 구축"| DEPLOY["/deploy-setup"]
     START -->|"뭘 해야 할지 모르겠다"| GUIDE["/guide"]
     RELEASE -.->|"배포 문서 없으면"| DEPLOY
-    INIT -.->|"SEO만 추가"| SEO["/seo-setup"]
+    INIT -.->|"SEO + GEO만 추가"| SEO["/seo-setup"]
     INIT -.->|"Bash 권한만"| BASH["/bash-permission"]
     INIT -.->|"Firebase만"| FIREBASE["/firebase-isolation"]
 ```
@@ -69,7 +69,7 @@ flowchart TD
 |---|---|
 | `/claude-project-bootstrap:init` | 새 프로젝트 초기화 + 기존 프로젝트 설정 변경 (대화형 질의 최대 10회) |
 | `/claude-project-bootstrap:audit` | 품질·컨텍스트·베이스라인 일괄 점검 (`--context`, `--baseline`, `--quality`) |
-| `/claude-project-bootstrap:release` | 출시 준비 체크 (배포 문서 체인 + 버전, 보안, 법적, i18n, 테스트, 접근성, SEO 7대 카테고리) |
+| `/claude-project-bootstrap:release` | 출시 준비 체크 (배포 문서 체인 + 버전, 보안, 법적, i18n, 테스트, 접근성, SEO + GEO 7대 카테고리) |
 | `/claude-project-bootstrap:deploy-setup` | 배포 문서 레이지 참조 체인 구축 (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록) |
 | `/claude-project-bootstrap:guide` | 프로젝트 단계 자동 감지 + 적합한 커맨드 안내 |
 
@@ -83,7 +83,7 @@ flowchart TD
 | `/claude-project-bootstrap:firebase-isolation` | Firebase 격리 도입 (`.firebaserc` + predeploy hook) |
 | `/claude-project-bootstrap:slim-claude-md` | CLAUDE.md 슬림화 + 영역별 RULES 분리 |
 | `/claude-project-bootstrap:doc-size-hook` | 문서 크기 임계치 hook 도입 (CLAUDE.md 120줄 / RULES 250줄) |
-| `/claude-project-bootstrap:seo-setup` | 기존 웹 프로젝트에 SEO 가이드라인·검증 스크립트·hook 도입 |
+| `/claude-project-bootstrap:seo-setup` | 기존 웹 프로젝트에 SEO + GEO 가이드라인·검증 스크립트·hook 도입 |
 
 ### `/init` 워크플로우
 
@@ -99,7 +99,7 @@ flowchart TD
     Q2 -->|Yes| Q2S["Q2a: 백엔드 종류 선택<br>Q2b: Project ID 입력"]
     Q2 -->|No| Q3
     Q2S --> Q3{"Q3: TASK.md<br>백로그?"}
-    Q3 --> Q4{"Q4: 웹 SEO?"}
+    Q3 --> Q4{"Q4: 웹 SEO + GEO?"}
     Q4 -->|Yes| Q4S["Q4a: HTML 경로 입력<br>Q4b: 사이트 URL 입력"]
     Q4 -->|No| GEN
     Q4S --> GEN["파일 생성 + 완료 리포트 출력"]
@@ -117,7 +117,7 @@ flowchart TD
 | Firebase/Supabase? (Yes) | default-deny 보안 규칙 안내 + `.env.example` 초안 |
 | Hook 자동 설치? (Yes) | `.claude/settings.json`, `.git/hooks/pre-commit` + `post-merge` symlink, `scripts/check_*.py` |
 | TASK.md 백로그? (Yes) | `TASK.md` + `tasks/DEV-XXX.md` 2계층 구조 |
-| 웹 SEO? (Yes) | `SEO_GUIDELINE.md`, `scripts/check_seo.py`, `docs/rules/RULES_SEO.md` |
+| 웹 SEO + GEO? (Yes) | `SEO_GUIDELINE.md`, `scripts/check_seo.py`, `docs/rules/RULES_SEO.md`, `docs/rules/RULES_GEO.md` |
 
 ### 생성 파일 구조
 
@@ -145,6 +145,7 @@ your-project/
 │   │   ├── RULES_ACCESSIBILITY.md
 │   │   ├── RULES_VERSIONING.md
 │   │   ├── RULES_SEO.md
+│   │   ├── RULES_GEO.md
 │   │   └── ...
 │   └── test/
 │       └── baseline/                ← E2E 베이스라인 문서
@@ -157,7 +158,7 @@ your-project/
 │   ├── check_accessibility_identifiers.py
 │   └── ...
 │
-├── SEO_GUIDELINE.md                 ← SEO 가이드라인 (웹 프로젝트)
+├── SEO_GUIDELINE.md                 ← SEO + GEO 가이드라인 (웹 프로젝트)
 ├── TESTING_FRAMEWORK.md             ← E2E 테스트 규약
 ├── TASK.md                          ← 개발 백로그 인덱스
 └── tasks/                           ← 백로그 상세 (DEV-XXX.md)
@@ -177,7 +178,8 @@ CLAUDE.md 본체(~99줄)는 횡단 가드레일 + 발견 트리거 표만 유지
 | `RULES_REFACTORING.md` | 100줄+ 파일 변경 / 대규모 리팩토링 |
 | `RULES_VERSIONING.md` | 버전 변경 / 릴리스 / main 커밋 |
 | `RULES_PROJECT_LIFECYCLE.md` | 출시 준비 / 프로젝트 단계 점검 |
-| `RULES_SEO.md` | 랜딩 페이지 HTML / 메타 태그 / SEO 관련 수정 |
+| `RULES_SEO.md` | 랜딩 페이지 HTML / 메타 태그 / SEO·GEO 관련 수정 |
+| `RULES_GEO.md` | llms.txt / llms-full.txt / LLM 크롤러 / GEO 관련 수정 |
 
 ### 빌드번호 자동 관리
 

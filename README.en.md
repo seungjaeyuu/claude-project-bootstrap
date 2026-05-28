@@ -56,7 +56,7 @@ flowchart TD
     START -->|"Set up deploy docs"| DEPLOY["/deploy-setup"]
     START -->|"Not sure what I need"| GUIDE["/guide"]
     RELEASE -.->|"No deploy docs found"| DEPLOY
-    INIT -.->|"Add SEO only"| SEO["/seo-setup"]
+    INIT -.->|"Add SEO + GEO only"| SEO["/seo-setup"]
     INIT -.->|"Bash permissions only"| BASH["/bash-permission"]
     INIT -.->|"Firebase only"| FIREBASE["/firebase-isolation"]
 ```
@@ -69,7 +69,7 @@ flowchart TD
 |---|---|
 | `/claude-project-bootstrap:init` | Initialize new project + reconfigure existing (up to 10 interactive prompts) |
 | `/claude-project-bootstrap:audit` | Quality, context, and baseline checks (`--context`, `--baseline`, `--quality`) |
-| `/claude-project-bootstrap:release` | Release readiness check (deploy doc chain + version, security, legal, i18n, testing, accessibility, SEO — 7 categories) |
+| `/claude-project-bootstrap:release` | Release readiness check (deploy doc chain + version, security, legal, i18n, testing, accessibility, SEO + GEO — 7 categories) |
 | `/claude-project-bootstrap:deploy-setup` | Scaffold deployment doc lazy-reference chain (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → release record) |
 | `/claude-project-bootstrap:guide` | Auto-detect project phase + recommend commands |
 
@@ -83,7 +83,7 @@ flowchart TD
 | `/claude-project-bootstrap:firebase-isolation` | Add Firebase isolation (`.firebaserc` + predeploy hook) |
 | `/claude-project-bootstrap:slim-claude-md` | Slim down CLAUDE.md + split into per-domain RULES |
 | `/claude-project-bootstrap:doc-size-hook` | Add doc size threshold hook (CLAUDE.md 120 lines / RULES 250 lines) |
-| `/claude-project-bootstrap:seo-setup` | Add SEO guideline, validation script, and hook to existing web projects |
+| `/claude-project-bootstrap:seo-setup` | Add SEO + GEO guideline, validation script, and hook to existing web projects |
 
 ### `/init` Workflow
 
@@ -99,7 +99,7 @@ flowchart TD
     Q2 -->|Yes| Q2S["Q2a: Backend type<br>Q2b: Project ID"]
     Q2 -->|No| Q3
     Q2S --> Q3{"Q3: TASK.md<br>backlog?"}
-    Q3 --> Q4{"Q4: Web SEO?"}
+    Q3 --> Q4{"Q4: Web SEO + GEO?"}
     Q4 -->|Yes| Q4S["Q4a: HTML file path<br>Q4b: Site URL"]
     Q4 -->|No| GEN
     Q4S --> GEN["Generate files + completion report"]
@@ -117,7 +117,7 @@ flowchart TD
 | Firebase/Supabase? (Yes) | Default-deny security rules guide + `.env.example` |
 | Auto-install hooks? (Yes) | `.claude/settings.json`, `.git/hooks/pre-commit` + `post-merge` symlink, `scripts/check_*.py` |
 | TASK.md backlog? (Yes) | `TASK.md` + `tasks/DEV-XXX.md` two-layer structure |
-| Web SEO? (Yes) | `SEO_GUIDELINE.md`, `scripts/check_seo.py`, `docs/rules/RULES_SEO.md` |
+| Web SEO + GEO? (Yes) | `SEO_GUIDELINE.md`, `scripts/check_seo.py`, `docs/rules/RULES_SEO.md`, `docs/rules/RULES_GEO.md` |
 
 ### Generated File Structure
 
@@ -145,6 +145,7 @@ your-project/
 │   │   ├── RULES_ACCESSIBILITY.md
 │   │   ├── RULES_VERSIONING.md
 │   │   ├── RULES_SEO.md
+│   │   ├── RULES_GEO.md
 │   │   └── ...
 │   └── test/
 │       └── baseline/                ← E2E baseline docs
@@ -157,7 +158,7 @@ your-project/
 │   ├── check_accessibility_identifiers.py
 │   └── ...
 │
-├── SEO_GUIDELINE.md                 ← SEO guideline (web projects)
+├── SEO_GUIDELINE.md                 ← SEO + GEO guideline (web projects)
 ├── TESTING_FRAMEWORK.md             ← E2E test conventions
 ├── TASK.md                          ← Backlog index
 └── tasks/                           ← Backlog details (DEV-XXX.md)
@@ -177,7 +178,8 @@ CLAUDE.md body (~99 lines) keeps only cross-cutting guardrails + a discovery tri
 | `RULES_REFACTORING.md` | 100+ line file changes / major refactoring |
 | `RULES_VERSIONING.md` | Version changes / releases / main commits |
 | `RULES_PROJECT_LIFECYCLE.md` | Release prep / project phase checks |
-| `RULES_SEO.md` | Landing page HTML / meta tags / SEO-related changes |
+| `RULES_SEO.md` | Landing page HTML / meta tags / SEO·GEO-related changes |
+| `RULES_GEO.md` | llms.txt / llms-full.txt / LLM crawlers / GEO-related changes |
 
 ### Automatic Build Number Management
 
