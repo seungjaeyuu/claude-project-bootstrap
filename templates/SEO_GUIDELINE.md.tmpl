@@ -119,8 +119,37 @@ python3 scripts/check_seo.py [HTML_PATH]
 
 ---
 
+## 8. GEO (Generative Engine Optimization)
+
+LLM 검색엔진(ChatGPT, Perplexity, Claude 등)이 사이트 콘텐츠를 정확히 인용하도록 최적화.
+
+### 필수 파일
+
+| 파일 | 용도 | 크기 목표 |
+|---|---|---|
+| `/llms.txt` | LLM용 간결 사이트 소개 | 3~5KB |
+| `/llms-full.txt` | LLM용 상세 참조 문서 | 15~30KB |
+
+### HTML 메타 태그
+
+`<head>`에 추가 필수:
+- `<link rel="llms" href="/llms.txt" type="text/plain">`
+- `<link rel="llms-full" href="/llms-full.txt" type="text/plain">`
+- `<meta name="robots" content="max-snippet:-1, max-image-preview:large">`
+
+### robots.txt
+
+LLM 크롤러에 llms 파일 접근 허용 필수. 크롤러 목록은 §4 참조.
+
+### 상세 규칙
+
+`docs/rules/RULES_GEO.md` 참조.
+
+---
+
 ## 변경 이력
 
 | 날짜 | 변경 |
 |---|---|
 | YYYY-MM-DD | 초판 — claude-project-bootstrap SEO 가이드라인 적용 |
+| 2026-05-28 | §8 GEO (Generative Engine Optimization) 섹션 추가 |

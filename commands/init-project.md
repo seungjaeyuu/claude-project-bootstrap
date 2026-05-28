@@ -114,13 +114,13 @@ Claude Code 의 Bash 명령 자동 실행 정책을 결정합니다. `.claude/se
 
 ---
 
-#### Q6. 웹 SEO 가이드라인 적용? (기본: N, **웹 프로젝트 권장**)
+#### Q6. 웹 SEO + GEO 가이드라인 적용? (기본: N, **웹 프로젝트 권장**)
 
-- **무엇인지**: 랜딩 페이지 HTML 의 메타 태그·구조·구조화 데이터를 14개 항목으로 자동 검증. pre-commit hook 으로 커밋 차단.
+- **무엇인지**: 랜딩 페이지 HTML 의 메타 태그·구조·구조화 데이터를 14개 항목으로 자동 검증 + LLM 검색엔진(ChatGPT, Perplexity 등) 최적화(GEO) 포함. pre-commit hook 으로 커밋 차단.
 - **언제**: 검색 엔진 노출이 필요한 웹 사이트/랜딩 페이지. **SPA 프레임워크(Next.js/Nuxt)** 는 빌드 결과물에 적용 가능.
-- **생성**: `SEO_GUIDELINE.md` + `scripts/check_seo.py` + `docs/rules/RULES_SEO.md` + pre-commit hook 에 SEO 블록 활성화
+- **생성**: `SEO_GUIDELINE.md` + `scripts/check_seo.py` + `docs/rules/RULES_SEO.md` + `docs/rules/RULES_GEO.md` + pre-commit hook 에 SEO 블록 활성화
 - **기본 N 이유**: 백엔드·모바일·내부 도구에는 불필요.
-- **💡 스마트 제안**: Q6 Yes 선택 시 Q3 (Hook 자동 설치) 도 Yes 권장. Q3 N 이면 `check_seo.py` 수동 실행만 가능하고 커밋 시 자동 차단이 동작하지 않음.
+- **💡 스마트 제안**: Q6 Yes 선택 시 Q3 (Hook 자동 설치) 도 Yes 권장. Q3 N 이면 `check_seo.py` 수동 실행만 가능하고 커밋 시 자동 차단이 동작하지 않음. GEO 의 llms.txt 검증은 수동 (`curl -I`).
 
 ##### Q6a. (Q6 == Yes 시) 랜딩 페이지 HTML 경로?
 
@@ -210,8 +210,9 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_ACCESSIBILITY.md.tmpl docs/rules/
 # Q3 Yes 또는 Q4 Yes 시
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DICT_DUPLICATES.md.tmpl docs/rules/RULES_DICT_DUPLICATES.md
 
-# Q6 Yes 시
+# Q6 Yes 시 (SEO + GEO)
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_SEO.md.tmpl docs/rules/RULES_SEO.md
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_GEO.md.tmpl docs/rules/RULES_GEO.md
 ```
 
 복사하지 않은 RULES 에 대응하는 §Discovery 표 행은 Step 2 의 CLAUDE.md 에서 삭제.
@@ -350,7 +351,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_firebase_project.py --init-check "<F
 
 스크립트가 mismatch 발견 시 stderr 경고 출력, init 자체는 계속 진행.
 
-### Step 4b: Q6 Yes 시 SEO 설정
+### Step 4b: Q6 Yes 시 SEO + GEO 설정
 
 Q6 Yes 인 경우만 실행. Q6a 에서 받은 HTML 경로를 `<HTML_PATH>`, Q6b 의 사이트 URL 을 `<SITE_URL>` 라 한다.
 
@@ -371,16 +372,17 @@ cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_seo.py ./scripts/check_seo.py
 chmod +x ./scripts/check_seo.py
 ```
 
-**4b-3. CLAUDE.md 본체에 §NEW SEO inline (3줄)**:
+**4b-3. CLAUDE.md 본체에 §NEW SEO + GEO inline**:
 
 Step 2 에서 복사한 `CLAUDE.md` 의 §변경이력 직전에 다음 삽입:
 
 ```markdown
-## NEW. 🚫 웹 SEO 가이드라인 (자동 검증)
+## NEW. 🚫 웹 SEO + GEO 가이드라인 (자동 검증)
 
 - HTML 메타 태그 수정 시 `SEO_GUIDELINE.md` 참조 필수
 - 수동 검증: `python3 scripts/check_seo.py <HTML_PATH>`
 - pre-commit hook 에서 자동 검증 (커밋 차단)
+- GEO: `llms.txt` + `llms-full.txt` 작성 필요 (규격: `docs/rules/RULES_GEO.md`)
 ```
 
 ### Step 5: Q3 Yes 시 Hook 설치 (Git pre-commit + 검증 스크립트 복사)
@@ -461,11 +463,12 @@ git remote add origin <URL>  # push 는 사용자 판단
    • 글로벌 캐시 의심 여부: (4a-6 의 검증 결과 — OK 또는 경고)
    • 첫 deploy 전 권장: firebase use <FB_PROJECT_ID> (1회)
 
-   (Q6 == SEO 사용자만 해당)
-   SEO 검증 확인:
+   (Q6 == SEO + GEO 사용자만 해당)
+   SEO + GEO 검증 확인:
    • 대상 HTML: <HTML_PATH>
    • 수동 검증: python3 scripts/check_seo.py <HTML_PATH>
    • Q6b 미입력 시: SEO_GUIDELINE.md 의 [SITE_URL] 을 실제 URL 로 교체 필요
+   • GEO: llms.txt + llms-full.txt 작성 필요 (상세: docs/rules/RULES_GEO.md §llms.txt 구조 규격)
 
 🛠  프로젝트별 추가 작업 (플러그인 범위 밖)
    • Xcode/Next.js/Flutter 등 실제 프로젝트 스캐폴드

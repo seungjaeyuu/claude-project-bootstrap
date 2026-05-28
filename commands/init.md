@@ -18,7 +18,7 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash
 | `/init --slim` | CLAUDE.md 슬림화 직행 | `/slim-claude-md` |
 | `/init --hook` | 문서 크기 hook 직행 | `/doc-size-hook` |
 | `/init --plugins` | 플러그인 최적화 직행 | (신규) |
-| `/init --seo` | SEO 가이드라인 도입 직행 | `/seo-setup` |
+| `/init --seo` | SEO + GEO 가이드라인 도입 직행 | `/seo-setup` |
 
 옵션 없이 호출 시 → 아래 전제 조건 확인부터 시작.
 
@@ -43,12 +43,12 @@ CLAUDE.md가 이미 존재합니다.
    c) CLAUDE.md 슬림화 + RULES 분리
    d) 문서 크기 hook 도입
    e) 플러그인 최적화 (enabledPlugins)
-   f) SEO 가이드라인 도입
+   f) SEO + GEO 가이드라인 도입
 3) 취소
 ```
 
 1 선택 시: 기존 CLAUDE.md, INDEX.md, docs/rules/ 를 `_backup/` 폴더로 이동 후 신규 초기화 흐름 진행.
-2a~2f 선택 시: 해당 기능만 단독 실행 (2f SEO 는 `/seo-setup` 커맨드 실행).
+2a~2f 선택 시: 해당 기능만 단독 실행 (2f SEO + GEO 는 `/seo-setup` 커맨드 실행).
 3 선택 시: 중단.
 
 ---
@@ -125,11 +125,11 @@ Claude Code 의 Bash 명령 자동 실행 정책. `.claude/settings.json` 의 `p
 
 ---
 
-#### Q4. 웹 SEO 가이드라인 적용? (기본: N, **웹 프로젝트 권장**)
+#### Q4. 웹 SEO + GEO 가이드라인 적용? (기본: N, **웹 프로젝트 권장**)
 
-- **무엇**: 랜딩 페이지 HTML 의 메타 태그·구조·구조화 데이터를 14개 항목으로 자동 검증. pre-commit hook 으로 커밋 차단.
+- **무엇**: 랜딩 페이지 HTML 의 메타 태그·구조·구조화 데이터를 14개 항목으로 자동 검증 + LLM 검색엔진(ChatGPT, Perplexity 등) 최적화(GEO) 포함. pre-commit hook 으로 커밋 차단.
 - **언제**: 검색 엔진 노출이 필요한 웹 사이트/랜딩 페이지.
-- **생성**: `SEO_GUIDELINE.md` + `scripts/check_seo.py` + `docs/rules/RULES_SEO.md`
+- **생성**: `SEO_GUIDELINE.md` + `scripts/check_seo.py` + `docs/rules/RULES_SEO.md` + `docs/rules/RULES_GEO.md`
 - **기본 N 이유**: 백엔드·모바일·내부 도구에는 불필요.
 - **💡 스마트 제안**: Q4 Yes 시 Q1b (Hook 설치) 도 Yes 권장 — pre-commit 자동 검증 활성화.
 
@@ -210,8 +210,9 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_ACCESSIBILITY.md.tmpl docs/rules/
 # Q1b Yes 시 (Hook — dict 중복 검사 포함)
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DICT_DUPLICATES.md.tmpl docs/rules/RULES_DICT_DUPLICATES.md
 
-# Q4 Yes 시 (SEO)
+# Q4 Yes 시 (SEO + GEO)
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_SEO.md.tmpl docs/rules/RULES_SEO.md
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_GEO.md.tmpl docs/rules/RULES_GEO.md
 ```
 
 ### Step 3: INDEX.md + .gitignore + .claudeignore + commands + docs/ + apps/
@@ -347,7 +348,7 @@ chmod +x ./scripts/check_firebase_project.py
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_firebase_project.py --init-check "<FB_PROJECT_ID>"
 ```
 
-### Step 4d: Q4 Yes 시 SEO 설정
+### Step 4d: Q4 Yes 시 SEO + GEO 설정
 
 Q4a 에서 받은 HTML 경로 = `<HTML_PATH>`, Q4b 의 사이트 URL = `<SITE_URL>`.
 
@@ -361,15 +362,16 @@ mkdir -p scripts
 cp ${CLAUDE_PLUGIN_ROOT}/scripts/check_seo.py ./scripts/check_seo.py
 chmod +x ./scripts/check_seo.py
 
-# CLAUDE.md 에 SEO 섹션 삽입 — §변경이력 직전
+# CLAUDE.md 에 SEO + GEO 섹션 삽입 — §변경이력 직전
 ```
 
 ```markdown
-## NEW. 🚫 웹 SEO 가이드라인 (자동 검증)
+## NEW. 🚫 웹 SEO + GEO 가이드라인 (자동 검증)
 
 - HTML 메타 태그 수정 시 `SEO_GUIDELINE.md` 참조 필수
 - 수동 검증: `python3 scripts/check_seo.py <HTML_PATH>`
 - pre-commit hook 에서 자동 검증 (커밋 차단)
+- GEO: `llms.txt` + `llms-full.txt` 작성 필요 (규격: `docs/rules/RULES_GEO.md`)
 ```
 
 ### Step 5: Q3 Yes 시 백로그 구조

@@ -10,6 +10,15 @@
   "hosting": {
     "predeploy": [
       "python3 scripts/check_firebase_project.py"
+    ],
+    "headers": [
+      {
+        "source": "@(llms.txt|llms-full.txt)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=3600" },
+          { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+        ]
+      }
     ]
   },
   "firestore": {
