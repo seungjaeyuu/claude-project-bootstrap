@@ -417,7 +417,23 @@ git init && git add . && git commit -m "chore: initialize from claude-project-bo
    ℹ️ figma — Figma 디자인 연동 시 활성화
 
 ⚙  확인이 필요한 항목
-   (조건부 — hook 설치 시 regex 확인, Firebase 시 격리 확인 등)
+
+   (hook 설치 사용자만 해당)
+   scripts/baseline.yml 과 .claude/settings.json 의 ui_file_patterns / matcher regex
+   → 기본값은 'apps/ios/.*\.swift$' 같은 통상 경로
+   → 실제 프로젝트 구조 다르면 두 파일 같은 패턴으로 수정
+
+   (Q2 == Firebase 사용자만 해당)
+   Firebase 격리 확인:
+   • .firebaserc default: <FB_PROJECT_ID>
+   • 첫 deploy 전 권장: firebase use <FB_PROJECT_ID> (1회)
+
+   (Q4 == SEO + GEO 사용자만 해당)
+   SEO + GEO 검증 확인:
+   • 대상 HTML: <HTML_PATH>
+   • 수동 검증: python3 scripts/check_seo.py <HTML_PATH>
+   • Q4b 미입력 시: SEO_GUIDELINE.md 의 [SITE_URL] 을 실제 URL 로 교체 필요
+   • GEO: llms.txt + llms-full.txt 작성 필요 (상세: docs/rules/RULES_GEO.md §llms.txt 구조 규격)
 
 🛠  프로젝트별 추가 작업 (플러그인 범위 밖)
    • 실제 앱 스캐폴드 (Xcode/Next.js/Flutter 등)

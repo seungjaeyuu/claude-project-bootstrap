@@ -293,55 +293,6 @@ Full 템플릿과 구조 통일 (§1 범례 → §2 횡단 가드레일 → §3 
 - `docs/specs/20260511_bootstrap_build_number_spec.md` — 빌드번호 설계 스펙
 - `docs/session_reports/20260511_v0.3.0_release.md` — v0.3.0 릴리스 세션 리포트
 
-## [0.3.5] - 2026-05-28
-
-### Added — GEO (Generative Engine Optimization) 가이드라인
-
-SEO 가이드라인에 LLM 검색엔진(ChatGPT, Perplexity, Claude, Gemini 등) 최적화(GEO)를 번들로 추가.
-AIDEA v0.2.0 배포에서 실전 검증된 패턴을 범용 플러그인 템플릿으로 일반화.
-
-- `templates/rules/RULES_GEO.md.tmpl` (신규) — GEO 전용 규칙 문서
-  - 🚫 절대 규칙 4개: llms.txt 필수, 기능 동기화, robots.txt Allow, Content-Type
-  - 📐 llms.txt 구조 규격 (간결 3~5KB + 상세 15~30KB)
-  - 📐 HTML 메타 태그 (`link rel="llms"`, `max-snippet:-1`)
-  - 📐 JSON-LD FAQPage, robots.txt LLM 크롤러 11종, 호스팅 헤더, sitemap 등록
-  - 동기화 규칙 + 배포 후 검증 방법
-
-### Changed — SEO → SEO + GEO 명칭 통일
-
-- `templates/SEO_GUIDELINE.md.tmpl` — §8 GEO 섹션 추가
-- `templates/CLAUDE.md.tmpl` — §3 발견 트리거 표 SEO 행에 `RULES_GEO.md` 추가
-- `templates/rules/RULES_SEO.md.tmpl` — 참조 섹션에 GEO 상호참조 추가
-- `templates/firebase.json.tmpl` — `hosting.headers` 에 llms.txt|llms-full.txt 헤더 블록 추가
-
-### Changed — `/init` + `/init-project` 커맨드
-
-- Q4/Q6 라벨: "웹 SEO 가이드라인" → "웹 SEO + GEO 가이드라인"
-- Q4/Q6 설명에 GEO 포함 명시 + 생성 파일에 `RULES_GEO.md` 추가
-- Step 2a RULES 복사 블록에 `RULES_GEO.md.tmpl` 복사 추가
-- Step 4d/4b 타이틀 "SEO 설정" → "SEO + GEO 설정"
-- CLAUDE.md inline 섹션에 GEO llms.txt 작성 안내 추가
-- 완료 리포트에 GEO 검증 항목 추가
-
-## [0.3.4] - 2026-05-23
-
-### Added — `/deploy-setup` 배포 문서 레이지 참조 체인 구축
-
-배포 절차·이력을 4계층 레이지 참조로 구조화하는 독립 커맨드 추가.
-
-- `commands/deploy-setup.md` — 배포 문서 스캐폴드 커맨드
-  - CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록 4계층 체인
-  - 7종 배포 대상 지원 (App Store, Google Play, Firebase Hosting/Functions, Docker, npm/PyPI, 기타)
-  - 대상별 DEPLOYMENT_INDEX.md 템플릿 자동 생성
-  - idempotent 설계 (기존 파일 보존, 중복 실행 안전)
-
-### Changed — `/release` 출시 준비 점검
-
-- Step 0 "배포 문서 체인 확인" 추가 (7대 카테고리 점검 전 실행)
-  - `docs/deployment/DEPLOYMENT_INDEX.md` 존재 확인
-  - 미존재 시 `/deploy-setup` 실행 안내 + 선택지 제공
-  - 출력 형식에 항목 0 결과 반영
-
 ## [0.3.3] - 2026-05-22
 
 ### Added — 웹 SEO 가이드라인 자동화
@@ -396,6 +347,55 @@ AIDEA 프로젝트에서 실전 검증된 패턴을 범용 플러그인 템플�
 
 - 릴리스 4단계 가드레일 추가: commit → push → git tag → GitHub Release
 - 일부만 실행하고 완료 보고하는 것을 🚫 금지 항목으로 명시
+
+## [0.3.4] - 2026-05-23
+
+### Added — `/deploy-setup` 배포 문서 레이지 참조 체인 구축
+
+배포 절차·이력을 4계층 레이지 참조로 구조화하는 독립 커맨드 추가.
+
+- `commands/deploy-setup.md` — 배포 문서 스캐폴드 커맨드
+  - CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록 4계층 체인
+  - 7종 배포 대상 지원 (App Store, Google Play, Firebase Hosting/Functions, Docker, npm/PyPI, 기타)
+  - 대상별 DEPLOYMENT_INDEX.md 템플릿 자동 생성
+  - idempotent 설계 (기존 파일 보존, 중복 실행 안전)
+
+### Changed — `/release` 출시 준비 점검
+
+- Step 0 "배포 문서 체인 확인" 추가 (7대 카테고리 점검 전 실행)
+  - `docs/deployment/DEPLOYMENT_INDEX.md` 존재 확인
+  - 미존재 시 `/deploy-setup` 실행 안내 + 선택지 제공
+  - 출력 형식에 항목 0 결과 반영
+
+## [0.3.5] - 2026-05-28
+
+### Added — GEO (Generative Engine Optimization) 가이드라인
+
+SEO 가이드라인에 LLM 검색엔진(ChatGPT, Perplexity, Claude, Gemini 등) 최적화(GEO)를 번들로 추가.
+AIDEA v0.2.0 배포에서 실전 검증된 패턴을 범용 플러그인 템플릿으로 일반화.
+
+- `templates/rules/RULES_GEO.md.tmpl` (신규) — GEO 전용 규칙 문서
+  - 🚫 절대 규칙 4개: llms.txt 필수, 기능 동기화, robots.txt Allow, Content-Type
+  - 📐 llms.txt 구조 규격 (간결 3~5KB + 상세 15~30KB)
+  - 📐 HTML 메타 태그 (`link rel="llms"`, `max-snippet:-1`)
+  - 📐 JSON-LD FAQPage, robots.txt LLM 크롤러 11종, 호스팅 헤더, sitemap 등록
+  - 동기화 규칙 + 배포 후 검증 방법
+
+### Changed — SEO → SEO + GEO 명칭 통일
+
+- `templates/SEO_GUIDELINE.md.tmpl` — §8 GEO 섹션 추가
+- `templates/CLAUDE.md.tmpl` — §3 발견 트리거 표 SEO 행에 `RULES_GEO.md` 추가
+- `templates/rules/RULES_SEO.md.tmpl` — 참조 섹션에 GEO 상호참조 추가
+- `templates/firebase.json.tmpl` — `hosting.headers` 에 llms.txt|llms-full.txt 헤더 블록 추가
+
+### Changed — `/init` + `/init-project` 커맨드
+
+- Q4/Q6 라벨: "웹 SEO 가이드라인" → "웹 SEO + GEO 가이드라인"
+- Q4/Q6 설명에 GEO 포함 명시 + 생성 파일에 `RULES_GEO.md` 추가
+- Step 2a RULES 복사 블록에 `RULES_GEO.md.tmpl` 복사 추가
+- Step 4d/4b 타이틀 "SEO 설정" → "SEO + GEO 설정"
+- CLAUDE.md inline 섹션에 GEO llms.txt 작성 안내 추가
+- 완료 리포트에 GEO 검증 항목 추가
 
 ## [Unreleased]
 

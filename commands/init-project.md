@@ -197,6 +197,8 @@ mkdir -p docs/rules
 # 항상 복사 (Full tier 면)
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_TERMINOLOGY.md.tmpl docs/rules/RULES_TERMINOLOGY.md
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_REFACTORING.md.tmpl docs/rules/RULES_REFACTORING.md
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_VERSIONING.md.tmpl docs/rules/RULES_VERSIONING.md
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_PROJECT_LIFECYCLE.md.tmpl docs/rules/RULES_PROJECT_LIFECYCLE.md
 
 # Q1 Yes 시
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_E2E.md.tmpl docs/rules/RULES_E2E.md
