@@ -1,10 +1,10 @@
 ---
-description: Initialize a project — negative-first principle + context-optimization scaffold — 프로젝트 초기화 + 설정 변경
+description: 프로젝트 초기화 + 설정 변경 (네거티브 우선 + 컨텍스트 최적화 스캐폴드)
 argument-hint: (선택 없음 — 대화형 질의) 또는 --bash | --firebase | --slim | --hook | --plugins | --seo
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash(cat:*), Bash(chmod:*), Bash(ln:*), Bash(git:*), Bash(bash:*), Bash(test:*), Bash(ls:*), Bash(rm:*)
 ---
 
-# /init — 프로젝트 초기화 + 설정 변경
+# /kickoff — 프로젝트 초기화 + 설정 변경
 
 `claude-project-bootstrap` 플러그인을 사용해 현재 작업 디렉토리를 프로젝트로 초기화.
 
@@ -12,13 +12,13 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(touch:*), Bash
 
 | 호출 | 동작 | 기존 커맨드 호환 |
 |---|---|---|
-| `/init` | 메뉴 표시 (신규면 전체 흐름, 기존이면 설정 변경 메뉴) | `/init-project` |
-| `/init --bash` | Bash 권한 변경 직행 | `/bash-permission` |
-| `/init --firebase` | Firebase 격리 직행 | `/firebase-isolation` |
-| `/init --slim` | CLAUDE.md 슬림화 직행 | `/slim-claude-md` |
-| `/init --hook` | 문서 크기 hook 직행 | `/doc-size-hook` |
-| `/init --plugins` | 플러그인 최적화 직행 | (신규) |
-| `/init --seo` | SEO + GEO 가이드라인 도입 직행 | `/seo-setup` |
+| `/kickoff` | 메뉴 표시 (신규면 전체 흐름, 기존이면 설정 변경 메뉴) | `/init`, `/init-project` |
+| `/kickoff --bash` | Bash 권한 변경 직행 | `/bash-permission` |
+| `/kickoff --firebase` | Firebase 격리 직행 | `/firebase-isolation` |
+| `/kickoff --slim` | CLAUDE.md 슬림화 직행 | `/slim-claude-md` |
+| `/kickoff --hook` | 문서 크기 hook 직행 | `/doc-size-hook` |
+| `/kickoff --plugins` | 플러그인 최적화 직행 | (신규) |
+| `/kickoff --seo` | SEO + GEO 가이드라인 도입 직행 | `/seo-setup` |
 
 옵션 없이 호출 시 → 아래 전제 조건 확인부터 시작.
 
@@ -60,7 +60,7 @@ CLAUDE.md가 이미 존재합니다.
 1. **프로젝트 이름** (예: MyNewApp)
 2. **프로젝트 유형**:
    - (a) 단일 웹 (Next.js / Vite / React)
-   - (b) 단일 모바일 (SwiftUI / Flutter / Kotlin Compose)
+   - (b) 단일 네이티브 앱 (모바일·데스크톱: SwiftUI / AppKit / Flutter / Kotlin Compose)
    - (c) 모노레포 (웹 + 모바일 + 백엔드)
    - (d) 백엔드·서버
    - (e) 기타
@@ -72,18 +72,21 @@ CLAUDE.md가 이미 존재합니다.
 
 Claude Code 의 Bash 명령 자동 실행 정책. `.claude/settings.json` 의 `permissions` 키에 반영.
 
-| 단계 | 한 줄 요약 |
-|---|---|
-| **(1) YOLO** | 거의 모든 Bash 자동. 파괴 명령만 deny |
-| **(2) Standard** *(권장)* | 읽기·빌드 자동. 삭제·git 변경·deploy 는 ask |
-| **(3) Strict** | 읽기 전용만 자동. 그 외 ask |
-| **(4) None** | `permissions` 미생성 — Claude Code 기본 동작 |
+| 단계 | 한 줄 요약 | 사용자 체감 예시 |
+|---|---|---|
+| **(1) YOLO** | 거의 모든 Bash 자동. 파괴 명령(`rm -rf`, `git reset --hard`, `git push --force` to main, DB drop)만 deny | "프로토타입 빨리 돌리고 싶고, 위험 명령은 안 쓸게" |
+| **(2) Standard** *(권장)* | 읽기·일반 빌드 명령 자동, 파일 삭제·git 변경·deploy·패키지 변경·DB 마이그레이션은 ask | 보통 작업은 끊김 없이, 위험 명령에서만 한 번 묻기 |
+| **(3) Strict** | 읽기 전용(`ls`, `cat`, `git status`, `git diff` 등)만 자동. 그 외 ask | "Claude 가 뭘 할 때마다 일단 보고 싶음" / 보안 민감 |
+| **(4) None** | `permissions` 키 자체 미생성 — Claude Code 기본 동작 | "기본값으로 충분, 직접 안 건드림" |
+
+**ask vs deny 원칙**: 롤백 가능 = ask, 롤백 불가 = deny. 모든 단계의 deny 리스트가 일관 적용.
 
 ---
 
 #### Q1. E2E 테스트 프레임워크 도입? (기본: N)
 
 - **무엇**: AI 워커로 End-to-End 테스트를 자동화하는 하네스. 테스트 항목을 `baseline` 파일로 관리.
+- **언제**: 사용자 흐름(로그인·결제 등)을 반복 검증하고 싶을 때.
 - **생성**: `docs/test/TESTING_FRAMEWORK.md` + `docs/test/baseline/{APP}_BASELINE.md` + `scripts/`
 - **기본 N 이유**: 초기 프로젝트는 단위·통합 테스트로 충분.
 
@@ -95,14 +98,15 @@ Claude Code 의 Bash 명령 자동 실행 정책. `.claude/settings.json` 의 `p
 3. Web (Next.js / React / Vite)
 4. Flutter (mobile / desktop)
 5. 서버·백엔드 (API)
+6. macOS (SwiftUI/AppKit)
 
 **Q1b. Hook 자동 설치?** (기본: Y — 스마트 제안)
 - Git pre-commit + Claude Code PostToolUse hook 자동 설치.
 - **기본 Y 이유**: Q1 Yes 면 baseline 검증·dict 중복 검사가 유의미.
 
-**Q1c. Accessibility identifier 검증?** (기본: Y — iOS/Android 선택 시만 표시)
+**Q1c. Accessibility identifier 검증?** (기본: Y — iOS/Android/macOS 선택 시만 표시)
 - SwiftUI/Kotlin Compose 의 AX identifier 스키마 강제.
-- **표시 조건**: Q1a 에서 iOS 또는 Android 선택 시만.
+- **표시 조건**: Q1a 에서 iOS·Android·macOS 선택 시만.
 
 ---
 
@@ -238,14 +242,17 @@ touch docs/cost-plan/.gitkeep docs/handoff/.gitkeep
 # (a) 단일 웹
 mkdir -p apps/web
 
-# (b) 단일 모바일 SwiftUI
+# (b) 단일 네이티브 앱 — iOS (SwiftUI)
 mkdir -p apps/ios
 
-# (b) 단일 모바일 Kotlin
+# (b) 단일 네이티브 앱 — Android (Kotlin)
 mkdir -p apps/android
 
-# (b) 단일 모바일 Flutter
+# (b) 단일 네이티브 앱 — Flutter
 mkdir -p apps/flutter
+
+# (b) 단일 네이티브 앱 — macOS (SwiftUI/AppKit)
+mkdir -p apps/macos
 
 # (c) 모노레포 — 선택한 플랫폼 전부 + shared
 mkdir -p apps/shared
@@ -256,7 +263,7 @@ mkdir -p apps/server  # 또는 src/
 
 - INDEX.md: 프로젝트 이름·구조 반영, apps/ 구조 업데이트
 - .gitignore: 언어별 섹션 중 해당되는 것만 주석 해제
-- .claudeignore: 프로젝트 유형에 맞는 섹션 주석 해제 (iOS/Android/Web/Flutter)
+- .claudeignore: 프로젝트 유형에 맞는 섹션 주석 해제 (iOS/Android/macOS/Web/Flutter)
 - .claude/commands/build.md: 프로젝트 유형에 맞는 빌드 명령으로 치환
 
 ### Step 4: Q1 Yes 시 E2E 설정
@@ -276,13 +283,14 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/BASELINE.md.tmpl ./docs/test/baseline/<TYPE_U
 
 선택한 타입에 맞는 entry 만 기록. 경로는 v0.3.0 형식 사용:
 
-| 타입 | baseline | status_dir |
-|---|---|---|
-| iOS | `docs/test/baseline/IOS_BASELINE.md` | `docs/test/result/ios` |
-| Android | `docs/test/baseline/ANDROID_BASELINE.md` | `docs/test/result/android` |
-| Web | `docs/test/baseline/WEB_BASELINE.md` | `docs/test/result/web` |
-| Flutter | `docs/test/baseline/FLUTTER_BASELINE.md` | `docs/test/result/flutter` |
-| Backend | `docs/test/baseline/BACKEND_BASELINE.md` | `docs/test/result/backend` |
+| 타입 | baseline | status_dir | ui_file_patterns | runner_field | platform |
+|---|---|---|---|---|---|
+| iOS | `docs/test/baseline/IOS_BASELINE.md` | `docs/test/result/ios` | `'apps/ios/.*\.swift$'` | `udid` | `ios_simulator` |
+| Android | `docs/test/baseline/ANDROID_BASELINE.md` | `docs/test/result/android` | `'apps/android/.*\.kt$'` | `device_id` | `android_emulator` |
+| Web | `docs/test/baseline/WEB_BASELINE.md` | `docs/test/result/web` | `'apps/web/.*\.(tsx\|ts)$'` | `browser` | `web` |
+| Flutter | `docs/test/baseline/FLUTTER_BASELINE.md` | `docs/test/result/flutter` | `'lib/.*\.dart$'` | `device_id` | `flutter` |
+| Backend | `docs/test/baseline/BACKEND_BASELINE.md` | `docs/test/result/backend` | `'src/.*\.(py\|ts\|go)$'` | `endpoint` | `backend` |
+| macOS | `docs/test/baseline/MACOS_BASELINE.md` | `docs/test/result/macos` | `'apps/macos/.*\.swift$'` | `bundle_id` | `macos` |
 
 **4-3. 디렉토리 생성**:
 
@@ -334,7 +342,10 @@ cat > .firebaserc <<EOF
 EOF
 
 # firebase.json predeploy hook
+# 기존 firebase.json 가 있으면 4개 영역(functions/hosting/firestore/storage)의
+# predeploy 키만 머지. 없으면 minimal 생성:
 cp ${CLAUDE_PLUGIN_ROOT}/templates/firebase.json.tmpl ./firebase.json
+# (기존 파일 머지 케이스는 사용자 confirm 후 jq 활용)
 
 # 검증 스크립트
 mkdir -p scripts
@@ -426,6 +437,7 @@ git init && git add . && git commit -m "chore: initialize from claude-project-bo
    (Q2 == Firebase 사용자만 해당)
    Firebase 격리 확인:
    • .firebaserc default: <FB_PROJECT_ID>
+   • firebase login 계정: (firebase login:list 결과)
    • 첫 deploy 전 권장: firebase use <FB_PROJECT_ID> (1회)
 
    (Q4 == SEO + GEO 사용자만 해당)
@@ -446,7 +458,7 @@ git init && git add . && git commit -m "chore: initialize from claude-project-bo
 | 프로젝트 유형 | 추천 플러그인 |
 |---|---|
 | 웹 (Next.js) | `vercel`, `frontend-design` |
-| 모바일 (iOS/Android) | `frontend-design` |
+| 모바일·데스크톱 (iOS/Android/macOS) | `frontend-design` |
 | Firebase 사용 | `firebase` |
 | 모든 프로젝트 | `superpowers` (상시), `security-guidance` (출시 전) |
 | Figma 연동 시 | `figma` |
@@ -471,3 +483,4 @@ git init && git add . && git commit -m "chore: initialize from claude-project-bo
 - 플러그인 설계 원칙: `${CLAUDE_PLUGIN_ROOT}/docs/design-principles.md`
 - 마이그레이션 가이드: `${CLAUDE_PLUGIN_ROOT}/docs/migration-guide.md`
 - 프로젝트 라이프사이클: `docs/rules/RULES_PROJECT_LIFECYCLE.md` (Full tier)
+- Minimal tier RULES 0개 정책 근거: `${CLAUDE_PLUGIN_ROOT}/docs/specs/2026-05-05-v0.2.0-permissions-and-doc-slimming-design.md` §5.5/§7.3
