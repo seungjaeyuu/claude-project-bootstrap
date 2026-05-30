@@ -13,6 +13,7 @@
 #   iOS 단일       → apps.ios 만 활성
 #   Android 단일   → apps.android 만 활성
 #   Web 단일       → apps.web 만 활성
+#   macOS 단일     → apps.macos 만 활성
 #   iOS+Android 모노레포 → apps.ios + apps.android 활성
 #
 # 본 파일은 **참조용 최소 예시**만 포함. 실제 프로젝트 베이스라인은
@@ -35,5 +36,5 @@ apps:
     ui_file_patterns:
       - '<ui_regex>'              # 예: 'apps/ios/.*\.swift$'
     exclude_prefixes: [BUG]
-    runner_field: <runner_field>   # 예: udid / device_id / browser
-    platform: <platform>           # 예: ios_simulator / android_emulator / web
+    runner_field: <runner_field>   # 예: udid / device_id / browser / bundle_id
+    platform: <platform>           # 예: ios_simulator / android_emulator / web / macos
