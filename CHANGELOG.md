@@ -397,6 +397,17 @@ AIDEA v0.2.0 배포에서 실전 검증된 패턴을 범용 플러그인 템플�
 - CLAUDE.md inline 섹션에 GEO llms.txt 작성 안내 추가
 - 완료 리포트에 GEO 검증 항목 추가
 
+## [0.3.6] - 2026-05-30
+
+### Fixed — plugin.json 매니페스트 검증 오류
+
+Claude Code 의 강화된 매니페스트 검증에서 플러그인 전체가 로드되지 않던 문제 수정.
+
+- `.claude-plugin/plugin.json` — `repository` 필드를 객체(`{type, url}`, npm package.json 관례)에서 문자열 URL 로 변경
+  - Claude Code 플러그인 스키마는 `repository` 를 문자열로 요구 (`marketplace.json` 은 이미 문자열이었음)
+  - 증상: `Validation errors: repository: Invalid input: expected string, received object` → 플러그인 미로드 → `/init`·`/init-project` 실행 불가
+  - 영향 버전: 0.3.4·0.3.5 (두 버전 모두 동일 결함, Claude Code 검증 강화로 표면화)
+
 ## [Unreleased]
 
 다음 릴리스 예정 개선사항:
