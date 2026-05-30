@@ -179,6 +179,7 @@ CLAUDE.md 본체(~99줄)는 횡단 가드레일 + 발견 트리거 표만 유지
 | `RULES_PROJECT_LIFECYCLE.md` | 출시 준비 / 프로젝트 단계 점검 |
 | `RULES_SEO.md` | 랜딩 페이지 HTML / 메타 태그 / SEO·GEO 관련 수정 |
 | `RULES_GEO.md` | llms.txt / llms-full.txt / LLM 크롤러 / GEO 관련 수정 |
+| `RULES_MACOS_RELEASE.md` | 서명·공증·배포(codesign/notarytool/dmg) 작업 |
 
 ### 빌드번호 자동 관리
 

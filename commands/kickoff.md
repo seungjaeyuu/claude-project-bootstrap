@@ -217,6 +217,9 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DICT_DUPLICATES.md.tmpl docs/rule
 # Q4 Yes 시 (SEO + GEO)
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_SEO.md.tmpl docs/rules/RULES_SEO.md
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_GEO.md.tmpl docs/rules/RULES_GEO.md
+
+# macOS 타겟 시 (apps/macos 생성과 동일 조건 — 유형 (b) 의 macOS, 또는 Q1a macOS 선택)
+cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_MACOS_RELEASE.md.tmpl docs/rules/RULES_MACOS_RELEASE.md
 ```
 
 ### Step 3: INDEX.md + .gitignore + .claudeignore + commands + docs/ + apps/

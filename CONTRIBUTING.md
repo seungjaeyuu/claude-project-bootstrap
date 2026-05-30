@@ -14,7 +14,7 @@ claude plugin install --local .
 
 # 3. Test in a scratch directory
 mkdir /tmp/test-project && cd /tmp/test-project
-# then run /claude-project-bootstrap:init-project
+# then run /claude-project-bootstrap:kickoff
 ```
 
 ## 이슈 & PR
@@ -31,7 +31,7 @@ mkdir /tmp/test-project && cd /tmp/test-project
 ```
 <type>(<scope>): <subject>
 
-feat(init-project):   새 기능
+feat(kickoff):   새 기능
 fix(permissions):     버그 수정
 docs(principles):     문서 변경
 chore(release):       빌드/릴리스
@@ -42,7 +42,7 @@ refactor(scripts):    리팩토링
 
 1. `scripts/check_version_sync.py` — plugin.json / marketplace.json 버전 동기화 확인
 2. `scripts/check_doc_size.py` — CLAUDE.md 120줄, RULES 250줄 임계치
-3. 템플릿 수정 시 `/init-project` 로 새 디렉터리에 실행해 결과 확인
+3. 템플릿 수정 시 `/kickoff` 로 새 디렉터리에 실행해 결과 확인
 
 ## 릴리스
 

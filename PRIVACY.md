@@ -17,7 +17,7 @@ This plugin collects **no data**. Specifically:
 
 ## What the Plugin Does
 
-The plugin generates project configuration files (CLAUDE.md, pre-commit hooks, test framework docs, etc.) based on your interactive input during `/init-project`. All generated files remain in your local project directory.
+The plugin generates project configuration files (CLAUDE.md, pre-commit hooks, test framework docs, etc.) based on your interactive input during `/kickoff`. All generated files remain in your local project directory.
 
 ## Third-Party Services
 

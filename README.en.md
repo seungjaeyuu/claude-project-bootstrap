@@ -18,10 +18,10 @@ claude plugin marketplace add seungjaeyuu/claude-project-bootstrap
 claude plugin install claude-project-bootstrap
 
 # 3. In a new project directory, run Claude Code and type:
-/claude-project-bootstrap:init
+/claude-project-bootstrap:kickoff
 ```
 
-> **Namespace note**: Plugin commands require the `/<plugin-name>:<command>` prefix (Claude Code convention). `/init` alone returns `Unknown command` — always use `/claude-project-bootstrap:init`.
+> **Namespace note**: Plugin commands require the `/<plugin-name>:<command>` prefix (Claude Code convention). `/kickoff` alone returns `Unknown command` — always use `/claude-project-bootstrap:kickoff`.
 
 ---
 
@@ -44,12 +44,12 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 
 ### Which command should I use?
 
-> New to this plugin? Start with `/init`. Not sure what you need? `/guide` will help.
+> New to this plugin? Start with `/kickoff`. Not sure what you need? `/guide` will help.
 
 ```mermaid
 flowchart TD
     START{"What are you trying to do?"}
-    START -->|"Start a new project"| INIT["/init"]
+    START -->|"Start a new project"| INIT["/kickoff"]
     START -->|"Change existing settings"| INIT
     START -->|"Quality / context check"| AUDIT["/audit"]
     START -->|"Release readiness check"| RELEASE["/release"]
@@ -67,7 +67,7 @@ flowchart TD
 
 | Command | Purpose |
 |---|---|
-| `/claude-project-bootstrap:init` | Initialize new project + reconfigure existing (up to 10 interactive prompts) |
+| `/claude-project-bootstrap:kickoff` | Initialize new project + reconfigure existing (up to 10 interactive prompts) |
 | `/claude-project-bootstrap:audit` | Quality, context, and baseline checks (`--context`, `--baseline`, `--quality`) |
 | `/claude-project-bootstrap:release` | Release readiness check (deploy doc chain + version, security, legal, i18n, testing, accessibility, SEO + GEO — 7 categories) |
 | `/claude-project-bootstrap:deploy-setup` | Scaffold deployment doc lazy-reference chain (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → release record) |
@@ -77,7 +77,6 @@ flowchart TD
 
 | Command | Purpose |
 |---|---|
-| `/claude-project-bootstrap:init-project` | → Merged into `/init` (kept for backward compat) |
 | `/claude-project-bootstrap:baseline-review` | → Merged into `/audit --baseline` (kept for backward compat) |
 | `/claude-project-bootstrap:bash-permission` | Set Bash permission tier (YOLO/Standard/Strict/None) |
 | `/claude-project-bootstrap:firebase-isolation` | Add Firebase isolation (`.firebaserc` + predeploy hook) |
@@ -85,13 +84,13 @@ flowchart TD
 | `/claude-project-bootstrap:doc-size-hook` | Add doc size threshold hook (CLAUDE.md 120 lines / RULES 250 lines) |
 | `/claude-project-bootstrap:seo-setup` | Add SEO + GEO guideline, validation script, and hook to existing web projects |
 
-### `/init` Workflow
+### `/kickoff` Workflow
 
-`/init` walks you through interactive prompts to select only the options your project needs. Answering Yes to any question unlocks sub-questions.
+`/kickoff` walks you through interactive prompts to select only the options your project needs. Answering Yes to any question unlocks sub-questions.
 
 ```mermaid
 flowchart TD
-    INIT["/init"] --> Q0["Q0: Bash permission tier<br>(YOLO / Standard / Strict / None)"]
+    INIT["/kickoff"] --> Q0["Q0: Bash permission tier<br>(YOLO / Standard / Strict / None)"]
     Q0 --> Q1{"Q1: E2E test<br>framework?"}
     Q1 -->|Yes| Q1S["Q1a: App type selection<br>Q1b: Auto-install hooks?"]
     Q1 -->|No| Q2
@@ -180,12 +179,14 @@ CLAUDE.md body (~99 lines) keeps only cross-cutting guardrails + a discovery tri
 | `RULES_PROJECT_LIFECYCLE.md` | Release prep / project phase checks |
 | `RULES_SEO.md` | Landing page HTML / meta tags / SEO·GEO-related changes |
 | `RULES_GEO.md` | llms.txt / llms-full.txt / LLM crawlers / GEO-related changes |
+| `RULES_MACOS_RELEASE.md` | codesign / notarytool / dmg distribution work |
 
 ### Automatic Build Number Management
 
 | Platform | Source of Truth | Hook Behavior |
 |---|---|---|
 | iOS (XcodeGen) | `project.yml` → `CURRENT_PROJECT_VERSION` | pre-commit: auto +1 + `xcodegen generate` + `.xcodeproj` staging |
+| macOS (SwiftUI/AppKit) | `project.yml` → `CURRENT_PROJECT_VERSION` | pre-commit: auto +1 + `xcodegen generate` + `.xcodeproj` staging |
 | Android | `build.gradle(.kts)` → `versionCode` | pre-commit: auto +1 |
 | Web / Node | `package.json` → `buildNumber` | pre-commit: auto +1 |
 
