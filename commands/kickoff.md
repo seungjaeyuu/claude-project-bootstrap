@@ -66,6 +66,16 @@ CLAUDE.md가 이미 존재합니다.
    - (e) 기타
 3. **주요 언어·프레임워크** (자유 답변)
 
+#### 유형 후속 (유형 b·c 선택 시만): 네이티브 플랫폼 — 복수 선택
+
+`apps/<platform>` 생성·build/check 빌드 명령·`RULES_MACOS_RELEASE` 트리거를 **결정론적으로** 정하기 위해, 자유 답변(언어) 추론 대신 명시적으로 묻는다 (Swift/SwiftUI 는 iOS·macOS 공통이라 추론 불가).
+
+- **유형 (b) 단일 네이티브 앱**: 1) iOS (SwiftUI)  2) macOS (SwiftUI/AppKit)  3) Android (Kotlin Compose)  4) Flutter (mobile/desktop)
+- **유형 (c) 모노레포**: 위 1~4 + Web (Next.js/React/Vite) / 백엔드 (복수)
+- **유형 (a)**: Web 고정 · **(d)**: 백엔드 고정 · **(e)**: 자유 답변으로 판단 (질의 생략)
+
+이 답변(이하 **플랫폼 답변**)이 Step 2b·Step 3·Q1a·Q1c 분기의 기준이다.
+
 ---
 
 #### Q0. Bash 권한 단계 — 1개 선택
@@ -93,6 +103,8 @@ Claude Code 의 Bash 명령 자동 실행 정책. `.claude/settings.json` 의 `p
 ##### Q1 == Yes 시 하위 질의:
 
 **Q1a. 어떤 앱 타입?** (복수 선택)
+- **유형 (b)/(c) 에서 플랫폼 답변을 이미 받았으면 그 목록을 기본값으로 재사용** — E2E 대상만 좁히면 됨(재질문 생략). 유형 (a)→Web, (d)→서버·백엔드 자동.
+- 그 외(유형 e 등)에서만 아래에서 선택:
 1. iOS 단일 (SwiftUI)
 2. Android 단일 (Kotlin Compose)
 3. Web (Next.js / React / Vite)
@@ -106,7 +118,7 @@ Claude Code 의 Bash 명령 자동 실행 정책. `.claude/settings.json` 의 `p
 
 **Q1c. Accessibility identifier 검증?** (기본: Y — iOS/Android/macOS 선택 시만 표시)
 - SwiftUI/Kotlin Compose 의 AX identifier 스키마 강제.
-- **표시 조건**: Q1a 에서 iOS·Android·macOS 선택 시만.
+- **표시 조건**: **플랫폼 답변**에 iOS·Android·macOS 포함 시 (Q1a 단독이 아니라 통합 플랫폼 답변 기준).
 
 ---
 
@@ -144,7 +156,7 @@ Claude Code 의 Bash 명령 자동 실행 정책. `.claude/settings.json` 의 `p
 
 ---
 
-**질의 수**: 필수 3 + Q0~Q4 = **최소 4회, 최대 10회**.
+**질의 수**: 필수 3 (+ 유형 b/c 시 플랫폼 1) + Q0~Q4 = **최소 4회, 최대 11회**.
 
 ---
 
@@ -218,9 +230,21 @@ cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_DICT_DUPLICATES.md.tmpl docs/rule
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_SEO.md.tmpl docs/rules/RULES_SEO.md
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_GEO.md.tmpl docs/rules/RULES_GEO.md
 
-# macOS 타겟 시 (apps/macos 생성과 동일 조건 — 유형 (b) 의 macOS, 또는 Q1a macOS 선택)
+# (macOS 배포 가드레일은 tier 무관 — Step 2b 에서 별도 처리)
+```
+
+### Step 2b: macOS 배포 가드레일 (tier 무관)
+
+**플랫폼 답변에 macOS 포함 시**, Minimal/Full 무관하게 실행. `RULES_MACOS_RELEASE` 는 🚫 가드레일급(공증 없는 배포·hardened runtime·ad-hoc 서명·서명키 커밋 = 롤백 불가 피해)이라 Git·시크릿 가드레일과 동급으로 tier 무관 제공한다.
+
+```bash
+mkdir -p docs/rules
 cp ${CLAUDE_PLUGIN_ROOT}/templates/rules/RULES_MACOS_RELEASE.md.tmpl docs/rules/RULES_MACOS_RELEASE.md
 ```
+
+- **Full tier**: `CLAUDE.md` §3 발견 트리거 표에 codesign/notarytool/dmg 행이 이미 있으므로 추가 작업 없음.
+- **Minimal tier**: §발견 트리거 표가 없으므로, 복사한 `CLAUDE.md` 의 `## 📎 참조` 섹션 맨 위에 발견 포인터 1줄을 주입:
+  `- 🚫 macOS 서명·공증·배포(codesign/notarytool/dmg) 작업 시: docs/rules/RULES_MACOS_RELEASE.md 먼저 read (배포 가드레일).`
 
 ### Step 3: INDEX.md + .gitignore + .claudeignore + commands + docs/ + apps/
 
@@ -474,12 +498,12 @@ git init && git add . && git commit -m "chore: initialize from claude-project-bo
 - **기존 파일 덮어쓰기 금지** (CLAUDE.md 존재 시 설정 변경 메뉴 제시).
 - **커밋은 사용자 승인 후**. 자동으로 커밋하지 말 것.
 - **tier 결정 로직**: Q1~Q4 모두 N 이면 Minimal, 하나라도 Yes 면 Full.
-- **Minimal tier 는 RULES 0개 복사**. §Discovery 트리거 표도 미수록.
+- **Minimal tier 는 RULES 0개 복사**. §Discovery 트리거 표도 미수록. 단, **플랫폼 답변에 macOS 포함 시** `RULES_MACOS_RELEASE` 1개를 가드레일급으로 복사 + 📎참조에 발견 포인터 1줄 주입 (§Step 2b).
 - **Q0 == None + Q1b == No**: `.claude/settings.json` 자체 생성 안 함 (commands/ 는 생성).
 - **.claudeignore 는 항상 생성** — 프로젝트 유형에 맞는 섹션 활성화.
 - **.claude/commands/ 는 항상 생성** — build, check, status 기본 3개.
 - **docs/ 표준 폴더 항상 생성** — summary, error, event, cost-plan, handoff, test, rules.
-- **apps/ 폴더는 프로젝트 유형에 따라** 생성.
+- **apps/ 폴더는 프로젝트 유형 + 플랫폼 답변에 따라** 생성.
 
 ## 참조
 

@@ -420,6 +420,17 @@ Claude Code 의 강화된 매니페스트 검증에서 플러그인 전체가 �
 ### Changed (BREAKING) — 명령 통합
 - `/init` + `/init-project` → 단일 `/kickoff` (빌트인 `/init` 충돌 회피, DEV-001/DEV-002 해소)
 
+## [0.4.1] - 2026-05-31
+
+### Fixed — macOS 지원 갭 보강 (DEV-003)
+- Minimal tier(Q1~Q4 모두 N) macOS 앱도 `RULES_MACOS_RELEASE` 를 받도록 tier 무관 복사 (`/kickoff` Step 2b) — 🚫 가드레일급(공증·서명·키 커밋)이라 Git·시크릿 가드레일과 동급 처리. Minimal 은 `CLAUDE.md` 📎참조에 발견 포인터 1줄 주입
+- `/kickoff` 에 명시적 플랫폼 질의 추가 (유형 b·c) — macOS 식별을 언어 자유 답변 추론에 의존하던 문제 해소 (Swift/SwiftUI 는 iOS·macOS 공통), Q1a 중복 제거
+- `templates/claudeignore.tmpl` 에 macOS 섹션 추가 — 기존엔 없는데 Step 3 가 "macOS 섹션 주석 해제" 를 지시하던 불일치 해소
+
+### Security
+- `templates/gitignore.tmpl` Secrets 섹션 기본 차단 보강: `*.p8`(App Store Connect API/APNs 키)·`*.pfx`·`*.keystore`·`*.jks`·`*.mobileprovision`·`*.provisionprofile`·`serviceAccountKey.json`·`*-service-account.json`
+- `RULES_MACOS_RELEASE` §🚫4 비밀키 목록에 `.p8` 추가 (규칙 ↔ `.gitignore` 동기화)
+
 ## [Unreleased]
 
 다음 릴리스 예정 개선사항:

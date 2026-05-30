@@ -10,7 +10,7 @@
 1. **공증(notarization) 없는 외부 배포 금지** — Gatekeeper 차단으로 사용자가 앱을 열 수 없음. `.dmg`·`.pkg`·`.zip` 배포 전 반드시 `xcrun notarytool submit --wait` + `xcrun stapler staple` 완료.
 2. **hardened runtime 없는 서명 금지** — `codesign` 호출 시 `--options runtime` 필수. 없으면 공증 서버가 거부함.
 3. **ad-hoc 서명(`-s -`) 또는 미서명 빌드 외부 배포 금지** — Developer ID Application 인증서 서명만 외부 배포 가능. ad-hoc 은 개인 로컬 테스트 전용.
-4. **비밀키·인증서 파일 커밋 금지** — `.p12`, `.mobileprovision`, `*.provisionprofile`, Keychain profile 비밀번호를 리포지토리에 포함하지 않음. `.gitignore` 에 명시.
+4. **비밀키·인증서 파일 커밋 금지** — `.p8`(App Store Connect API/APNs 키), `.p12`, `.mobileprovision`, `*.provisionprofile`, Keychain profile 비밀번호를 리포지토리에 포함하지 않음. `.gitignore` 에 명시 (부트스트랩 템플릿이 기본 차단).
 
 ---
 

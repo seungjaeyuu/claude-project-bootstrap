@@ -67,7 +67,7 @@ flowchart TD
 
 | 커맨드 | 용도 |
 |---|---|
-| `/claude-project-bootstrap:kickoff` | 새 프로젝트 초기화 + 기존 프로젝트 설정 변경 (대화형 질의 최대 10회) |
+| `/claude-project-bootstrap:kickoff` | 새 프로젝트 초기화 + 기존 프로젝트 설정 변경 (대화형 질의 최대 11회) |
 | `/claude-project-bootstrap:audit` | 품질·컨텍스트·베이스라인 일괄 점검 (`--context`, `--baseline`, `--quality`) |
 | `/claude-project-bootstrap:release` | 출시 준비 체크 (배포 문서 체인 + 버전, 보안, 법적, i18n, 테스트, 접근성, SEO + GEO 7대 카테고리) |
 | `/claude-project-bootstrap:deploy-setup` | 배포 문서 레이지 참조 체인 구축 (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록) |
@@ -105,6 +105,8 @@ flowchart TD
 ```
 
 > 모든 질의의 기본값은 **No** 입니다. 아무것도 선택하지 않으면 최소한의 파일만 생성됩니다 (Minimal tier).
+>
+> 단, **macOS 프로젝트는 tier와 무관하게** 서명·공증·배포 가드레일(`docs/rules/RULES_MACOS_RELEASE.md`)을 함께 받습니다 — 배포는 tier 선택과 독립적으로 필요하기 때문입니다.
 
 ### 생성되는 파일 (옵션별)
 

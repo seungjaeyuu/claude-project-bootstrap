@@ -67,7 +67,7 @@ flowchart TD
 
 | Command | Purpose |
 |---|---|
-| `/claude-project-bootstrap:kickoff` | Initialize new project + reconfigure existing (up to 10 interactive prompts) |
+| `/claude-project-bootstrap:kickoff` | Initialize new project + reconfigure existing (up to 11 interactive prompts) |
 | `/claude-project-bootstrap:audit` | Quality, context, and baseline checks (`--context`, `--baseline`, `--quality`) |
 | `/claude-project-bootstrap:release` | Release readiness check (deploy doc chain + version, security, legal, i18n, testing, accessibility, SEO + GEO — 7 categories) |
 | `/claude-project-bootstrap:deploy-setup` | Scaffold deployment doc lazy-reference chain (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → release record) |
@@ -105,6 +105,8 @@ flowchart TD
 ```
 
 > All prompts default to **No**. Selecting nothing generates only minimal files (Minimal tier).
+>
+> Exception: **macOS projects receive the signing/notarization/distribution guardrail** (`docs/rules/RULES_MACOS_RELEASE.md`) regardless of tier — distribution is required independently of the tier choice.
 
 ### Generated Files (by option)
 
