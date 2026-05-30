@@ -408,6 +408,18 @@ Claude Code 의 강화된 매니페스트 검증에서 플러그인 전체가 �
   - 증상: `Validation errors: repository: Invalid input: expected string, received object` → 플러그인 미로드 → `/init`·`/init-project` 실행 불가
   - 영향 버전: 0.3.4·0.3.5 (두 버전 모두 동일 결함, Claude Code 검증 강화로 표면화)
 
+## [0.4.0] - 2026-05-31
+
+### Added — macOS 네이티브 1급 지원
+- 프로젝트 유형/Q1a 에 macOS (SwiftUI/AppKit) · `apps/macos`
+- build/check 템플릿 macOS 분기 (`-destination 'platform=macOS'`)
+- E2E baseline `platform: macos` (runner_field: `bundle_id`)
+- `templates/rules/RULES_MACOS_RELEASE.md.tmpl` 신규 (Developer ID 서명·notarization·dmg; Mac App Store 보조)
+- RULES_ACCESSIBILITY 표에 macOS (SwiftUI/AppKit) 행
+
+### Changed (BREAKING) — 명령 통합
+- `/init` + `/init-project` → 단일 `/kickoff` (빌트인 `/init` 충돌 회피, DEV-001/DEV-002 해소)
+
 ## [Unreleased]
 
 다음 릴리스 예정 개선사항:

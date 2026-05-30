@@ -185,6 +185,7 @@ CLAUDE.md 본체(~99줄)는 횡단 가드레일 + 발견 트리거 표만 유지
 | 플랫폼 | 정본 파일 | Hook 동작 |
 |---|---|---|
 | iOS (XcodeGen) | `project.yml` → `CURRENT_PROJECT_VERSION` | pre-commit: +1 자동 증가 + `xcodegen generate` + `.xcodeproj` staging |
+| macOS (SwiftUI/AppKit) | `project.yml` → `CURRENT_PROJECT_VERSION` | pre-commit: +1 자동 증가 + `xcodegen generate` + `.xcodeproj` staging |
 | Android | `build.gradle(.kts)` → `versionCode` | pre-commit: +1 자동 증가 |
 | Web / Node | `package.json` → `buildNumber` | pre-commit: +1 자동 증가 |
 
