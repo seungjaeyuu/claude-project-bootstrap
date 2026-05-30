@@ -1,0 +1,109 @@
+# RULES_MACOS_RELEASE — macOS 서명·공증·배포 규칙
+
+> **발견 트리거**: 본 파일은 `CLAUDE.md` §Discovery 트리거 표에서 *서명·공증·배포(codesign/notarytool/dmg) 작업* 시 read 됩니다.
+> **상위 정책**: `CLAUDE.md` (네거티브 우선 + 4층 범례 🚫 / 📐 / 📎 / 💡)
+
+---
+
+## 🚫 절대 금지
+
+1. **공증(notarization) 없는 외부 배포 금지** — Gatekeeper 차단으로 사용자가 앱을 열 수 없음. `.dmg`·`.pkg`·`.zip` 배포 전 반드시 `xcrun notarytool submit --wait` + `xcrun stapler staple` 완료.
+2. **hardened runtime 없는 서명 금지** — `codesign` 호출 시 `--options runtime` 필수. 없으면 공증 서버가 거부함.
+3. **ad-hoc 서명(`-s -`) 또는 미서명 빌드 외부 배포 금지** — Developer ID Application 인증서 서명만 외부 배포 가능. ad-hoc 은 개인 로컬 테스트 전용.
+4. **비밀키·인증서 파일 커밋 금지** — `.p12`, `.mobileprovision`, `*.provisionprofile`, Keychain profile 비밀번호를 리포지토리에 포함하지 않음. `.gitignore` 에 명시.
+
+---
+
+## 📐 직배포 (Developer ID / 1급 순서)
+
+외부 배포(.dmg, .pkg, notarized zip) 작업 시 아래 순서를 **반드시** 준수:
+
+### 1단계: 코드 서명
+
+```bash
+codesign --deep --force --options runtime \
+  --sign "Developer ID Application: [팀명] ([팀ID])" \
+  --entitlements [APP_NAME].entitlements \
+  [APP_NAME].app
+```
+
+- `--deep`: 번들 내 중첩 프레임워크·플러그인 재귀 서명
+- `--force`: 기존 서명 덮어쓰기
+- `--options runtime`: hardened runtime 활성화 (공증 필수 조건)
+- entitlements 파일이 없으면 `--entitlements` 생략 가능 (기본 hardened runtime 만 적용)
+
+### 2단계: 공증 제출 (notarization)
+
+```bash
+# zip 으로 제출하는 경우
+ditto -c -k --keepParent [APP_NAME].app [APP_NAME].zip
+xcrun notarytool submit [APP_NAME].zip \
+  --keychain-profile "[KEYCHAIN_PROFILE]" \
+  --wait
+
+# dmg 로 직접 제출하는 경우 (4단계 dmg 패키징 후)
+xcrun notarytool submit [APP_NAME].dmg \
+  --keychain-profile "[KEYCHAIN_PROFILE]" \
+  --wait
+```
+
+- `--wait`: 제출 후 동기 대기 (비동기 폴링 불필요). 공증 실패 시 즉시 오류 출력.
+- `[KEYCHAIN_PROFILE]`: `xcrun notarytool store-credentials` 로 사전 저장한 프로파일 이름.
+
+### 3단계: 스테이플링 (stapling)
+
+```bash
+xcrun stapler staple [APP_NAME].app
+# 또는 dmg 에 직접 스테이플
+xcrun stapler staple [APP_NAME].dmg
+```
+
+스테이플링 완료 후 오프라인 환경에서도 Gatekeeper 가 공증 티켓을 확인 가능.
+
+### 4단계: DMG / PKG 패키징
+
+```bash
+# hdiutil 로 dmg 생성 예시
+hdiutil create -volname "[APP_DISPLAY_NAME]" \
+  -srcfolder [APP_NAME].app \
+  -ov -format UDZO \
+  [APP_NAME].dmg
+```
+
+> dmg 에 스테이플을 찍으려면 4단계 dmg 생성 후 3단계 stapler 를 dmg 대상으로 재실행.
+
+---
+
+## 📐 Mac App Store (보조·향후)
+
+MAS 배포는 직배포와 서명 체계가 다름. 필요 시 아래 항목 확인:
+
+| 항목 | 내용 |
+|---|---|
+| 서명 인증서 | "Apple Distribution" (MAS 전용) — Developer ID 와 별도 |
+| entitlements | App Sandbox(`com.apple.security.app-sandbox = true`) 필수 |
+| provisioning profile | MAS 배포용 Provisioning Profile (`.mobileprovision`) 포함 서명 |
+| 업로드 | Xcode Organizer 또는 `xcrun altool`/`xcrun notarytool` 아닌 App Store Connect 업로드 |
+
+---
+
+## 📎 참조
+
+- Apple 공식 문서: [Notarizing macOS software before distribution](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution)
+- Apple 공식 문서: [codesign man page](https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/)
+- 프로젝트 빌드 명령: `.claude/commands/build.md`
+- 프로젝트 품질 확인 명령: `.claude/commands/check.md`
+
+---
+
+## 💡 팁
+
+- **`--wait` 동기 대기** — `notarytool submit --wait` 는 공증 서버 응답까지 블로킹 대기. 스크립트에서 별도 폴링 루프 작성 불필요.
+- **Gatekeeper 검증** — 스테이플링 후 로컬에서 반드시 확인:
+  ```bash
+  spctl -a -vvv [APP_NAME].app
+  # 기대 출력: source=Notarized Developer ID
+  ```
+- **Keychain profile 사전 저장** — CI 환경에서는 `xcrun notarytool store-credentials "[KEYCHAIN_PROFILE]" --apple-id [APPLE_ID] --team-id [TEAM_ID] --password [APP_SPECIFIC_PW]` 로 profile 을 Keychain 에 미리 저장.
+- **서명 검증** — 서명 완료 후 `codesign -dvvv [APP_NAME].app` 으로 `Hardened Runtime` + `Developer ID Application` 항목 확인.
+- **공증 로그** — 실패 시 `xcrun notarytool log [SUBMISSION_ID] --keychain-profile "[KEYCHAIN_PROFILE]"` 로 상세 오류 확인.
