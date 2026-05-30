@@ -59,7 +59,7 @@ allowed-tools: Read, Bash(grep:*), Bash(find:*), Bash(cat:*), Bash(ls:*), Bash(g
 | 단계 | 추천 커맨드 | 설명 |
 |---|---|---|
 | ① 기획 | — | 도메인 종속적, 플러그인 범위 밖 |
-| ② 설계 | `/init` | 프로젝트 스캐폴드 |
+| ② 설계 | `/kickoff` | 프로젝트 스캐폴드 |
 | ③ 개발 | `/audit --quality`, `/check` | 품질 점검, 빌드·테스트 |
 | ④ 테스트 | `/audit --baseline` | 베이스라인 리뷰 |
 | ⑤ 출시 | `/release` | 보안·법적·버전·i18n 체크 |

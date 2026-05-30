@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(d
 # /seo-setup — 기존 웹 프로젝트에 SEO + GEO 도입
 
 검색 엔진 최적화(SEO) + LLM 검색엔진 최적화(GEO) 가이드라인·자동 검증 스크립트·pre-commit hook 을 기존 프로젝트에 추가.
-`/init` 시 Q6=Yes 와 동일한 결과를 이미 초기화된 프로젝트에 적용.
+`/kickoff` 시 Q6=Yes 와 동일한 결과를 이미 초기화된 프로젝트에 적용.
 
 ## 전제 조건
 
@@ -160,4 +160,4 @@ python3 scripts/check_seo.py <HTML_PATH>
 - GEO 규칙: `docs/rules/RULES_GEO.md`
 - SEO 검증 스크립트: `scripts/check_seo.py` (14개 항목)
 - 도메인 규칙: `docs/rules/RULES_SEO.md`
-- 전체 초기화: `/init` (Q4 옵션)
+- 전체 초기화: `/kickoff` (Q4 옵션)

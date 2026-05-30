@@ -18,10 +18,10 @@ claude plugin marketplace add seungjaeyuu/claude-project-bootstrap
 claude plugin install claude-project-bootstrap
 
 # 3. 새 프로젝트 폴더에서 Claude Code 실행 후:
-/claude-project-bootstrap:init
+/claude-project-bootstrap:kickoff
 ```
 
-> **커맨드 네임스페이스**: 플러그인 커맨드는 `/<plugin-name>:<command>` 형식 prefix 가 필수입니다. `/init` 단독 호출은 `Unknown command` 에러 — 반드시 `/claude-project-bootstrap:init`.
+> **커맨드 네임스페이스**: 플러그인 커맨드는 `/<plugin-name>:<command>` 형식 prefix 가 필수입니다. `/kickoff` 단독 호출은 `Unknown command` 에러 — 반드시 `/claude-project-bootstrap:kickoff`.
 
 ---
 
@@ -44,12 +44,12 @@ claude plugin install  claude-project-bootstrap@seungjaeyuu-plugins
 
 ### 어떤 커맨드를 쓸까?
 
-> 처음 사용한다면 `/init` 으로 시작하세요. 어떤 커맨드가 필요한지 모르겠다면 `/guide` 가 안내합니다.
+> 처음 사용한다면 `/kickoff` 으로 시작하세요. 어떤 커맨드가 필요한지 모르겠다면 `/guide` 가 안내합니다.
 
 ```mermaid
 flowchart TD
     START{"어떤 작업을 하려나요?"}
-    START -->|"새 프로젝트 시작"| INIT["/init"]
+    START -->|"새 프로젝트 시작"| INIT["/kickoff"]
     START -->|"기존 설정 변경"| INIT
     START -->|"품질·컨텍스트 점검"| AUDIT["/audit"]
     START -->|"출시 준비 점검"| RELEASE["/release"]
@@ -67,7 +67,7 @@ flowchart TD
 
 | 커맨드 | 용도 |
 |---|---|
-| `/claude-project-bootstrap:init` | 새 프로젝트 초기화 + 기존 프로젝트 설정 변경 (대화형 질의 최대 10회) |
+| `/claude-project-bootstrap:kickoff` | 새 프로젝트 초기화 + 기존 프로젝트 설정 변경 (대화형 질의 최대 10회) |
 | `/claude-project-bootstrap:audit` | 품질·컨텍스트·베이스라인 일괄 점검 (`--context`, `--baseline`, `--quality`) |
 | `/claude-project-bootstrap:release` | 출시 준비 체크 (배포 문서 체인 + 버전, 보안, 법적, i18n, 테스트, 접근성, SEO + GEO 7대 카테고리) |
 | `/claude-project-bootstrap:deploy-setup` | 배포 문서 레이지 참조 체인 구축 (CLAUDE.md → INDEX.md → DEPLOYMENT_INDEX.md → 릴리스 기록) |
@@ -77,7 +77,6 @@ flowchart TD
 
 | 커맨드 | 용도 |
 |---|---|
-| `/claude-project-bootstrap:init-project` | → `/init` 으로 통합 (하위호환 유지) |
 | `/claude-project-bootstrap:baseline-review` | → `/audit --baseline` 으로 통합 (하위호환 유지) |
 | `/claude-project-bootstrap:bash-permission` | Bash 권한 단계 도입·변경 (YOLO/Standard/Strict/None) |
 | `/claude-project-bootstrap:firebase-isolation` | Firebase 격리 도입 (`.firebaserc` + predeploy hook) |
@@ -85,13 +84,13 @@ flowchart TD
 | `/claude-project-bootstrap:doc-size-hook` | 문서 크기 임계치 hook 도입 (CLAUDE.md 120줄 / RULES 250줄) |
 | `/claude-project-bootstrap:seo-setup` | 기존 웹 프로젝트에 SEO + GEO 가이드라인·검증 스크립트·hook 도입 |
 
-### `/init` 워크플로우
+### `/kickoff` 워크플로우
 
-`/init` 실행 시 대화형 질의를 통해 프로젝트에 필요한 옵션만 선택합니다. 각 질의에서 Yes를 선택하면 하위 질의가 추가됩니다.
+`/kickoff` 실행 시 대화형 질의를 통해 프로젝트에 필요한 옵션만 선택합니다. 각 질의에서 Yes를 선택하면 하위 질의가 추가됩니다.
 
 ```mermaid
 flowchart TD
-    INIT["/init 실행"] --> Q0["Q0: Bash 권한 단계 선택<br>(YOLO / Standard / Strict / None)"]
+    INIT["/kickoff 실행"] --> Q0["Q0: Bash 권한 단계 선택<br>(YOLO / Standard / Strict / None)"]
     Q0 --> Q1{"Q1: E2E 테스트<br>프레임워크?"}
     Q1 -->|Yes| Q1S["Q1a: 앱 타입 선택<br>Q1b: Hook 자동 설치?"]
     Q1 -->|No| Q2

@@ -4,7 +4,7 @@ argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(chmod:*), Bash(ln:*)
 ---
 
-> **v0.3.0**: 이 커맨드는 `/init --hook` 에 통합되었습니다. 동일 기능을 실행합니다.
+> **v0.3.0**: 이 커맨드는 `/kickoff --hook` 에 통합되었습니다. 동일 기능을 실행합니다.
 
 # /doc-size-hook — 문서 크기 검증 hook 도입
 

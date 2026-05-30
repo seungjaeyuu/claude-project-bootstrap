@@ -4,7 +4,7 @@ argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(chmod:*), Bash(python3:*)
 ---
 
-> **v0.3.0**: 이 커맨드는 `/init --firebase` 에 통합되었습니다. 동일 기능을 실행합니다.
+> **v0.3.0**: 이 커맨드는 `/kickoff --firebase` 에 통합되었습니다. 동일 기능을 실행합니다.
 
 # /firebase-isolation — Firebase 프로젝트 격리 도입
 

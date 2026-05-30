@@ -4,7 +4,7 @@ argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*), Bash(python3:*), Bash(wc:*)
 ---
 
-> **v0.3.0**: 이 커맨드는 `/init --slim` 에 통합되었습니다. 동일 기능을 실행합니다.
+> **v0.3.0**: 이 커맨드는 `/kickoff --slim` 에 통합되었습니다. 동일 기능을 실행합니다.
 
 # /slim-claude-md — CLAUDE.md 슬림화 + RULES 분리
 

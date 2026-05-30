@@ -4,7 +4,7 @@ argument-hint: (선택 없음 — 대화형)
 allowed-tools: Read, Write, Edit, Bash(cp:*), Bash(mkdir:*), Bash(cat:*), Bash(diff:*), Bash(ls:*), Bash(rm:*), Bash(grep:*)
 ---
 
-> **v0.3.0**: 이 커맨드는 `/init --bash` 에 통합되었습니다. 동일 기능을 실행합니다.
+> **v0.3.0**: 이 커맨드는 `/kickoff --bash` 에 통합되었습니다. 동일 기능을 실행합니다.
 
 # /bash-permission — Bash 권한 단계 도입·변경
 
